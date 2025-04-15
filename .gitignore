@@ -1,0 +1,36 @@
+# Archivos específicos para Processing
+application.*
+application.*/
+web-export/
+out/
+build/
+
+# Archivos de compilación de Java
+*.class
+
+# Log files
+*.log
+
+# Archivos del sistema operativo 
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Archivos de IDEs y editores
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Archivos de configuración local
+*.properties
+config.properties
+
+# Archivos temporales
+*.tmp
+*.bak 
