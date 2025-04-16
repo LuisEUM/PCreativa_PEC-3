@@ -14,9 +14,13 @@ Este proyecto es una simulación interactiva de un estanque de peces koi creado 
     - Control preciso de cantidad de manchas (0-10) mediante botones
     - Varios tamaños de manchas (S, M, L o aleatorio)
     - Opción para generar koi con patrones idénticos o aleatorios
-  - Creación de múltiples koi simultáneamente (1-25)
+  - Creación de múltiples koi simultáneamente (1-99)
 - Comportamiento de evasión de obstáculos
 - Interacción entre peces con comportamiento de cardumen
+- Gestión de población de peces:
+  - Límite máximo de 100 peces en el estanque
+  - Contador visual del número actual de peces
+  - Botón de papelera para vaciar el estanque con animación de salida
 - Ciclo de tiempo del día con cambios visuales:
   - Día (agua azul)
   - Atardecer (agua naranja)
@@ -36,10 +40,11 @@ Este proyecto es una simulación interactiva de un estanque de peces koi creado 
    - Ajuste la cantidad de manchas usando los botones + y -
    - Elija el tamaño de las manchas
    - Vista previa en tiempo real de cómo se verá su koi
-   - Especifique cuántos peces desea crear y si todos tendrán patrones idénticos o aleatorios
+   - Especifique cuántos peces desea crear (1-99) y si todos tendrán patrones idénticos o aleatorios
 4. Haga clic en "Crear" para añadir los peces al estanque, o en la X para cancelar
 5. Para cambiar el ciclo de tiempo del día (día, atardecer, noche, amanecer), haga clic en el botón del sol/luna que está a la derecha del botón "+"
-6. Interactúe con los peces:
+6. Para eliminar todos los peces del estanque, haga clic en el botón de papelera en la esquina inferior izquierda
+7. Interactúe con los peces:
    - Clic izquierdo: Alimentar a los peces (los atrae)
    - Clic derecho: Tirar rocas (los repele)
    - Para eliminar un pez, haga clic derecho muy cerca de él para golpearlo directamente con una roca
@@ -50,7 +55,9 @@ Este proyecto es una simulación interactiva de un estanque de peces koi creado 
 - **Pétalos flotantes**: Caen lentamente sobre el agua, creando ondulaciones
 - **Ciclo día/noche**: Cambia el color del agua según el momento del día
 - **Animación de hundimiento**: Cuando un pez es golpeado por una roca, se detiene, disminuye su tamaño progresivamente mientras aparecen ondulaciones en el agua y burbujas, y finalmente desaparece
+- **Animación de salida**: Cuando se usa la papelera, los peces nadan rápidamente hacia los bordes del estanque y desaparecen
 - **Vista previa interactiva**: Al personalizar los koi, se muestra una vista previa animada con movimiento de cola
+- **Contador de peces**: Muestra la cantidad actual y el límite máximo de peces en el estanque
 
 ## Requisitos
 

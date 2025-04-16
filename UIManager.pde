@@ -10,6 +10,7 @@ class UIManager {
   int timeOfDay; // Tiempo del día actual
   color[] pondColors; // Colores del estanque
   Button clearPondButton; // Botón para vaciar el estanque
+  Button randomKoiButton; // Botón para generar 25 peces aleatorios
   KoiManager koiManager; // Referencia al gestor de peces
   
   /**
@@ -32,6 +33,12 @@ class UIManager {
     this.clearPondButton.buttonColor = ColorUtils.hexToColor("#F44336"); // Rojo
     this.clearPondButton.hoverColor = ColorUtils.hexToColor("#D32F2F"); // Rojo más oscuro
     this.clearPondButton.textColor = color(255);
+    
+    // Crear botón para generar peces aleatorios al lado del botón de papelera
+    this.randomKoiButton = new Button(70, applet.height - 50, 40, 40, "");
+    this.randomKoiButton.buttonColor = ColorUtils.hexToColor("#2196F3"); // Azul
+    this.randomKoiButton.hoverColor = ColorUtils.hexToColor("#1976D2"); // Azul más oscuro
+    this.randomKoiButton.textColor = color(255);
   }
   
   /**
@@ -46,6 +53,13 @@ class UIManager {
       applet.mouseX <= this.clearPondButton.position.x + this.clearPondButton.width &&
       applet.mouseY >= this.clearPondButton.position.y && 
       applet.mouseY <= this.clearPondButton.position.y + this.clearPondButton.height;
+      
+    // Actualizar estado hover del botón de peces aleatorios
+    this.randomKoiButton.isHovered = 
+      applet.mouseX >= this.randomKoiButton.position.x && 
+      applet.mouseX <= this.randomKoiButton.position.x + this.randomKoiButton.width &&
+      applet.mouseY >= this.randomKoiButton.position.y && 
+      applet.mouseY <= this.randomKoiButton.position.y + this.randomKoiButton.height;
   }
   
   /**
@@ -67,8 +81,17 @@ class UIManager {
   boolean handleClick(float mouseX, float mouseY) {
     // Comprobar si se hizo clic en el botón de vaciar estanque
     if (this.clearPondButton.isClicked(mouseX, mouseY)) {
-      // Vaciar el estanque con animación
+      // Vaciar el estanque inmediatamente
       koiManager.removeAllKoi();
+      return true;
+    }
+    
+    // Comprobar si se hizo clic en el botón de generar peces aleatorios
+    if (this.randomKoiButton.isClicked(mouseX, mouseY)) {
+      // Primero eliminamos todos los peces
+      koiManager.removeAllKoi();
+      // Luego creamos 25 peces aleatorios
+      koiManager.initialize(25);
       return true;
     }
     
@@ -81,6 +104,7 @@ class UIManager {
   void render() {
     renderAddButton();
     renderClearPondButton();
+    renderRandomKoiButton();
     renderFishCounter();
     
     if (koiCreator.isOpen) {
@@ -112,9 +136,12 @@ class UIManager {
   void renderClearPondButton() {
     Button btn = this.clearPondButton;
     
+    // Determinar el color del botón según su estado hover
+    color buttonColor = btn.isHovered ? btn.hoverColor : btn.buttonColor;
+    
     // Dibuja el fondo del botón
     applet.noStroke();
-    applet.fill(btn.isHovered ? btn.hoverColor : btn.buttonColor);
+    applet.fill(buttonColor);
     applet.rect(btn.position.x, btn.position.y, btn.width, btn.height, 5);
     
     // Dibuja el icono de papelera con un diseño simplificado
@@ -162,10 +189,34 @@ class UIManager {
     float lineHeight = (bodyBottom - bodyTop) * 0.7; // 70% del alto del cuerpo
     float lineTop = bodyTop + (bodyBottom - bodyTop) * 0.15; // Comienza al 15% desde arriba
     
+    // Dibuja las líneas verticales en el cuerpo de la papelera
     for (int i = 1; i <= numLines; i++) {
       float lineX = centerX - bodyWidthBottom/2 + i * lineSpacing;
       applet.line(lineX, lineTop, lineX, lineTop + lineHeight);
     }
+    
+    applet.noStroke();
+  }
+  
+  /**
+   * Renderiza el botón de generar peces aleatorios
+   */
+  void renderRandomKoiButton() {
+    Button btn = this.randomKoiButton;
+    
+    // Determinar el color del botón según su estado hover
+    color buttonColor = btn.isHovered ? btn.hoverColor : btn.buttonColor;
+    
+    // Dibuja el fondo del botón
+    applet.noStroke();
+    applet.fill(buttonColor);
+    applet.rect(btn.position.x, btn.position.y, btn.width, btn.height, 5);
+    
+    // Dibuja el signo de interrogación
+    applet.fill(btn.textColor);
+    applet.textSize(24);
+    applet.textAlign(applet.CENTER, applet.CENTER);
+    applet.text("?", btn.position.x + btn.width/2, btn.position.y + btn.height/2);
     
     applet.noStroke();
   }

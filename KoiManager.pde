@@ -12,6 +12,9 @@ class KoiManager {
   ArrayList<Rock> rocks = new ArrayList<Rock>(); // Referencia a las rocas a evitar
   final int MAX_FISH = 100; // Límite máximo de peces en el estanque
   
+  // Estado para la animación de vaciado del estanque
+  boolean isEmptyingPond = false; // Indica si se está vaciando el estanque
+  
   /**
    * Constructor
    * 
@@ -485,16 +488,29 @@ class KoiManager {
   }
   
   /**
-   * Elimina todos los peces koi del estanque con una animación de salida
+   * Elimina todos los peces koi del estanque inmediatamente
+   * 
+   * @return true si había peces para eliminar, false si no había ninguno
    */
-  void removeAllKoi() {
-    // En lugar de eliminar los peces inmediatamente, les indicamos que salgan con animación
-    for (Koi koi : kois) {
-      // Solo marca para salir si el pez no está ya hundiéndose o saliendo
-      if (!koi.sinking && !koi.exiting) {
-        koi.setExiting(canvasWidth, canvasHeight);
-      }
+  boolean removeAllKoi() {
+    // Si no hay peces, no hacer nada
+    if (kois.size() == 0) {
+      return false;
     }
+    
+    // Elimina todos los peces inmediatamente
+    kois.clear();
+    return true;
+  }
+  
+  /**
+   * Verifica si se está vaciando el estanque actualmente
+   * 
+   * @return true si el estanque se está vaciando
+   */
+  boolean isEmptyingPond() {
+    return false; // Ya no tenemos animación de vaciado
   }
 }
+
 
