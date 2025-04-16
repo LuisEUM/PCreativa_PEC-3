@@ -334,6 +334,43 @@ class PondManager {
       koiC = color(red(koiC), green(koiC), blue(koiC), 255 * currentOpacity);
     }
     
+    // Dibuja la cola con el mismo color que el cuerpo pero un poco más oscuro
+    if (!koi.sinking || koi.sinkingProgress < 0.5) {
+      // Usar un color más oscuro para la cola (20% más oscuro)
+      color koiTailColor = ColorUtils.darkenColor(koiC, 20);
+      
+      // Dibuja dos óvalos para la cola
+      sketch.noStroke();
+      sketch.fill(koiTailColor);
+      
+      // Posición base para la cola (en la parte trasera del pez)
+      float tailBaseX = -currentLength/2;
+      
+      // Offset del movimiento de la cola
+      float tailOffsetY = tailWag * currentWidth;
+      
+      // Tamaño de los óvalos (ajustados para mejor apariencia)
+      float ovalWidth = currentLength/2.5;
+      float ovalHeight = currentWidth/1.8;
+      
+      // Ajustar posición más cerca del cuerpo
+      float tailDistance = currentLength/6;
+      
+      // Primer óvalo (superior)
+      sketch.pushMatrix();
+      sketch.translate(tailBaseX - tailDistance, tailOffsetY/3);
+      sketch.rotate(PI/6 + tailWag); // Rotación menos pronunciada
+      sketch.ellipse(0, 0, ovalWidth, ovalHeight);
+      sketch.popMatrix();
+      
+      // Segundo óvalo (inferior)
+      sketch.pushMatrix();
+      sketch.translate(tailBaseX - tailDistance, -tailOffsetY/3);
+      sketch.rotate(-PI/6 - tailWag); // Rotación menos pronunciada
+      sketch.ellipse(0, 0, ovalWidth, ovalHeight);
+      sketch.popMatrix();
+    }
+    
     // Dibuja el cuerpo exterior (30% más grande)
     sketch.noStroke();
     sketch.fill(koiC);
@@ -374,37 +411,6 @@ class PondManager {
         sketch.fill(red(spotC), green(spotC), blue(spotC), 180 * currentOpacity);
         sketch.ellipse(spotX, spotY, spotSize, spotSize);
       }
-    }
-    
-    // Dibuja la cola con el mismo color que el cuerpo
-    if (!koi.sinking || koi.sinkingProgress < 0.5) {
-      // Dibuja primero la cola exterior (30% más grande)
-      sketch.fill(koiC);
-      sketch.beginShape();
-      sketch.vertex(-currentLength/2 * 1.3, 0);
-      sketch.quadraticVertex(
-        (-currentLength/2 - currentLength/4) * 1.3, tailWag * currentWidth * 1.3,
-        (-currentLength/2 - currentLength/3) * 1.3, tailWag * currentWidth * 1.5 * 1.3
-      );
-      sketch.quadraticVertex(
-        (-currentLength/2 - currentLength/4) * 1.3, tailWag * currentWidth * 1.3,
-        -currentLength/2 * 1.3, 0
-      );
-      sketch.endShape(CLOSE);
-      
-      // Dibuja la cola interior
-      sketch.fill(koiC);
-      sketch.beginShape();
-      sketch.vertex(-currentLength/2, 0);
-      sketch.quadraticVertex(
-        -currentLength/2 - currentLength/4, tailWag * currentWidth,
-        -currentLength/2 - currentLength/3, tailWag * currentWidth * 1.5
-      );
-      sketch.quadraticVertex(
-        -currentLength/2 - currentLength/4, tailWag * currentWidth,
-        -currentLength/2, 0
-      );
-      sketch.endShape(CLOSE);
     }
     
     // Dibuja un efecto de ondulación cuando el pez se está hundiendo

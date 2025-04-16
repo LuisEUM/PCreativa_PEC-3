@@ -550,6 +550,41 @@ class UIManager {
     // Obtiene el color del koi
     color koiC = ColorUtils.hexToColor(koiColor);
     
+    // Dibuja la cola con el mismo color que el cuerpo pero un poco más oscuro
+    // Usar un color más oscuro para la cola (20% más oscuro)
+    color koiTailColor = ColorUtils.darkenColor(koiC, 20);
+    
+    // Dibuja dos óvalos para la cola
+    applet.noStroke();
+    applet.fill(koiTailColor);
+    
+    // Posición base para la cola (en la parte trasera del pez)
+    float tailBaseX = -length/2;
+    
+    // Offset del movimiento de la cola
+    float tailOffsetY = tailWag * width;
+    
+    // Tamaño de los óvalos (ajustados para mejor apariencia)
+    float ovalWidth = length/2.5;
+    float ovalHeight = width/1.8;
+    
+    // Ajustar posición más cerca del cuerpo
+    float tailDistance = length/6;
+    
+    // Primer óvalo (superior)
+    applet.pushMatrix();
+    applet.translate(tailBaseX - tailDistance, tailOffsetY/3);
+    applet.rotate(PI/6 + tailWag); // Rotación menos pronunciada
+    applet.ellipse(0, 0, ovalWidth, ovalHeight);
+    applet.popMatrix();
+    
+    // Segundo óvalo (inferior)
+    applet.pushMatrix();
+    applet.translate(tailBaseX - tailDistance, -tailOffsetY/3);
+    applet.rotate(-PI/6 - tailWag); // Rotación menos pronunciada
+    applet.ellipse(0, 0, ovalWidth, ovalHeight);
+    applet.popMatrix();
+    
     // Dibuja el cuerpo exterior (30% más grande)
     applet.noStroke();
     applet.fill(koiC);
@@ -607,35 +642,6 @@ class UIManager {
       // Restaura la semilla aleatoria
       randomSeed(int(random(10000)));
     }
-    
-    // Dibuja la cola con el mismo color que el cuerpo
-    // Dibuja primero la cola exterior (30% más grande)
-    applet.fill(koiC);
-    applet.beginShape();
-    applet.vertex(-length/2 * 1.3, 0);
-    applet.quadraticVertex(
-      (-length/2 - length/4) * 1.3, tailWag * width * 1.3,
-      (-length/2 - length/3) * 1.3, tailWag * width * 1.5 * 1.3
-    );
-    applet.quadraticVertex(
-      (-length/2 - length/4) * 1.3, tailWag * width * 1.3,
-      -length/2 * 1.3, 0
-    );
-    applet.endShape(CLOSE);
-    
-    // Dibuja la cola interior
-    applet.fill(koiC);
-    applet.beginShape();
-    applet.vertex(-length/2, 0);
-    applet.quadraticVertex(
-      -length/2 - length/4, tailWag * width,
-      -length/2 - length/3, tailWag * width * 1.5
-    );
-    applet.quadraticVertex(
-      -length/2 - length/4, tailWag * width,
-      -length/2, 0
-    );
-    applet.endShape(CLOSE);
     
     applet.popMatrix();
   }
