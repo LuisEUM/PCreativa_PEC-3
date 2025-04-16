@@ -382,6 +382,43 @@ class KoiManager {
   }
   
   /**
+   * Repele a los peces cercanos de un punto (efecto contrario a la atracción)
+   * 
+   * @param x Coordenada X del punto de repulsión
+   * @param y Coordenada Y del punto de repulsión
+   * @param radius Radio de influencia
+   */
+  void repelFromPoint(float x, float y, float radius) {
+    Vector2D point = new Vector2D(x, y);
+    
+    for (Koi koi : kois) {
+      float distance = Vector2D.distance(koi.position, point);
+      
+      if (distance < radius) {
+        // Calcula el ángulo de alejamiento (dirección opuesta al punto)
+        float dx = koi.position.x - x;
+        float dy = koi.position.y - y;
+        float angle = atan2(dy, dx);
+        
+        // Calcula un punto de destino en la dirección opuesta
+        float escapeDistance = radius + RandomUtils.randomFloat(50, 150);
+        float targetX = x + cos(angle) * escapeDistance;
+        float targetY = y + sin(angle) * escapeDistance;
+        
+        // Asegura que el objetivo esté dentro del lienzo
+        targetX = constrain(targetX, 50, canvasWidth - 50);
+        targetY = constrain(targetY, 50, canvasHeight - 50);
+        
+        // Establece un tiempo de objetivo más corto para una reacción de huida rápida
+        koi.setTarget(targetX, targetY, RandomUtils.randomFloat(50, 100));
+        
+        // Pone al pez en estado de excitación (representando el miedo)
+        koi.setExcited(RandomUtils.randomFloat(30, 60));
+      }
+    }
+  }
+  
+  /**
    * Obtiene todos los peces koi
    * 
    * @return ArrayList de peces koi

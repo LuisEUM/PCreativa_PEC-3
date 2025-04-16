@@ -12,6 +12,14 @@ Este proyecto es una simulación interactiva de un estanque de peces koi creado 
   - Patrones de manchas personalizables (colores, cantidad y tamaño)
 - Comportamiento de evasión de obstáculos
 - Interacción entre peces
+- Ciclo de tiempo del día:
+  - Día (agua azul)
+  - Atardecer (agua naranja)
+  - Noche (agua azul oscuro)
+  - Amanecer (agua azul claro)
+- Interacción con el usuario:
+  - Clic izquierdo: Alimentar a los peces (los atrae)
+  - Clic derecho: Tirar rocas (los repele)
 
 ## Cómo usar
 
@@ -19,6 +27,10 @@ Este proyecto es una simulación interactiva de un estanque de peces koi creado 
 2. Para agregar un nuevo pez koi, haga clic en el botón "+" en la esquina superior derecha
 3. Personalice su koi con las opciones disponibles
 4. Haga clic en "Crear" para agregar el pez al estanque
+5. Para cambiar el tiempo del día, haga clic en el botón circular a la izquierda del botón "+"
+6. Interactúe con los peces:
+   - Clic izquierdo: Alimentar a los peces (los atrae)
+   - Clic derecho: Tirar rocas (los repele)
 
 ## Requisitos
 
@@ -30,6 +42,9 @@ Este proyecto es una simulación interactiva de un estanque de peces koi creado 
 - `KoiCreator.pde`: Maneja la interfaz para crear nuevos peces
 - `UIManager.pde`: Gestiona los elementos de la interfaz
 - `Vector2D.pde`: Implementación de vectores 2D para los cálculos de movimiento
+- `PondManager.pde`: Coordina todos los elementos del estanque
+- `FoodManager.pde`: Gestiona las partículas de comida
+- `RockManager.pde`: Gestiona las rocas decorativas
 
 ## Instalación
 

@@ -164,11 +164,21 @@ class PondManager {
     // Crea una ondulación más grande en el punto de clic
     rippleManager.createRipple(x, y, 0.7, 50);
     
-    // Crea partículas de comida
-    foodManager.createFoodParticles(x, y, 12);
-    
-    // Atrae a los peces cercanos
-    koiManager.attractToPoint(x, y, 200);
+    if (mouseButton == LEFT) {
+      // Clic izquierdo: Alimentar a los peces
+      // Crea partículas de comida
+      foodManager.createFoodParticles(x, y, 12);
+      
+      // Atrae a los peces cercanos
+      koiManager.attractToPoint(x, y, 200);
+    } else if (mouseButton == RIGHT) {
+      // Clic derecho: Tirar rocas
+      // Crea un efecto visual de una piedra cayendo
+      rippleManager.createRipple(x, y, 0.9, 70); // Ondulación más grande
+      
+      // Repele a los peces cercanos
+      koiManager.repelFromPoint(x, y, 250.0f);
+    }
   }
   
   /**
@@ -501,9 +511,9 @@ class PondManager {
     sketch.textSize(12);
     sketch.fill(0, 0, 0, 150);
     sketch.noStroke();
-    sketch.rect(sketch.width - 210, sketch.height - 35, 200, 25, 5);
+    sketch.rect(sketch.width - 350, sketch.height - 35, 340, 25, 5);
     sketch.fill(255);
-    sketch.text("Haz clic para alimentar a los peces", sketch.width - 20, sketch.height - 17);
+    sketch.text("Clic izquierdo: Alimentar | Clic derecho: Tirar rocas", sketch.width - 20, sketch.height - 17);
   }
   
   /**
