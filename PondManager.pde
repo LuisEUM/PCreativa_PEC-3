@@ -358,16 +358,22 @@ class PondManager {
       
       // Primer óvalo (superior)
       sketch.pushMatrix();
-      sketch.translate(tailBaseX - tailDistance, tailOffsetY/3);
-      sketch.rotate(PI/6 + tailWag); // Rotación menos pronunciada
-      sketch.ellipse(0, 0, ovalWidth, ovalHeight);
+      // Mantener el punto de anclaje en la parte trasera del cuerpo
+      sketch.translate(tailBaseX, 0);
+      // Hacer que la cola gire en lugar de abrirse y cerrarse
+      sketch.rotate(tailWag + PI/6);
+      // Dibujar el óvalo con origen en su extremo conectado al cuerpo
+      sketch.ellipse(-tailDistance, 0, ovalWidth, ovalHeight);
       sketch.popMatrix();
       
       // Segundo óvalo (inferior)
       sketch.pushMatrix();
-      sketch.translate(tailBaseX - tailDistance, -tailOffsetY/3);
-      sketch.rotate(-PI/6 - tailWag); // Rotación menos pronunciada
-      sketch.ellipse(0, 0, ovalWidth, ovalHeight);
+      // Mantener el punto de anclaje en la parte trasera del cuerpo
+      sketch.translate(tailBaseX, 0);
+      // Hacer que la cola gire en dirección opuesta
+      sketch.rotate(-tailWag - PI/6);
+      // Dibujar el óvalo con origen en su extremo conectado al cuerpo
+      sketch.ellipse(-tailDistance, 0, ovalWidth, ovalHeight);
       sketch.popMatrix();
     }
     
@@ -412,6 +418,31 @@ class PondManager {
         sketch.ellipse(spotX, spotY, spotSize, spotSize);
       }
     }
+    
+    // Dibuja los ojos del pez
+    sketch.fill(0, 0, 0, 255 * currentOpacity); // Color negro para los ojos
+    sketch.noStroke();
+    
+    // Posición de los ojos en la parte delantera del pez
+    float eyeX = currentLength/2 * 0.85; // Posición X en el 70% del camino hacia el frente
+    float eyeY = currentWidth/2 * 0.35; // Posición Y a 30% del centro hacia arriba/abajo
+    float eyeWidth = currentWidth * 0.15; // Ancho del ojo (ovalado)
+    float eyeHeight = currentWidth * 0.09; // Alto del ojo (ovalado)
+    
+    // Ojos ovalados ligeramente rotados hacia fuera
+    // Ojo izquierdo
+    sketch.pushMatrix();
+    sketch.translate(eyeX, -eyeY);
+    sketch.rotate(PI/4); // Rotar 45 grados
+    sketch.ellipse(0, 0, eyeWidth, eyeHeight);
+    sketch.popMatrix();
+    
+    // Ojo derecho
+    sketch.pushMatrix();
+    sketch.translate(eyeX, eyeY);
+    sketch.rotate(-PI/4); // Rotar -45 grados (en sentido contrario)
+    sketch.ellipse(0, 0, eyeWidth, eyeHeight);
+    sketch.popMatrix();
     
     // Dibuja un efecto de ondulación cuando el pez se está hundiendo
     if (koi.sinking) {

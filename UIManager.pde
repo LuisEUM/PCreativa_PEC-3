@@ -573,16 +573,22 @@ class UIManager {
     
     // Primer óvalo (superior)
     applet.pushMatrix();
-    applet.translate(tailBaseX - tailDistance, tailOffsetY/3);
-    applet.rotate(PI/6 + tailWag); // Rotación menos pronunciada
-    applet.ellipse(0, 0, ovalWidth, ovalHeight);
+    // Mantener el punto de anclaje en la parte trasera del cuerpo
+    applet.translate(tailBaseX, 0);
+    // Hacer que la cola gire en lugar de abrirse y cerrarse
+    applet.rotate(tailWag + PI/6);
+    // Dibujar el óvalo con origen en su extremo conectado al cuerpo
+    applet.ellipse(-tailDistance, 0, ovalWidth, ovalHeight);
     applet.popMatrix();
     
     // Segundo óvalo (inferior)
     applet.pushMatrix();
-    applet.translate(tailBaseX - tailDistance, -tailOffsetY/3);
-    applet.rotate(-PI/6 - tailWag); // Rotación menos pronunciada
-    applet.ellipse(0, 0, ovalWidth, ovalHeight);
+    // Mantener el punto de anclaje en la parte trasera del cuerpo
+    applet.translate(tailBaseX, 0);
+    // Hacer que la cola gire en dirección opuesta
+    applet.rotate(-tailWag - PI/6);
+    // Dibujar el óvalo con origen en su extremo conectado al cuerpo
+    applet.ellipse(-tailDistance, 0, ovalWidth, ovalHeight);
     applet.popMatrix();
     
     // Dibuja el cuerpo exterior (30% más grande)
@@ -642,6 +648,31 @@ class UIManager {
       // Restaura la semilla aleatoria
       randomSeed(int(random(10000)));
     }
+    
+    // Dibuja los ojos del pez
+    applet.fill(0); // Color negro para los ojos
+    applet.noStroke();
+    
+    // Posición de los ojos en la parte delantera del pez
+    float eyeX = length/2 * 0.85; // Posición X en el 70% del camino hacia el frente
+    float eyeY = width/2 * 0.35; // Posición Y a 30% del centro hacia arriba/abajo
+    float eyeWidth = width * 0.15; // Ancho del ojo (ovalado)
+    float eyeHeight = width * 0.09; // Alto del ojo (ovalado)
+    
+    // Ojos ovalados ligeramente rotados hacia fuera
+    // Ojo izquierdo
+    applet.pushMatrix();
+    applet.translate(eyeX, -eyeY);
+    applet.rotate(PI/4); // Rotar 45 grados
+    applet.ellipse(0, 0, eyeWidth, eyeHeight);
+    applet.popMatrix();
+    
+    // Ojo derecho
+    applet.pushMatrix();
+    applet.translate(eyeX, eyeY);
+    applet.rotate(-PI/4); // Rotar -45 grados (en sentido contrario)
+    applet.ellipse(0, 0, eyeWidth, eyeHeight);
+    applet.popMatrix();
     
     applet.popMatrix();
   }
