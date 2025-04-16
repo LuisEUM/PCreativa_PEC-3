@@ -27,6 +27,11 @@ class Koi {
   float sinkingProgress; // Progreso de la animación (0-1)
   float opacity; // Opacidad del pez
   
+  // Variables para el estado de salida
+  boolean exiting; // Si el pez está saliendo del estanque
+  Vector2D exitTarget; // Punto de salida hacia el que se dirige
+  float exitSpeed; // Velocidad de salida (más rápida que la normal)
+  
   /**
    * Constructor
    * 
@@ -57,6 +62,11 @@ class Koi {
     this.sinkingTime = 360; // Aproximadamente 6 segundos a 60 FPS (más lento que antes)
     this.sinkingProgress = 0;
     this.opacity = 1.0;
+    
+    // Inicialización de variables de salida
+    this.exiting = false;
+    this.exitTarget = null;
+    this.exitSpeed = 0;
   }
   
   /**
@@ -95,12 +105,83 @@ class Koi {
   }
   
   /**
-   * Verifica si el pez ha terminado de hundirse y debe ser eliminado
+   * Activa el estado de salida del pez
+   * 
+   * @param canvasWidth Ancho del lienzo
+   * @param canvasHeight Alto del lienzo
+   */
+  void setExiting(float canvasWidth, float canvasHeight) {
+    this.exiting = true;
+    
+    // Decidir aleatoriamente hacia qué borde nadar
+    int border = (int)random(4); // 0: arriba, 1: derecha, 2: abajo, 3: izquierda
+    
+    // Punto de destino fuera del canvas
+    float targetX = 0;
+    float targetY = 0;
+    
+    switch (border) {
+      case 0: // Arriba
+        targetX = random(0, canvasWidth);
+        targetY = -this.length * 2;
+        break;
+      case 1: // Derecha
+        targetX = canvasWidth + this.length * 2;
+        targetY = random(0, canvasHeight);
+        break;
+      case 2: // Abajo
+        targetX = random(0, canvasWidth);
+        targetY = canvasHeight + this.length * 2;
+        break;
+      case 3: // Izquierda
+        targetX = -this.length * 2;
+        targetY = random(0, canvasHeight);
+        break;
+    }
+    
+    // Establecer objetivo de salida
+    this.exitTarget = new Vector2D(targetX, targetY);
+    
+    // Establecer velocidad de salida (más rápida que la normal)
+    this.exitSpeed = RandomUtils.randomFloat(1.0, 2.0);
+    
+    // Activar estado de excitación para movimiento más rápido
+    this.excited = true;
+  }
+  
+  /**
+   * Verifica si el pez ha terminado de hundirse o ha salido completamente
    * 
    * @return true si el pez debe ser eliminado
    */
   boolean isFinished() {
-    return this.sinking && this.sinkingProgress >= 1.0;
+    // Si el pez está hundiéndose y ha completado la animación
+    if (this.sinking && this.sinkingProgress >= 1.0) {
+      return true;
+    }
+    
+    // Si el pez está saliendo y ha alcanzado una posición fuera del canvas
+    if (this.exiting && this.hasExitedCanvas()) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  /**
+   * Verifica si el pez ha salido completamente del canvas
+   * 
+   * @return true si el pez ha salido del canvas
+   */
+  boolean hasExitedCanvas() {
+    // Verifica si el pez está completamente fuera del canvas
+    float margin = this.length * 2;
+    return (
+      this.position.x < -margin ||
+      this.position.x > width + margin ||
+      this.position.y < -margin ||
+      this.position.y > height + margin
+    );
   }
   
   /**
@@ -138,6 +219,29 @@ class Koi {
       this.opacity = max(0, this.opacity);
       
       // No necesitamos actualizar nada más si el pez se está hundiendo
+      return;
+    }
+    
+    // Si el pez está saliendo del estanque
+    if (this.exiting) {
+      // Calcular el ángulo hacia el objetivo de salida
+      float targetAngle = Vector2D.angle(this.position, this.exitTarget);
+      
+      // Gira gradualmente hacia el objetivo
+      float angleDiff = targetAngle - this.angle;
+      
+      // Normaliza la diferencia de ángulo para que esté entre -PI y PI
+      while (angleDiff > PI) angleDiff -= TWO_PI;
+      while (angleDiff < -PI) angleDiff += TWO_PI;
+      
+      // Gira más rápido cuando está saliendo
+      this.angle += angleDiff * this.turnSpeed * 2.0;
+      
+      // Se mueve en la dirección actual con velocidad de salida
+      this.position.x += cos(this.angle) * this.exitSpeed * (deltaTime / 16);
+      this.position.y += sin(this.angle) * this.exitSpeed * (deltaTime / 16);
+      
+      // No necesitamos mantener al pez dentro del canvas si está saliendo
       return;
     }
     
@@ -207,14 +311,13 @@ class Koi {
   }
   
   /**
-   * Función de suavizado para las animaciones (ease-in-out quad)
-   * Hace que la animación sea más suave al principio y al final
-   *
-   * @param t Valor de progreso entre 0 y 1
+   * Función de suavizado para el cambio de tamaño durante el hundimiento
+   * 
+   * @param x Valor entre 0 y 1
    * @return Valor suavizado entre 0 y 1
    */
-  private float easeInOutQuad(float t) {
-    return t < 0.5 ? 2 * t * t : 1 - pow(-2 * t + 2, 2) / 2;
+  float easeInOutQuad(float x) {
+    return x < 0.5 ? 2 * x * x : 1 - pow(-2 * x + 2, 2) / 2;
   }
 }
 

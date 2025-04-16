@@ -10,6 +10,7 @@ class KoiManager {
   float canvasWidth;
   float canvasHeight;
   ArrayList<Rock> rocks = new ArrayList<Rock>(); // Referencia a las rocas a evitar
+  final int MAX_FISH = 100; // Límite máximo de peces en el estanque
   
   /**
    * Constructor
@@ -139,6 +140,12 @@ class KoiManager {
    * @param seed Semilla para generación de patrones (0 para aleatorio)
    */
   void createCustomKoi(float x, float y, float length, String koiColor, ArrayList<String> spotColors, int spotCount, float spotSize, long seed) {
+    // Verificar si ya alcanzamos el límite máximo de peces
+    if (kois.size() >= MAX_FISH) {
+      // Si ya llegamos al límite, no agregamos más peces
+      return;
+    }
+    
     // Comprueba que la posición no colisione con rocas
     boolean validPosition = true;
     float koiWidth = length * 0.4;
@@ -466,6 +473,28 @@ class KoiManager {
    */
   ArrayList<Koi> getKois() {
     return kois;
+  }
+  
+  /**
+   * Obtiene el número actual de peces koi en el estanque
+   * 
+   * @return Número de peces
+   */
+  int getKoiCount() {
+    return kois.size();
+  }
+  
+  /**
+   * Elimina todos los peces koi del estanque con una animación de salida
+   */
+  void removeAllKoi() {
+    // En lugar de eliminar los peces inmediatamente, les indicamos que salgan con animación
+    for (Koi koi : kois) {
+      // Solo marca para salir si el pez no está ya hundiéndose o saliendo
+      if (!koi.sinking && !koi.exiting) {
+        koi.setExiting(canvasWidth, canvasHeight);
+      }
+    }
   }
 }
 

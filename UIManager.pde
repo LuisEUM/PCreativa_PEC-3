@@ -9,6 +9,8 @@ class UIManager {
   KoiCreator koiCreator;
   int timeOfDay; // Tiempo del día actual
   color[] pondColors; // Colores del estanque
+  Button clearPondButton; // Botón para vaciar el estanque
+  KoiManager koiManager; // Referencia al gestor de peces
   
   /**
    * Constructor
@@ -23,6 +25,13 @@ class UIManager {
     this.koiCreator = new KoiCreator(koiManager);
     this.timeOfDay = timeOfDay;
     this.pondColors = pondColors;
+    this.koiManager = koiManager;
+    
+    // Crear botón para vaciar el estanque en la esquina inferior izquierda
+    this.clearPondButton = new Button(20, applet.height - 50, 40, 40, "");
+    this.clearPondButton.buttonColor = ColorUtils.hexToColor("#F44336"); // Rojo
+    this.clearPondButton.hoverColor = ColorUtils.hexToColor("#D32F2F"); // Rojo más oscuro
+    this.clearPondButton.textColor = color(255);
   }
   
   /**
@@ -30,6 +39,13 @@ class UIManager {
    */
   void update() {
     this.koiCreator.update(applet.mouseX, applet.mouseY);
+    
+    // Actualizar estado hover del botón de vaciar estanque
+    this.clearPondButton.isHovered = 
+      applet.mouseX >= this.clearPondButton.position.x && 
+      applet.mouseX <= this.clearPondButton.position.x + this.clearPondButton.width &&
+      applet.mouseY >= this.clearPondButton.position.y && 
+      applet.mouseY <= this.clearPondButton.position.y + this.clearPondButton.height;
   }
   
   /**
@@ -49,6 +65,13 @@ class UIManager {
    * @return true si el clic fue consumido por la UI
    */
   boolean handleClick(float mouseX, float mouseY) {
+    // Comprobar si se hizo clic en el botón de vaciar estanque
+    if (this.clearPondButton.isClicked(mouseX, mouseY)) {
+      // Vaciar el estanque con animación
+      koiManager.removeAllKoi();
+      return true;
+    }
+    
     return this.koiCreator.handleClick(mouseX, mouseY);
   }
   
@@ -57,6 +80,8 @@ class UIManager {
    */
   void render() {
     renderAddButton();
+    renderClearPondButton();
+    renderFishCounter();
     
     if (koiCreator.isOpen) {
       renderCreatorPanel();
@@ -79,6 +104,88 @@ class UIManager {
     applet.textSize(24);
     applet.textAlign(applet.CENTER, applet.CENTER);
     applet.text("+", btn.position.x + btn.width/2, btn.position.y + btn.height/2 - 2);
+  }
+  
+  /**
+   * Renderiza el botón de vaciar estanque
+   */
+  void renderClearPondButton() {
+    Button btn = this.clearPondButton;
+    
+    // Dibuja el fondo del botón
+    applet.noStroke();
+    applet.fill(btn.isHovered ? btn.hoverColor : btn.buttonColor);
+    applet.rect(btn.position.x, btn.position.y, btn.width, btn.height, 5);
+    
+    // Dibuja el icono de papelera con un diseño simplificado
+    applet.fill(btn.textColor);
+    
+    // Cálculo de dimensiones relativas al tamaño del botón
+    float centerX = btn.position.x + btn.width/2;
+    float centerY = btn.position.y + btn.height/2;
+    float iconWidth = btn.width * 0.5;  // 50% del ancho del botón
+    float iconHeight = btn.height * 0.55; // 55% de la altura del botón
+    
+    // Tapa de la papelera
+    float lidWidth = iconWidth * 1.2; // Ligeramente más ancha que el cuerpo
+    float lidHeight = iconHeight * 0.15;
+    float lidY = centerY - iconHeight/2;
+    
+    // Dibujar la tapa
+    applet.rect(centerX - lidWidth/2, lidY, lidWidth, lidHeight, 2);
+    
+    // Mango de la tapa
+    float handleWidth = lidWidth * 0.25;
+    float handleHeight = lidHeight * 0.8;
+    applet.rect(centerX - handleWidth/2, lidY - handleHeight, handleWidth, handleHeight, 1);
+    
+    // Cuerpo de la papelera (ligeramente trapezoidal para mejor apariencia)
+    applet.beginShape();
+    float bodyTop = lidY + lidHeight;
+    float bodyBottom = centerY + iconHeight/2;
+    float bodyWidthTop = iconWidth * 0.9;
+    float bodyWidthBottom = iconWidth;
+    
+    applet.vertex(centerX - bodyWidthTop/2, bodyTop);
+    applet.vertex(centerX + bodyWidthTop/2, bodyTop);
+    applet.vertex(centerX + bodyWidthBottom/2, bodyBottom);
+    applet.vertex(centerX - bodyWidthBottom/2, bodyBottom);
+    applet.endShape(CLOSE);
+    
+    // Líneas decorativas en la papelera
+    applet.stroke(btn.textColor);
+    applet.strokeWeight(1);
+    
+    // Número de líneas verticales
+    int numLines = 3;
+    float lineSpacing = bodyWidthBottom / (numLines + 1);
+    float lineHeight = (bodyBottom - bodyTop) * 0.7; // 70% del alto del cuerpo
+    float lineTop = bodyTop + (bodyBottom - bodyTop) * 0.15; // Comienza al 15% desde arriba
+    
+    for (int i = 1; i <= numLines; i++) {
+      float lineX = centerX - bodyWidthBottom/2 + i * lineSpacing;
+      applet.line(lineX, lineTop, lineX, lineTop + lineHeight);
+    }
+    
+    applet.noStroke();
+  }
+  
+  /**
+   * Renderiza el contador de peces
+   */
+  void renderFishCounter() {
+    int currentFishCount = koiManager.getKoiCount();
+    int maxFishCount = koiManager.MAX_FISH; // Usa la constante definida en KoiManager
+    
+    // Dibuja el fondo del contador
+    applet.fill(0, 0, 0, 120);
+    applet.rect(20, 20, 80, 30, 5);
+    
+    // Dibuja el texto del contador
+    applet.fill(255);
+    applet.textSize(14);
+    applet.textAlign(applet.CENTER, applet.CENTER);
+    applet.text(currentFishCount + "/" + maxFishCount, 60, 35);
   }
   
   /**

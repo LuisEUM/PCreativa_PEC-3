@@ -30,8 +30,8 @@ class KoiCreator {
   int selectedSpotCount;
   
   // Nuevas propiedades
-  int fishCount = 1; // Cantidad de peces a crear (entre 1 y 25)
-  boolean identicalFish = false; // false = aleatorios, true = iguales
+  boolean identicalFish = true; // Si todos los peces tendrán el mismo patrón
+  int fishCount = 1; // Cantidad de peces a crear (entre 1 y 99)
   
   // Referencia al gestor de peces
   KoiManager koiManager;
@@ -99,10 +99,13 @@ class KoiCreator {
     // Definiciones de posición para coincidir con UIManager
     float labelX = panelX + 20;
     float selectorX = panelX + 130;
-    float verticalGap = 40;
+    float verticalGap = 35; // Actualizado para coincidir con UIManager
+    
+    // Sección de tamaño del pez
+    float sizeY = panelY + 70; // Actualizado para coincidir con UIManager
     
     // Clic en el botón "X" (Cancelar) en la esquina superior derecha
-    float closeSize = 30; // Aumentado a 30 para coincidir con UIManager
+    float closeSize = 35; // Actualizado para coincidir con UIManager
     float closeX = panelX + panelWidth - 25;
     float closeY = panelY + 25;
     
@@ -113,17 +116,21 @@ class KoiCreator {
     }
     
     // Clic en el botón "Crear" con área ampliada
-    if (mouseX >= panelX + panelWidth - 90 - extendedArea && 
-        mouseX <= panelX + panelWidth - 20 + extendedArea &&
-        mouseY >= panelY + panelHeight - 40 - extendedArea && 
-        mouseY <= panelY + panelHeight - 10 + extendedArea) {
+    float createButtonWidth = 70;
+    float createButtonHeight = 30;
+    float createButtonX = panelX + panelWidth - 90;
+    float createButtonY = panelY + panelHeight - 50; // Actualizado para coincidir con UIManager
+    
+    if (mouseX >= createButtonX - extendedArea && 
+        mouseX <= createButtonX + createButtonWidth + extendedArea &&
+        mouseY >= createButtonY - extendedArea && 
+        mouseY <= createButtonY + createButtonHeight + extendedArea) {
       createNewKoi();
       isOpen = false;
       return true;
     }
     
     // Clic en selección de tamaño con área ampliada
-    float sizeY = panelY + 60;
     if (mouseY >= sizeY - squareSize/2 - extendedArea && mouseY <= sizeY + squareSize/2 + extendedArea) {
       for (int i = 0; i < sizeOptions.length; i++) {
         float btnX = selectorX + i * (squareSize + spacing);
@@ -163,14 +170,14 @@ class KoiCreator {
     float spotCountY = spotColorY + verticalGap;
     float spotCountControlX = selectorX;
     
-    // Botón disminuir (-)
+    // Botón -
     if (mouseY >= spotCountY - squareSize/2 - extendedArea && mouseY <= spotCountY + squareSize/2 + extendedArea &&
         mouseX >= spotCountControlX - extendedArea && mouseX <= spotCountControlX + squareSize + extendedArea) {
       selectedSpotCount = max(0, selectedSpotCount - 1); // No menor a 0
       return true;
     }
     
-    // Botón aumentar (+)
+    // Botón +
     if (mouseY >= spotCountY - squareSize/2 - extendedArea && mouseY <= spotCountY + squareSize/2 + extendedArea &&
         mouseX >= spotCountControlX + squareSize*2.2 + spacing*2 - extendedArea && 
         mouseX <= spotCountControlX + squareSize*3.2 + spacing*2 + extendedArea) {
@@ -193,25 +200,26 @@ class KoiCreator {
     // Área de vista previa
     float previewWidth = 180;
     float previewHeight = 100;
-    float previewY = spotSizeY + verticalGap;
+    float previewX = width/2 - previewWidth/2;
+    float previewY = spotSizeY + verticalGap + 5; // Ajustado para coincidir con UIManager
     
-    // Clic en botones de aumentar/disminuir cantidad de peces
-    float fishCountY = previewY + previewHeight + verticalGap;
-    float countControlX = selectorX;
+    // Botones de cantidad de peces
+    float fishCountY = previewY + previewHeight + verticalGap - 5; // Ajustado para coincidir con UIManager
     
-    // Botón disminuir (-)
-    if (mouseY >= fishCountY - squareSize/2 - extendedArea && mouseY <= fishCountY + squareSize/2 + extendedArea &&
-        mouseX >= countControlX - extendedArea && mouseX <= countControlX + squareSize + extendedArea) {
-      fishCount = max(1, fishCount - 1); // No menor a 1
-      return true;
-    }
-    
-    // Botón aumentar (+)
-    if (mouseY >= fishCountY - squareSize/2 - extendedArea && mouseY <= fishCountY + squareSize/2 + extendedArea &&
-        mouseX >= countControlX + squareSize*2.2 + spacing*2 - extendedArea && 
-        mouseX <= countControlX + squareSize*3.2 + spacing*2 + extendedArea) {
-      fishCount = min(25, fishCount + 1); // No mayor a 25
-      return true;
+    // Botón - (cantidad de peces)
+    if (mouseY >= fishCountY - squareSize/2 - extendedArea && mouseY <= fishCountY + squareSize/2 + extendedArea) {
+      // Botón menos
+      if (mouseX >= selectorX - extendedArea && mouseX <= selectorX + squareSize + extendedArea) {
+        fishCount = max(1, fishCount - 1); // No menor a 1
+        return true;
+      }
+      
+      // Botón más
+      if (mouseX >= selectorX + squareSize*2.2 + spacing*2 - extendedArea && 
+          mouseX <= selectorX + squareSize*3.2 + spacing*2 + extendedArea) {
+        fishCount = min(99, fishCount + 1); // No mayor a 99
+        return true;
+      }
     }
     
     // Toggle de peces iguales/aleatorios
@@ -219,19 +227,19 @@ class KoiCreator {
     float toggleX = selectorX;
     float toggleButtonSize = squareSize;
     
-    // Botón Aleatorios
-    if (mouseY >= toggleY - toggleButtonSize/2 - extendedArea && mouseY <= toggleY + toggleButtonSize/2 + extendedArea &&
-        mouseX >= toggleX - extendedArea && mouseX <= toggleX + toggleButtonSize + extendedArea) {
-      identicalFish = false;
-      return true;
-    }
-    
-    // Botón Iguales
-    if (mouseY >= toggleY - toggleButtonSize/2 - extendedArea && mouseY <= toggleY + toggleButtonSize/2 + extendedArea &&
-        mouseX >= toggleX + toggleButtonSize + spacing - extendedArea && 
-        mouseX <= toggleX + toggleButtonSize*2 + spacing + extendedArea) {
-      identicalFish = true;
-      return true;
+    if (mouseY >= toggleY - toggleButtonSize/2 - extendedArea && mouseY <= toggleY + toggleButtonSize/2 + extendedArea) {
+      // Botón Aleatorios (?)
+      if (mouseX >= toggleX - extendedArea && mouseX <= toggleX + toggleButtonSize + extendedArea) {
+        identicalFish = false;
+        return true;
+      }
+      
+      // Botón Iguales (=)
+      if (mouseX >= toggleX + toggleButtonSize + spacing - extendedArea && 
+          mouseX <= toggleX + toggleButtonSize*2 + spacing + extendedArea) {
+        identicalFish = true;
+        return true;
+      }
     }
     
     // Verifica si el clic fue dentro del panel
@@ -279,6 +287,15 @@ class KoiCreator {
    * Crea un nuevo pez koi con las opciones seleccionadas
    */
   void createNewKoi() {
+    // Verificamos si ya se alcanzó el límite de peces
+    int currentFishCount = koiManager.getKoiCount();
+    int maxPossibleFish = min(fishCount, koiManager.MAX_FISH - currentFishCount);
+    
+    // Si no podemos crear ningún pez más, simplemente retornamos
+    if (maxPossibleFish <= 0) {
+      return;
+    }
+    
     // Obtén los valores seleccionados
     float koiLength = sizeLengths[selectedSizeIndex];
     String koiColor = colorHexCodes[selectedColorIndex];
@@ -294,8 +311,10 @@ class KoiCreator {
     // Si se solicita solo un pez o peces idénticos, se usa una semilla fija
     long seed = identicalFish ? 12345 : 0;
     
-    // Crea los peces solicitados
-    for (int i = 0; i < fishCount; i++) {
+    // Crea los peces solicitados (ajustando la cantidad si es necesario)
+    int fishToCreate = min(fishCount, maxPossibleFish);
+    
+    for (int i = 0; i < fishToCreate; i++) {
       // Para peces aleatorios, usamos una semilla diferente para cada uno
       if (!identicalFish) {
         seed = (long)(random(1, 10000) * i);
