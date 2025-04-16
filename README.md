@@ -107,6 +107,7 @@ Este proyecto utiliza una arquitectura de Facade combinada con el patrón Manage
 
 - **PondManager**: Fachada principal que coordina todos los demás gestores e implementa el patrón Facade.
 - **KoiManager**: Gestiona los peces koi, su comportamiento y movimiento.
+- **KoiCreator**: Maneja la interfaz para crear nuevos peces koi personalizados.
 - **PlantManager**: Administra plantas acuáticas (hojas y flores de loto).
 - **RockManager**: Gestiona las rocas decorativas y proporciona obstáculos para los peces.
 - **RippleManager**: Controla los efectos de ondulación en la superficie del agua.

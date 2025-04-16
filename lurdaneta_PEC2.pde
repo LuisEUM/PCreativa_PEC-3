@@ -2,16 +2,14 @@
  * Simulación de Estanque de Koi
  * 
  * Esta aplicación simula un estanque de peces koi tradicional japonés. El sistema 
- * representa un ecosistema acuático completo donde peces koi de colores rojo, blanco 
- * y negro nadan evitando obstáculos como rocas decorativas. Los peces responden a la 
- * interacción del usuario, acercándose a los puntos donde se hace clic para buscar 
- * alimento. El estanque incluye elementos decorativos como hojas y flores de loto 
- * que flotan en la superficie, así como pétalos de cerezo que caen aleatoriamente 
- * sobre el agua creando ondulaciones. Las rocas y plantas acuáticas están distribuidas 
- * estratégicamente por el entorno para crear un diseño equilibrado. El conjunto de 
- * elementos genera una simulación realista de un estanque japonés donde todos los 
- * componentes interactúan entre sí: los peces evitan colisiones con las rocas, los 
- * pétalos producen ondas al caer, y el usuario puede alimentar a los peces mediante clics.
+ * representa un ecosistema acuático completo donde peces koi de diversos colores y patrones
+ * nadan evitando obstáculos como rocas decorativas. Los peces responden a la 
+ * interacción del usuario, acercándose a los puntos donde se hace clic izquierdo para buscar 
+ * alimento y alejándose de los clics derechos (piedras). El estanque incluye elementos decorativos 
+ * como hojas y flores de loto que flotan en la superficie, así como pétalos que caen aleatoriamente 
+ * sobre el agua creando ondulaciones. El ciclo de tiempo cambia entre día, atardecer, noche y amanecer,
+ * afectando el color del agua. Los usuarios pueden personalizar y añadir nuevos peces koi
+ * con diferentes tamaños, colores base y patrones de manchas.
  * 
  * Este es el archivo principal que coordina todos los elementos del estanque de koi.
  * Este es el punto de entrada de la aplicación que inicializa y gestiona
@@ -33,6 +31,9 @@
  * - KoiManager: Gestiona la colección de peces koi, su comportamiento y movimiento.
  *   Controla la creación, actualización y comportamiento colectivo de los peces.
  * 
+ * - KoiCreator: Maneja la interfaz para crear nuevos peces koi personalizados con
+ *   opciones de tamaño, color y patrones de manchas.
+ * 
  * - PlantManager: Administra todas las plantas acuáticas (hojas y flores de loto).
  *   Gestiona la colocación estratégica y el ciclo de vida de las plantas.
  * 
@@ -42,14 +43,24 @@
  * - RippleManager: Controla los efectos de ondulación en la superficie del agua,
  *   creados por interacciones como clics o pétalos que caen.
  * 
- * - PetalManager: Gestiona los pétalos de flor de cerezo que flotan en el estanque,
+ * - PetalManager: Gestiona los pétalos de flor que flotan en el estanque,
  *   controlando su aparición, movimiento y hundimiento.
  * 
  * - FoodManager: Administra las partículas de comida que se crean cuando el usuario
  *   hace clic y que atraen a los peces koi.
  * 
  * - UIManager: Gestiona la interfaz de usuario para interacciones avanzadas,
- *   como la creación de nuevos peces koi con propiedades personalizadas.
+ *   como la creación de nuevos peces koi con propiedades personalizadas,
+ *   botones para cambiar el ciclo del día y eliminar peces.
+ * 
+ * CARACTERÍSTICAS PRINCIPALES:
+ * --------------------------
+ * - Personalización de peces koi: diferentes tamaños, colores base, patrones de manchas
+ * - Comportamiento realista de los peces con evasión de obstáculos
+ * - Ciclo de tiempo día/noche con cambios visuales en el agua
+ * - Interacción usuario: alimentar peces (clic izquierdo) y lanzar piedras (clic derecho)
+ * - Efectos visuales: ondulaciones de agua, pétalos flotantes, animaciones de peces
+ * - Gestión de población: límite de 100 peces, contador visual, función para eliminar peces
  * 
  * FLUJO DE DATOS:
  * --------------
@@ -106,8 +117,8 @@ void draw() {
  * Este método responde a los clics del usuario y:
  * 1. Comprueba si el clic es manejado por la interfaz de usuario
  * 2. Si no, crea ondas en el agua (ripples)
- * 3. Genera partículas de comida donde ocurrió el clic
- * 4. Atrae a los peces koi cercanos hacia el punto de interacción
+ * 3. Genera partículas de comida (clic izquierdo) o piedras (clic derecho)
+ * 4. Atrae a los peces koi cercanos o los repele, dependiendo del tipo de clic
  */
 void mousePressed() {
   pondManager.handleClick(mouseX, mouseY);
