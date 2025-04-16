@@ -107,15 +107,16 @@ class UIManager {
     // Sección de tamaño - Pequeños cuadrados en línea horizontal
     float labelX = panelX + 20; // Posición X común para todas las etiquetas
     float selectorX = panelX + 130; // Posición X común para todos los selectores (reducido para un diseño más compacto)
-    float verticalGap = 40; // Espacio vertical entre grupos de elementos (reducido)
+    float verticalGap = 35; // Espacio vertical entre grupos de elementos (reducido de 40 a 35)
     
+    // Ajustado para dar más espacio después del título
+    float sizeY = panelY + 70; // Aumentado de 60 a 70
     applet.textSize(12);
     applet.textAlign(applet.LEFT, applet.CENTER);
     applet.fill(0);
-    applet.text("Tamaño:", labelX, panelY + 60);
+    applet.text("Tamaño:", labelX, sizeY);
     
     // Botones de tamaño
-    float sizeY = panelY + 60;
     float squareSize = 30; // Tamaño cuadrado uniforme
     float spacing = 5; // Espacio entre elementos
     
@@ -251,7 +252,7 @@ class UIManager {
     float previewWidth = 180; // Aumentado ligeramente
     float previewHeight = 100; // Aumentado ligeramente
     float previewX = applet.width/2 - previewWidth/2;
-    float previewY = spotSizeY + verticalGap;
+    float previewY = spotSizeY + verticalGap + 5; // Añadido 5px extra para dar más espacio antes de la vista previa
     
     // Panel de fondo con color del agua según el tiempo del día
     applet.fill(red(pondColors[timeOfDay]), green(pondColors[timeOfDay]), blue(pondColors[timeOfDay]), 180);
@@ -275,7 +276,7 @@ class UIManager {
     );
     
     // Sección de cantidad de peces - Alineada a la izquierda debajo de la vista previa con espaciado consistente
-    float fishCountY = previewY + previewHeight + verticalGap;
+    float fishCountY = previewY + previewHeight + verticalGap - 5; // Reducido 5px para acercar los elementos inferiores
     
     applet.fill(0);
     applet.textSize(12);
@@ -341,11 +342,11 @@ class UIManager {
     
     // Botón Crear en la esquina inferior derecha
     applet.fill(ColorUtils.hexToColor("#4CAF50"));
-    applet.rect(panelX + panelWidth - 90, panelY + panelHeight - 40, 70, 30, 5);
+    applet.rect(panelX + panelWidth - 90, panelY + panelHeight - 50, 70, 30, 5); // Aumentado de -40 a -50 para dar más espacio al borde inferior
     applet.fill(255);
     applet.textSize(14);
     applet.textAlign(applet.CENTER, applet.CENTER);
-    applet.text("Crear", panelX + panelWidth - 55, panelY + panelHeight - 25);
+    applet.text("Crear", panelX + panelWidth - 55, panelY + panelHeight - 35); // Ajustado de -25 a -35
     
     // Botón Cancelar como X en la esquina superior derecha
     float closeSize = 35; // Aumentado de 30 a 35 para hacer la X más grande
