@@ -20,7 +20,7 @@ class KoiCreator {
   boolean[] selectedSpotColors = {false, false, false, false}; // Permite múltiples selecciones
   
   // Opciones de tamaño de manchas
-  String[] spotSizeOptions = {"Pequeño", "Mediano", "Grande", "Aleatorio"};
+  String[] spotSizeOptions = {"S", "M", "L", "?"};
   float[] spotSizeValues = {0.2, 0.35, 0.5, -1}; // -1 significa aleatorio
   int selectedSpotSizeIndex = 3; // Aleatorio por defecto
   
@@ -28,6 +28,10 @@ class KoiCreator {
   int selectedSizeIndex;
   int selectedColorIndex;
   int selectedSpotCount;
+  
+  // Nuevas propiedades
+  int fishCount = 1; // Cantidad de peces a crear (entre 1 y 25)
+  boolean identicalFish = false; // false = aleatorios, true = iguales
   
   // Referencia al gestor de peces
   KoiManager koiManager;
@@ -85,9 +89,11 @@ class KoiCreator {
     
     // Si el panel está abierto, comprueba interacciones
     float panelWidth = 380;
-    float panelHeight = 480; // Aumentada para incluir vista previa
+    float panelHeight = 480;
     float panelX = width/2 - panelWidth/2;
     float panelY = height/2 - panelHeight/2;
+    float squareSize = 30; // Tamaño de los botones cuadrados
+    float spacing = 5;     // Espacio entre elementos
     
     // Clic en el botón "Crear" con área ampliada
     float extendedArea = 8; // Pixels extra para mejor detección de clic
@@ -111,10 +117,10 @@ class KoiCreator {
     
     // Clic en selección de tamaño con área ampliada
     float sizeY = panelY + 60;
-    if (mouseY >= sizeY - extendedArea && mouseY <= sizeY + 25 + extendedArea) {
+    if (mouseY >= sizeY - squareSize/2 - extendedArea && mouseY <= sizeY + squareSize/2 + extendedArea) {
       for (int i = 0; i < sizeOptions.length; i++) {
-        float btnX = width/2 - 160 + i * 65;
-        if (mouseX >= btnX - extendedArea && mouseX <= btnX + 60 + extendedArea) {
+        float btnX = panelX + 80 + i * (squareSize + spacing);
+        if (mouseX >= btnX - extendedArea && mouseX <= btnX + squareSize + extendedArea) {
           selectedSizeIndex = i;
           return true;
         }
@@ -122,11 +128,11 @@ class KoiCreator {
     }
     
     // Clic en selección de color con área ampliada
-    float colorY = panelY + 120;
-    if (mouseY >= colorY - extendedArea && mouseY <= colorY + 25 + extendedArea) {
+    float colorY = panelY + 100;
+    if (mouseY >= colorY - squareSize/2 - extendedArea && mouseY <= colorY + squareSize/2 + extendedArea) {
       for (int i = 0; i < colorOptions.length; i++) {
-        float btnX = width/2 - 170 + i * 60;
-        if (mouseX >= btnX - extendedArea && mouseX <= btnX + 50 + extendedArea) {
+        float btnX = panelX + 80 + i * (squareSize + spacing);
+        if (mouseX >= btnX - extendedArea && mouseX <= btnX + squareSize + extendedArea) {
           selectedColorIndex = i;
           return true;
         }
@@ -134,11 +140,11 @@ class KoiCreator {
     }
     
     // Clic en selección de color de manchas con área ampliada
-    float spotColorY = panelY + 180;
-    if (mouseY >= spotColorY - extendedArea && mouseY <= spotColorY + 25 + extendedArea) {
+    float spotColorY = panelY + 140;
+    if (mouseY >= spotColorY - squareSize/2 - extendedArea && mouseY <= spotColorY + squareSize/2 + extendedArea) {
       for (int i = 0; i < spotColorOptions.length; i++) {
-        float btnX = width/2 - 140 + i * 70;
-        if (mouseX >= btnX - extendedArea && mouseX <= btnX + 65 + extendedArea) {
+        float btnX = panelX + 120 + i * (squareSize + spacing);
+        if (mouseX >= btnX - extendedArea && mouseX <= btnX + squareSize + extendedArea) {
           // Toggle de selección
           selectedSpotColors[i] = !selectedSpotColors[i];
           return true;
@@ -147,29 +153,73 @@ class KoiCreator {
     }
     
     // Clic en selección de tamaño de manchas con área ampliada
-    float spotSizeY = panelY + 320;
-    if (mouseY >= spotSizeY - extendedArea && mouseY <= spotSizeY + 25 + extendedArea) {
+    float spotSizeY = panelY + 230;
+    if (mouseY >= spotSizeY - squareSize/2 - extendedArea && mouseY <= spotSizeY + squareSize/2 + extendedArea) {
       for (int i = 0; i < spotSizeOptions.length; i++) {
-        float btnX = width/2 - 140 + i * 70;
-        if (mouseX >= btnX - extendedArea && mouseX <= btnX + 65 + extendedArea) {
+        float btnX = panelX + 130 + i * (squareSize + spacing);
+        if (mouseX >= btnX - extendedArea && mouseX <= btnX + squareSize + extendedArea) {
           selectedSpotSizeIndex = i;
           return true;
         }
       }
     }
     
-    // Clic en selección de número de manchas con área ampliada
-    float sliderY = panelY + 240;
-    float sliderStart = width/2 - 140;
-    float sliderWidth = 280;
+    // Clic en selección de número de manchas con botones + y -
+    float spotCountY = panelY + 180;
+    float spotCountControlX = panelX + 135;
     
-    if (mouseY >= sliderY - 15 && mouseY <= sliderY + 25) {
-      if (mouseX >= sliderStart - extendedArea && mouseX <= sliderStart + sliderWidth + extendedArea) {
-        float percentage = (mouseX - sliderStart) / sliderWidth;
-        percentage = constrain(percentage, 0, 1); // Asegurar que esté en el rango 0-1
-        selectedSpotCount = floor(percentage * 11); // 0-10 (11 opciones)
-        return true;
-      }
+    // Botón disminuir (-)
+    if (mouseY >= spotCountY - squareSize/2 - extendedArea && mouseY <= spotCountY + squareSize/2 + extendedArea &&
+        mouseX >= spotCountControlX - extendedArea && mouseX <= spotCountControlX + squareSize + extendedArea) {
+      selectedSpotCount = max(0, selectedSpotCount - 1); // No menor a 0
+      return true;
+    }
+    
+    // Botón aumentar (+)
+    if (mouseY >= spotCountY - squareSize/2 - extendedArea && mouseY <= spotCountY + squareSize/2 + extendedArea &&
+        mouseX >= spotCountControlX + squareSize*2.2 + spacing*2 - extendedArea && 
+        mouseX <= spotCountControlX + squareSize*3.2 + spacing*2 + extendedArea) {
+      selectedSpotCount = min(10, selectedSpotCount + 1); // No mayor a 10
+      return true;
+    }
+    
+    // Clic en botones de aumentar/disminuir cantidad de peces
+    float fishCountY = panelY + 290;
+    float countControlX = panelX + 330;
+    
+    // Botón disminuir (-)
+    if (mouseY >= fishCountY - squareSize/2 - extendedArea && mouseY <= fishCountY + squareSize/2 + extendedArea &&
+        mouseX >= countControlX - extendedArea && mouseX <= countControlX + squareSize + extendedArea) {
+      fishCount = max(1, fishCount - 1); // No menor a 1
+      return true;
+    }
+    
+    // Botón aumentar (+)
+    if (mouseY >= fishCountY - squareSize/2 - extendedArea && mouseY <= fishCountY + squareSize/2 + extendedArea &&
+        mouseX >= countControlX + squareSize*2.2 + spacing*2 - extendedArea && 
+        mouseX <= countControlX + squareSize*3.2 + spacing*2 + extendedArea) {
+      fishCount = min(25, fishCount + 1); // No mayor a 25
+      return true;
+    }
+    
+    // Toggle de peces iguales/aleatorios
+    float toggleY = panelY + 330;
+    float toggleX = panelX + 330;
+    float toggleButtonSize = squareSize;
+    
+    // Botón Aleatorios
+    if (mouseY >= toggleY - toggleButtonSize/2 - extendedArea && mouseY <= toggleY + toggleButtonSize/2 + extendedArea &&
+        mouseX >= toggleX - extendedArea && mouseX <= toggleX + toggleButtonSize + extendedArea) {
+      identicalFish = false;
+      return true;
+    }
+    
+    // Botón Iguales
+    if (mouseY >= toggleY - toggleButtonSize/2 - extendedArea && mouseY <= toggleY + toggleButtonSize/2 + extendedArea &&
+        mouseX >= toggleX + toggleButtonSize + spacing - extendedArea && 
+        mouseX <= toggleX + toggleButtonSize*2 + spacing + extendedArea) {
+      identicalFish = true;
+      return true;
     }
     
     // Verifica si el clic fue dentro del panel
@@ -229,15 +279,30 @@ class KoiCreator {
       spotCount = 0;
     }
     
-    // Crea un nuevo koi en el centro del estanque
-    koiManager.createCustomKoi(
-      width/2, 
-      height/2, 
-      koiLength, 
-      koiColor, 
-      spotColors, 
-      spotCount,
-      spotSize
-    );
+    // Si se solicita solo un pez o peces idénticos, se usa una semilla fija
+    long seed = identicalFish ? 12345 : 0;
+    
+    // Crea los peces solicitados
+    for (int i = 0; i < fishCount; i++) {
+      // Para peces aleatorios, usamos una semilla diferente para cada uno
+      if (!identicalFish) {
+        seed = (long)(random(1, 10000) * i);
+      }
+      
+      // Crea un nuevo koi en el centro del estanque con un offset aleatorio
+      float offsetX = random(-100, 100);
+      float offsetY = random(-100, 100);
+      
+      koiManager.createCustomKoi(
+        width/2 + offsetX, 
+        height/2 + offsetY, 
+        koiLength, 
+        koiColor, 
+        spotColors, 
+        spotCount,
+        spotSize,
+        seed
+      );
+    }
   }
 } 

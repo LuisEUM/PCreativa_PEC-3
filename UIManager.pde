@@ -104,36 +104,39 @@ class UIManager {
     applet.textAlign(applet.CENTER, applet.CENTER);
     applet.text("Agregar Nuevo Koi", applet.width/2, panelY + 25);
     
-    // Sección de tamaño
-    applet.textSize(14);
+    // Sección de tamaño - Pequeños cuadrados en línea horizontal
+    applet.textSize(12);
     applet.textAlign(applet.LEFT, applet.CENTER);
     applet.fill(0);
-    applet.text("Tamaño:", panelX + 20, panelY + 60 - 12);
+    applet.text("Tamaño:", panelX + 20, panelY + 60);
     
     // Botones de tamaño
     float sizeY = panelY + 60;
+    float squareSize = 30; // Tamaño cuadrado uniforme
+    float spacing = 5; // Espacio entre elementos
+    
     for (int i = 0; i < creator.sizeOptions.length; i++) {
-      float btnX = applet.width/2 - 160 + i * 65;
+      float btnX = panelX + 80 + i * (squareSize + spacing);
       
       applet.fill(creator.selectedSizeIndex == i ? ColorUtils.hexToColor("#4CAF50") : ColorUtils.hexToColor("#DDDDDD"));
-      applet.rect(btnX, sizeY, 60, 25, 5);
+      applet.rect(btnX, sizeY - squareSize/2, squareSize, squareSize, 5);
       
       applet.fill(creator.selectedSizeIndex == i ? 255 : 0);
       applet.textSize(11);
       applet.textAlign(applet.CENTER, applet.CENTER);
-      applet.text(creator.sizeOptions[i], btnX + 30, sizeY + 13);
+      applet.text(creator.sizeOptions[i], btnX + squareSize/2, sizeY);
     }
     
-    // Sección de color base
-    float colorY = panelY + 120;
+    // Sección de color base - En línea con etiqueta
+    float colorY = panelY + 100;
     applet.fill(0);
-    applet.textSize(14);
+    applet.textSize(12);
     applet.textAlign(applet.LEFT, applet.CENTER);
-    applet.text("Color base:", panelX + 20, colorY - 12);
+    applet.text("Color base:", panelX + 20, colorY);
     
-    // Muestra de colores (solo colores, sin texto)
+    // Muestra de colores como pequeños cuadrados
     for (int i = 0; i < creator.colorOptions.length; i++) {
-      float btnX = applet.width/2 - 170 + i * 60;
+      float btnX = panelX + 80 + i * (squareSize + spacing);
       
       // Borde de selección
       if (creator.selectedColorIndex == i) {
@@ -146,26 +149,26 @@ class UIManager {
       
       // Color de fondo
       applet.fill(ColorUtils.hexToColor(creator.colorHexCodes[i]));
-      applet.rect(btnX, colorY, 50, 25, 5);
+      applet.rect(btnX, colorY - squareSize/2, squareSize, squareSize, 5);
       
       applet.noStroke();
     }
     
-    // Sección de color de manchas
-    float spotColorY = panelY + 180;
+    // Sección de color de manchas - En línea con etiqueta
+    float spotColorY = panelY + 140;
     applet.fill(0);
-    applet.textSize(14);
+    applet.textSize(12);
     applet.textAlign(applet.LEFT, applet.CENTER);
-    applet.text("Color de manchas (selección múltiple):", panelX + 20, spotColorY - 12);
+    applet.text("Color de manchas:", panelX + 20, spotColorY);
     
-    // Muestra de colores de manchas con selección múltiple (solo colores, sin texto)
+    // Muestra de colores de manchas como pequeños cuadrados
     for (int i = 0; i < creator.spotColorOptions.length; i++) {
-      float btnX = applet.width/2 - 140 + i * 70;
+      float btnX = panelX + 120 + i * (squareSize + spacing);
       
       // Borde de selección más grueso para los seleccionados
       if (creator.selectedSpotColors[i]) {
         applet.stroke(0);
-        applet.strokeWeight(4); // Borde más grueso para los seleccionados
+        applet.strokeWeight(3);
       } else {
         applet.stroke(200);
         applet.strokeWeight(1);
@@ -173,70 +176,57 @@ class UIManager {
       
       // Color de fondo
       applet.fill(ColorUtils.hexToColor(creator.spotColorHexCodes[i]));
-      applet.rect(btnX, spotColorY, 65, 25, 5);
+      applet.rect(btnX, spotColorY - squareSize/2, squareSize, squareSize, 5);
       
       applet.noStroke();
     }
     
     // Sección de número de manchas
-    float sliderY = panelY + 240;
-    String spotCountText;
+    float spotCountY = panelY + 180;
+    applet.fill(0);
+    applet.textSize(12);
+    applet.textAlign(applet.LEFT, applet.CENTER);
+    applet.text("Número de manchas:", panelX + 20, spotCountY);
     
-    if (!creator.hasSelectedSpotColors()) {
-      spotCountText = "Sin manchas";
-    } else if (creator.selectedSpotCount == 0) {
-      spotCountText = "Sin manchas";
-    } else {
-      spotCountText = String.valueOf(creator.selectedSpotCount);
-    }
+    // Control de número de manchas con botones + y -
+    float spotCountControlX = panelX + 135;
     
+    // Botón -
+    applet.fill(ColorUtils.hexToColor("#DDDDDD"));
+    applet.rect(spotCountControlX, spotCountY - squareSize/2, squareSize, squareSize, 5);
     applet.fill(0);
     applet.textSize(14);
-    applet.textAlign(applet.LEFT, applet.CENTER);
-    applet.text("Número de manchas: " + spotCountText, panelX + 20, sliderY - 12);
+    applet.textAlign(applet.CENTER, applet.CENTER);
+    applet.text("-", spotCountControlX + squareSize/2, spotCountY);
     
-    // Slider de número de manchas
-    float sliderStart = applet.width/2 - 140;
-    float sliderEnd = sliderStart + 280;
-    
-    // Línea de slider
-    applet.stroke(150);
-    applet.strokeWeight(2);
-    applet.line(sliderStart, sliderY + 12, sliderEnd, sliderY + 12);
-    
-    // Marcadores de número
-    for (int i = 0; i <= 10; i++) {
-      float markerX = sliderStart + (i * 280 / 10);
-      applet.line(markerX, sliderY + 8, markerX, sliderY + 16);
-      
-      applet.fill(150);
-      applet.textSize(9);
-      applet.textAlign(applet.CENTER, applet.CENTER);
-      applet.text(String.valueOf(i), markerX, sliderY + 25);
-    }
-    
-    // Posición del control deslizante
-    float handleX = sliderStart + (creator.selectedSpotCount * 280 / 10);
+    // Campo de número
+    applet.fill(255);
+    applet.stroke(200);
+    applet.rect(spotCountControlX + squareSize + spacing, spotCountY - squareSize/2, squareSize*1.2, squareSize);
+    applet.fill(0);
+    applet.textSize(12);
+    applet.textAlign(applet.CENTER, applet.CENTER);
+    applet.text(String.valueOf(creator.selectedSpotCount), spotCountControlX + squareSize + spacing + squareSize*0.6, spotCountY);
     applet.noStroke();
-    applet.fill(ColorUtils.hexToColor("#4CAF50"));
-    applet.ellipse(handleX, sliderY + 12, 15, 15);
     
-    // Texto informativo sobre manchas
-    applet.fill(0);
-    applet.textSize(11);
-    applet.textAlign(applet.LEFT, applet.CENTER);
-    applet.text("(Si no selecciona color de manchas, no tendrá manchas)", panelX + 20, sliderY + 35);
-    
-    // Sección de tamaño de manchas
-    float spotSizeY = panelY + 320;
+    // Botón +
+    applet.fill(ColorUtils.hexToColor("#DDDDDD"));
+    applet.rect(spotCountControlX + squareSize*2.2 + spacing*2, spotCountY - squareSize/2, squareSize, squareSize, 5);
     applet.fill(0);
     applet.textSize(14);
+    applet.textAlign(applet.CENTER, applet.CENTER);
+    applet.text("+", spotCountControlX + squareSize*2.2 + spacing*2 + squareSize/2, spotCountY);
+    
+    // Sección de tamaño de manchas - En línea con etiqueta
+    float spotSizeY = panelY + 230;
+    applet.fill(0);
+    applet.textSize(12);
     applet.textAlign(applet.LEFT, applet.CENTER);
-    applet.text("Tamaño de manchas:", panelX + 20, spotSizeY - 12);
+    applet.text("Tamaño de manchas:", panelX + 20, spotSizeY);
     
     // Botones de tamaño de manchas
     for (int i = 0; i < creator.spotSizeOptions.length; i++) {
-      float btnX = applet.width/2 - 140 + i * 70;
+      float btnX = panelX + 130 + i * (squareSize + spacing);
       
       // Borde de selección
       if (creator.selectedSpotSizeIndex == i) {
@@ -245,25 +235,19 @@ class UIManager {
         applet.fill(ColorUtils.hexToColor("#DDDDDD"));
       }
       
-      applet.rect(btnX, spotSizeY, 65, 25, 5);
+      applet.rect(btnX, spotSizeY - squareSize/2, squareSize, squareSize, 5);
       
       applet.fill(creator.selectedSpotSizeIndex == i ? 255 : 0);
       applet.textSize(11);
       applet.textAlign(applet.CENTER, applet.CENTER);
-      applet.text(creator.spotSizeOptions[i], btnX + 32, spotSizeY + 13);
+      applet.text(creator.spotSizeOptions[i], btnX + squareSize/2, spotSizeY);
     }
     
-    // Texto de distribución de manchas
-    applet.fill(0);
-    applet.textSize(12);
-    applet.textAlign(applet.CENTER, applet.CENTER);
-    applet.text("Las manchas se distribuirán aleatoriamente", applet.width/2, spotSizeY + 40);
-    
     // Área de vista previa del pez koi
-    float previewX = panelX + 30;
-    float previewY = panelY + panelHeight - 100;
-    float previewWidth = 150;
-    float previewHeight = 80;
+    float previewX = panelX + 40;
+    float previewY = panelY + 270;
+    float previewWidth = 130;
+    float previewHeight = 70;
     
     // Panel de fondo con color del agua según el tiempo del día
     applet.fill(red(pondColors[timeOfDay]), green(pondColors[timeOfDay]), blue(pondColors[timeOfDay]), 180);
@@ -279,12 +263,79 @@ class UIManager {
     renderPreviewKoi(
       previewX + previewWidth/2, 
       previewY + previewHeight/2 + 10,
-      creator.sizeLengths[creator.selectedSizeIndex] * 2.5, // Escala para mejor visibilidad
+      creator.sizeLengths[creator.selectedSizeIndex] * 2, // Escala para mejor visibilidad
       creator.colorHexCodes[creator.selectedColorIndex],
       creator.getSelectedSpotColors(),
       creator.selectedSpotCount,
       creator.getSelectedSpotSize()
     );
+    
+    // Sección de cantidad de peces - Al lado de la vista previa
+    float fishCountY = panelY + 290;
+    float countLabelX = panelX + 200; // A la derecha de la vista previa
+    
+    applet.fill(0);
+    applet.textSize(12);
+    applet.textAlign(applet.LEFT, applet.CENTER);
+    applet.text("Cantidad de peces (1-25):", countLabelX, fishCountY);
+    
+    // Selector de cantidad con botones + y -
+    float countControlX = panelX + 330;
+    
+    // Botón -
+    applet.fill(ColorUtils.hexToColor("#DDDDDD"));
+    applet.rect(countControlX, fishCountY - squareSize/2, squareSize, squareSize, 5);
+    applet.fill(0);
+    applet.textSize(14);
+    applet.textAlign(applet.CENTER, applet.CENTER);
+    applet.text("-", countControlX + squareSize/2, fishCountY);
+    
+    // Campo de número
+    applet.fill(255);
+    applet.stroke(200);
+    applet.rect(countControlX + squareSize + spacing, fishCountY - squareSize/2, squareSize*1.2, squareSize);
+    applet.fill(0);
+    applet.textSize(12);
+    applet.textAlign(applet.CENTER, applet.CENTER);
+    applet.text(String.valueOf(creator.fishCount), countControlX + squareSize + spacing + squareSize*0.6, fishCountY);
+    applet.noStroke();
+    
+    // Botón +
+    applet.fill(ColorUtils.hexToColor("#DDDDDD"));
+    applet.rect(countControlX + squareSize*2.2 + spacing*2, fishCountY - squareSize/2, squareSize, squareSize, 5);
+    applet.fill(0);
+    applet.textSize(14);
+    applet.textAlign(applet.CENTER, applet.CENTER);
+    applet.text("+", countControlX + squareSize*2.2 + spacing*2 + squareSize/2, fishCountY);
+    
+    // Sección de toggle de peces iguales/aleatorios
+    float toggleY = panelY + 330;
+    float toggleLabelX = countLabelX;
+    
+    applet.fill(0);
+    applet.textSize(12);
+    applet.textAlign(applet.LEFT, applet.CENTER);
+    applet.text("Patrón de manchas:", toggleLabelX, toggleY);
+    
+    // Toggle switch como dos botones cuadrados
+    float toggleButtonSize = squareSize;
+    float toggleX = panelX + 330;
+    
+    // Botón "Aleatorios"
+    applet.fill(!creator.identicalFish ? ColorUtils.hexToColor("#2196F3") : ColorUtils.hexToColor("#DDDDDD"));
+    applet.rect(toggleX, toggleY - toggleButtonSize/2, toggleButtonSize, toggleButtonSize, 5);
+    applet.fill(!creator.identicalFish ? 255 : 100);
+    applet.textSize(10);
+    applet.textAlign(applet.CENTER, applet.CENTER);
+    applet.text("?", toggleX + toggleButtonSize/2, toggleY);
+    
+    // Botón "Iguales"
+    applet.fill(creator.identicalFish ? ColorUtils.hexToColor("#4CAF50") : ColorUtils.hexToColor("#DDDDDD"));
+    applet.rect(toggleX + toggleButtonSize + spacing, toggleY - toggleButtonSize/2, toggleButtonSize, toggleButtonSize, 5);
+    applet.fill(creator.identicalFish ? 255 : 100);
+    applet.textSize(10);
+    applet.textAlign(applet.CENTER, applet.CENTER);
+    applet.text("=", toggleX + toggleButtonSize + spacing + toggleButtonSize/2, toggleY);
     
     // Botones en la esquina inferior derecha
     applet.fill(ColorUtils.hexToColor("#4CAF50"));

@@ -136,8 +136,9 @@ class KoiManager {
    * @param spotColors Lista de colores de manchas seleccionados
    * @param spotCount Número de manchas (0-10)
    * @param spotSize Tamaño de las manchas (-1 para aleatorio)
+   * @param seed Semilla para generación de patrones (0 para aleatorio)
    */
-  void createCustomKoi(float x, float y, float length, String koiColor, ArrayList<String> spotColors, int spotCount, float spotSize) {
+  void createCustomKoi(float x, float y, float length, String koiColor, ArrayList<String> spotColors, int spotCount, float spotSize, long seed) {
     // Comprueba que la posición no colisione con rocas
     boolean validPosition = true;
     float koiWidth = length * 0.4;
@@ -169,6 +170,11 @@ class KoiManager {
     
     // Solo añade manchas si spotCount > 0 y hay colores de mancha seleccionados
     if (spotCount > 0 && spotColors.size() > 0) {
+      // Si se proporciona una semilla, la usamos para generar patrones idénticos
+      if (seed != 0) {
+        randomSeed(seed);
+      }
+      
       // Añade el número específico de manchas con distribución aleatoria
       for (int i = 0; i < spotCount; i++) {
         // Posición aleatoria para las manchas en todo el cuerpo
@@ -196,6 +202,11 @@ class KoiManager {
         );
         koi.spots.add(spot);
       }
+      
+      // Restauramos la semilla aleatoria después de crear el patrón
+      if (seed != 0) {
+        randomSeed((long)millis());
+      }
     }
     
     // Establece objetivo inicial (aleatorio pero lejos de rocas)
@@ -213,6 +224,13 @@ class KoiManager {
     
     // Añade el pez a la colección
     kois.add(koi);
+  }
+  
+  /**
+   * Sobrecarga del método createCustomKoi para mantener compatibilidad con código existente
+   */
+  void createCustomKoi(float x, float y, float length, String koiColor, ArrayList<String> spotColors, int spotCount, float spotSize) {
+    createCustomKoi(x, y, length, koiColor, spotColors, spotCount, spotSize, 0); // Semilla 0 = patrones aleatorios
   }
   
   /**
