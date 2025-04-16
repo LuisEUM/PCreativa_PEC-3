@@ -63,7 +63,7 @@ class PondManager {
     petalManager = new PetalManager(sketch.width, sketch.height, 15, 8);
     
     // Inicializa el gestor de UI
-    uiManager = new UIManager(sketch, koiManager);
+    uiManager = new UIManager(sketch, koiManager, timeOfDay, pondColors);
     
     // Inicializa el botón de tiempo (a la izquierda del botón de añadir)
     timeButton = new Button(sketch.width - 100, 10, 40, 40, "");
@@ -203,6 +203,11 @@ class PondManager {
         timeButton.hoverColor = ColorUtils.hexToColor("#4FC3F7");
         break;
     }
+    
+    // Actualiza el timeOfDay en el UIManager
+    if (uiManager != null) {
+      uiManager.setTimeOfDay(timeOfDay);
+    }
   }
   
   // Métodos de renderizado para cada capa
@@ -315,26 +320,80 @@ class PondManager {
       sketch.popMatrix();
     }
     
-    // Dibuja el cuerpo del koi
-    sketch.noStroke();
-    
-    // Si está excitado, añade un ligero efecto de brillo
+    // Obtiene el color del koi
+    color koiC;
     if (koi.excited) {
       if (koi.koiColor.equals("#333333")) {
-        sketch.fill(80, 80, 80, 255 * currentOpacity); // Aclara los peces gris oscuro
+        koiC = color(80, 80, 80, 255 * currentOpacity); // Aclara los peces gris oscuro
       } else {
-        color koiC = ColorUtils.hexToColor(koi.koiColor);
-        sketch.fill(red(koiC), green(koiC), blue(koiC), 255 * currentOpacity);
+        koiC = ColorUtils.hexToColor(koi.koiColor);
+        koiC = color(red(koiC), green(koiC), blue(koiC), 255 * currentOpacity);
       }
     } else {
-      color koiC = ColorUtils.hexToColor(koi.koiColor);
-      sketch.fill(red(koiC), green(koiC), blue(koiC), 255 * currentOpacity);
+      koiC = ColorUtils.hexToColor(koi.koiColor);
+      koiC = color(red(koiC), green(koiC), blue(koiC), 255 * currentOpacity);
     }
     
+    // Dibuja el cuerpo exterior (30% más grande)
+    sketch.noStroke();
+    sketch.fill(koiC);
+    sketch.ellipse(0, 0, currentLength * 1.3, currentWidth * 1.3);
+    
+    // Dibuja el cuerpo base del koi
+    sketch.fill(koiC);
     sketch.ellipse(0, 0, currentLength, currentWidth);
     
-    // Dibuja la cola (solo si no está hundiéndose o al principio de la animación)
+    // Si hay manchas, las dibujamos directamente sobre el cuerpo
+    if (koi.spots.size() > 0) {
+      for (Spot spot : koi.spots) {
+        // Calculamos la posición y tamaño de la mancha
+        float spotX = (spot.x - 0.5) * currentLength;
+        float spotY = (spot.y - 0.5) * currentWidth;
+        float spotSize = (spot.size * currentWidth);
+        
+        // Aseguramos que la mancha esté dentro del cuerpo
+        // Calculamos la distancia desde el centro del cuerpo
+        float distFromCenter = sqrt(spotX * spotX + spotY * spotY);
+        float maxAllowedDist = (currentLength / 2) * 0.7; // 80% del radio
+        
+        // Si la mancha está fuera del límite permitido, la ajustamos
+        if (distFromCenter > maxAllowedDist) {
+          float angle = atan2(spotY, spotX);
+          spotX = cos(angle) * maxAllowedDist;
+          spotY = sin(angle) * maxAllowedDist;
+        }
+        
+        // Ajustamos el tamaño para evitar desbordamiento
+        float maxSize = min(currentLength, currentWidth) * 1.8; // 180% del tamaño más pequeño
+        spotSize = min(spotSize, maxSize);
+        
+        // Dibujamos la mancha con menor opacidad para que se vea el color base
+        color spotC = ColorUtils.hexToColor(spot.spotColor);
+        sketch.noStroke();
+        // Reducimos la opacidad para que se mezcle con el color base
+        sketch.fill(red(spotC), green(spotC), blue(spotC), 180 * currentOpacity);
+        sketch.ellipse(spotX, spotY, spotSize, spotSize);
+      }
+    }
+    
+    // Dibuja la cola con el mismo color que el cuerpo
     if (!koi.sinking || koi.sinkingProgress < 0.5) {
+      // Dibuja primero la cola exterior (30% más grande)
+      sketch.fill(koiC);
+      sketch.beginShape();
+      sketch.vertex(-currentLength/2 * 1.3, 0);
+      sketch.quadraticVertex(
+        (-currentLength/2 - currentLength/4) * 1.3, tailWag * currentWidth * 1.3,
+        (-currentLength/2 - currentLength/3) * 1.3, tailWag * currentWidth * 1.5 * 1.3
+      );
+      sketch.quadraticVertex(
+        (-currentLength/2 - currentLength/4) * 1.3, tailWag * currentWidth * 1.3,
+        -currentLength/2 * 1.3, 0
+      );
+      sketch.endShape(CLOSE);
+      
+      // Dibuja la cola interior
+      sketch.fill(koiC);
       sketch.beginShape();
       sketch.vertex(-currentLength/2, 0);
       sketch.quadraticVertex(
@@ -346,17 +405,6 @@ class PondManager {
         -currentLength/2, 0
       );
       sketch.endShape(CLOSE);
-    }
-    
-    // Dibuja las manchas
-    for (Spot spot : koi.spots) {
-      float spotX = -currentLength/4 + (spot.x * currentLength/2);
-      float spotY = -currentWidth/4 + (spot.y * currentWidth/2);
-      float spotSize = (spot.size * currentWidth/2);
-      
-      color spotC = ColorUtils.hexToColor(spot.spotColor);
-      sketch.fill(red(spotC), green(spotC), blue(spotC), 255 * currentOpacity);
-      sketch.ellipse(spotX, spotY, spotSize, spotSize);
     }
     
     // Dibuja un efecto de ondulación cuando el pez se está hundiendo
@@ -477,8 +525,20 @@ class PondManager {
   }
   
   void renderWaterSurface() {
+    // Renderiza la superficie del agua con un efecto semitransparente
+    // según el tiempo del día
+    color surfaceColor = pondColors[timeOfDay];
+    
+    // Aplica una ligera transparencia para que se vea más realista
+    surfaceColor = color(
+      red(surfaceColor), 
+      green(surfaceColor), 
+      blue(surfaceColor), 
+      30
+    );
+    
     sketch.noStroke();
-    sketch.fill(144, 202, 249, 25); // Azul claro con menor opacidad
+    sketch.fill(surfaceColor);
     sketch.rect(0, 0, sketch.width, sketch.height);
   }
   

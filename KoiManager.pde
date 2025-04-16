@@ -171,9 +171,9 @@ class KoiManager {
     if (spotCount > 0 && spotColors.size() > 0) {
       // Añade el número específico de manchas con distribución aleatoria
       for (int i = 0; i < spotCount; i++) {
-        // Posición aleatoria para las manchas
-        float xPos = RandomUtils.randomFloat(0.2, 0.8);
-        float yPos = RandomUtils.randomFloat(0.2, 0.8);
+        // Posición aleatoria para las manchas en todo el cuerpo
+        float xPos = RandomUtils.randomFloat(0.0, 1.0);
+        float yPos = RandomUtils.randomFloat(0.0, 1.0);
         
         // Selecciona un color aleatorio de la lista de colores seleccionados
         String spotColor = spotColors.get(RandomUtils.randomInt(0, spotColors.size() - 1));
@@ -181,7 +181,7 @@ class KoiManager {
         // Determina el tamaño de la mancha
         float actualSpotSize;
         if (spotSize < 0) { // Si es -1 (aleatorio)
-          actualSpotSize = RandomUtils.randomFloat(0.1, 0.25);
+          actualSpotSize = RandomUtils.randomFloat(0.2, 0.5);
         } else {
           // Aplica el tamaño especificado con una ligera variación para naturalidad
           actualSpotSize = spotSize * RandomUtils.randomFloat(0.9, 1.1);
@@ -237,9 +237,9 @@ class KoiManager {
       spotCount = RandomUtils.randomInt(2, 4);
       for (int i = 0; i < spotCount; i++) {
         Spot spot = new Spot(
-          RandomUtils.randomFloat(0.2, 0.8),
-          RandomUtils.randomFloat(0.2, 0.8),
-          RandomUtils.randomFloat(0.1, 0.25),
+          RandomUtils.randomFloat(0.0, 1.0),
+          RandomUtils.randomFloat(0.0, 1.0),
+          RandomUtils.randomFloat(0.2, 0.5),
           RandomUtils.randomBool(0.5) ? "#ff3333" : "#333333"
         );
         koi.spots.add(spot);
@@ -249,9 +249,9 @@ class KoiManager {
       spotCount = RandomUtils.randomInt(2, 4);
       for (int i = 0; i < spotCount; i++) {
         Spot spot = new Spot(
-          RandomUtils.randomFloat(0.2, 0.8),
-          RandomUtils.randomFloat(0.2, 0.8),
-          RandomUtils.randomFloat(0.1, 0.25),
+          RandomUtils.randomFloat(0.0, 1.0),
+          RandomUtils.randomFloat(0.0, 1.0),
+          RandomUtils.randomFloat(0.2, 0.5),
           "#ffffff"
         );
         koi.spots.add(spot);
@@ -261,9 +261,9 @@ class KoiManager {
       spotCount = RandomUtils.randomInt(1, 3);
       for (int i = 0; i < spotCount; i++) {
         Spot spot = new Spot(
-          RandomUtils.randomFloat(0.2, 0.8),
-          RandomUtils.randomFloat(0.2, 0.8),
-          RandomUtils.randomFloat(0.1, 0.25),
+          RandomUtils.randomFloat(0.0, 1.0),
+          RandomUtils.randomFloat(0.0, 1.0),
+          RandomUtils.randomFloat(0.2, 0.5),
           RandomUtils.randomFloat(0, 1) > 0.7 ? "#ff3333" : "#ffffff"
         );
         koi.spots.add(spot);

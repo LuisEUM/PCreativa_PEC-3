@@ -21,7 +21,7 @@ class KoiCreator {
   
   // Opciones de tamaño de manchas
   String[] spotSizeOptions = {"Pequeño", "Mediano", "Grande", "Aleatorio"};
-  float[] spotSizeValues = {0.08, 0.15, 0.25, -1}; // -1 significa aleatorio
+  float[] spotSizeValues = {0.2, 0.35, 0.5, -1}; // -1 significa aleatorio
   int selectedSpotSizeIndex = 3; // Aleatorio por defecto
   
   // Selecciones actuales
@@ -71,7 +71,12 @@ class KoiCreator {
   boolean handleClick(float mouseX, float mouseY) {
     // Si el panel está cerrado, solo comprueba el botón de añadir
     if (!isOpen) {
-      if (addButton.isClicked(mouseX, mouseY)) {
+      // Aumentamos ligeramente el área de clic del botón añadir para mejor detección
+      float extendedClickArea = 5; // 5 píxeles extras en cada dirección
+      if (mouseX >= addButton.position.x - extendedClickArea && 
+          mouseX <= addButton.position.x + addButton.width + extendedClickArea &&
+          mouseY >= addButton.position.y - extendedClickArea && 
+          mouseY <= addButton.position.y + addButton.height + extendedClickArea) {
         isOpen = true;
         return true;
       }
@@ -80,55 +85,60 @@ class KoiCreator {
     
     // Si el panel está abierto, comprueba interacciones
     float panelWidth = 380;
-    float panelHeight = 450;
+    float panelHeight = 480; // Aumentada para incluir vista previa
     float panelX = width/2 - panelWidth/2;
     float panelY = height/2 - panelHeight/2;
     
-    // Clic en el botón "Crear" (ahora en la esquina inferior derecha)
-    if (mouseX >= panelX + panelWidth - 170 && mouseX <= panelX + panelWidth - 90 &&
-        mouseY >= panelY + panelHeight - 40 && mouseY <= panelY + panelHeight - 15) {
+    // Clic en el botón "Crear" con área ampliada
+    float extendedArea = 8; // Pixels extra para mejor detección de clic
+    if (mouseX >= panelX + panelWidth - 170 - extendedArea && 
+        mouseX <= panelX + panelWidth - 90 + extendedArea &&
+        mouseY >= panelY + panelHeight - 40 - extendedArea && 
+        mouseY <= panelY + panelHeight - 15 + extendedArea) {
       createNewKoi();
       isOpen = false;
       return true;
     }
     
-    // Clic en el botón "Cancelar" (ahora en la esquina inferior derecha)
-    if (mouseX >= panelX + panelWidth - 80 && mouseX <= panelX + panelWidth - 10 &&
-        mouseY >= panelY + panelHeight - 40 && mouseY <= panelY + panelHeight - 15) {
+    // Clic en el botón "Cancelar" con área ampliada
+    if (mouseX >= panelX + panelWidth - 80 - extendedArea && 
+        mouseX <= panelX + panelWidth - 10 + extendedArea &&
+        mouseY >= panelY + panelHeight - 40 - extendedArea && 
+        mouseY <= panelY + panelHeight - 15 + extendedArea) {
       isOpen = false;
       return true;
     }
     
-    // Clic en selección de tamaño
+    // Clic en selección de tamaño con área ampliada
     float sizeY = panelY + 60;
-    if (mouseY >= sizeY && mouseY <= sizeY + 25) {
+    if (mouseY >= sizeY - extendedArea && mouseY <= sizeY + 25 + extendedArea) {
       for (int i = 0; i < sizeOptions.length; i++) {
         float btnX = width/2 - 160 + i * 65;
-        if (mouseX >= btnX && mouseX <= btnX + 60) {
+        if (mouseX >= btnX - extendedArea && mouseX <= btnX + 60 + extendedArea) {
           selectedSizeIndex = i;
           return true;
         }
       }
     }
     
-    // Clic en selección de color
+    // Clic en selección de color con área ampliada
     float colorY = panelY + 120;
-    if (mouseY >= colorY && mouseY <= colorY + 25) {
+    if (mouseY >= colorY - extendedArea && mouseY <= colorY + 25 + extendedArea) {
       for (int i = 0; i < colorOptions.length; i++) {
         float btnX = width/2 - 170 + i * 60;
-        if (mouseX >= btnX && mouseX <= btnX + 50) {
+        if (mouseX >= btnX - extendedArea && mouseX <= btnX + 50 + extendedArea) {
           selectedColorIndex = i;
           return true;
         }
       }
     }
     
-    // Clic en selección de color de manchas (múltiple)
+    // Clic en selección de color de manchas con área ampliada
     float spotColorY = panelY + 180;
-    if (mouseY >= spotColorY && mouseY <= spotColorY + 25) {
+    if (mouseY >= spotColorY - extendedArea && mouseY <= spotColorY + 25 + extendedArea) {
       for (int i = 0; i < spotColorOptions.length; i++) {
         float btnX = width/2 - 140 + i * 70;
-        if (mouseX >= btnX && mouseX <= btnX + 65) {
+        if (mouseX >= btnX - extendedArea && mouseX <= btnX + 65 + extendedArea) {
           // Toggle de selección
           selectedSpotColors[i] = !selectedSpotColors[i];
           return true;
@@ -136,26 +146,27 @@ class KoiCreator {
       }
     }
     
-    // Clic en selección de tamaño de manchas
-    float spotSizeY = panelY + 300;
-    if (mouseY >= spotSizeY && mouseY <= spotSizeY + 25) {
+    // Clic en selección de tamaño de manchas con área ampliada
+    float spotSizeY = panelY + 320;
+    if (mouseY >= spotSizeY - extendedArea && mouseY <= spotSizeY + 25 + extendedArea) {
       for (int i = 0; i < spotSizeOptions.length; i++) {
         float btnX = width/2 - 140 + i * 70;
-        if (mouseX >= btnX && mouseX <= btnX + 65) {
+        if (mouseX >= btnX - extendedArea && mouseX <= btnX + 65 + extendedArea) {
           selectedSpotSizeIndex = i;
           return true;
         }
       }
     }
     
-    // Clic en selección de número de manchas
+    // Clic en selección de número de manchas con área ampliada
     float sliderY = panelY + 240;
     float sliderStart = width/2 - 140;
     float sliderWidth = 280;
     
-    if (mouseY >= sliderY && mouseY <= sliderY + 25) {
-      if (mouseX >= sliderStart && mouseX <= sliderStart + sliderWidth) {
+    if (mouseY >= sliderY - 15 && mouseY <= sliderY + 25) {
+      if (mouseX >= sliderStart - extendedArea && mouseX <= sliderStart + sliderWidth + extendedArea) {
         float percentage = (mouseX - sliderStart) / sliderWidth;
+        percentage = constrain(percentage, 0, 1); // Asegurar que esté en el rango 0-1
         selectedSpotCount = floor(percentage * 11); // 0-10 (11 opciones)
         return true;
       }

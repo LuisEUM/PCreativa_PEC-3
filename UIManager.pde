@@ -7,16 +7,22 @@
 class UIManager {
   PApplet applet;
   KoiCreator koiCreator;
+  int timeOfDay; // Tiempo del día actual
+  color[] pondColors; // Colores del estanque
   
   /**
    * Constructor
    * 
    * @param applet Instancia de PApplet
    * @param koiManager Referencia al gestor de peces
+   * @param timeOfDay El tiempo del día actual (0: día, 1: atardecer, 2: noche, 3: amanecer)
+   * @param pondColors Array de colores del estanque para diferentes tiempos del día
    */
-  UIManager(PApplet applet, KoiManager koiManager) {
+  UIManager(PApplet applet, KoiManager koiManager, int timeOfDay, color[] pondColors) {
     this.applet = applet;
     this.koiCreator = new KoiCreator(koiManager);
+    this.timeOfDay = timeOfDay;
+    this.pondColors = pondColors;
   }
   
   /**
@@ -24,6 +30,15 @@ class UIManager {
    */
   void update() {
     this.koiCreator.update(applet.mouseX, applet.mouseY);
+  }
+  
+  /**
+   * Actualiza el tiempo del día
+   * 
+   * @param timeOfDay El nuevo tiempo del día
+   */
+  void setTimeOfDay(int timeOfDay) {
+    this.timeOfDay = timeOfDay;
   }
   
   /**
@@ -72,7 +87,7 @@ class UIManager {
   void renderCreatorPanel() {
     KoiCreator creator = this.koiCreator;
     float panelWidth = 380;
-    float panelHeight = 450; // Altura incrementada para agregar la sección de tamaño de manchas
+    float panelHeight = 480; // Altura incrementada para agregar la vista previa
     float panelX = applet.width/2 - panelWidth/2;
     float panelY = applet.height/2 - panelHeight/2;
     
@@ -179,8 +194,6 @@ class UIManager {
     applet.textSize(14);
     applet.textAlign(applet.LEFT, applet.CENTER);
     applet.text("Número de manchas: " + spotCountText, panelX + 20, sliderY - 12);
-    applet.textSize(11);
-    applet.text("(Si no selecciona color de manchas, no tendrá manchas)", panelX + 20, sliderY + 35);
     
     // Slider de número de manchas
     float sliderStart = applet.width/2 - 140;
@@ -208,8 +221,14 @@ class UIManager {
     applet.fill(ColorUtils.hexToColor("#4CAF50"));
     applet.ellipse(handleX, sliderY + 12, 15, 15);
     
+    // Texto informativo sobre manchas
+    applet.fill(0);
+    applet.textSize(11);
+    applet.textAlign(applet.LEFT, applet.CENTER);
+    applet.text("(Si no selecciona color de manchas, no tendrá manchas)", panelX + 20, sliderY + 35);
+    
     // Sección de tamaño de manchas
-    float spotSizeY = panelY + 300;
+    float spotSizeY = panelY + 320;
     applet.fill(0);
     applet.textSize(14);
     applet.textAlign(applet.LEFT, applet.CENTER);
@@ -234,11 +253,38 @@ class UIManager {
       applet.text(creator.spotSizeOptions[i], btnX + 32, spotSizeY + 13);
     }
     
-    // Texto de manchas aleatorias
+    // Texto de distribución de manchas
     applet.fill(0);
     applet.textSize(12);
     applet.textAlign(applet.CENTER, applet.CENTER);
-    applet.text("Las manchas se distribuirán aleatoriamente", applet.width/2, sliderY + 50);
+    applet.text("Las manchas se distribuirán aleatoriamente", applet.width/2, spotSizeY + 40);
+    
+    // Área de vista previa del pez koi
+    float previewX = panelX + 30;
+    float previewY = panelY + panelHeight - 100;
+    float previewWidth = 150;
+    float previewHeight = 80;
+    
+    // Panel de fondo con color del agua según el tiempo del día
+    applet.fill(red(pondColors[timeOfDay]), green(pondColors[timeOfDay]), blue(pondColors[timeOfDay]), 180);
+    applet.rect(previewX, previewY, previewWidth, previewHeight, 8);
+    
+    // Texto de vista previa
+    applet.fill(255);
+    applet.textSize(12);
+    applet.textAlign(applet.CENTER, applet.TOP);
+    applet.text("Vista previa", previewX + previewWidth/2, previewY + 5);
+    
+    // Dibuja el pez koi en vista previa
+    renderPreviewKoi(
+      previewX + previewWidth/2, 
+      previewY + previewHeight/2 + 10,
+      creator.sizeLengths[creator.selectedSizeIndex] * 2.5, // Escala para mejor visibilidad
+      creator.colorHexCodes[creator.selectedColorIndex],
+      creator.getSelectedSpotColors(),
+      creator.selectedSpotCount,
+      creator.getSelectedSpotSize()
+    );
     
     // Botones en la esquina inferior derecha
     applet.fill(ColorUtils.hexToColor("#4CAF50"));
@@ -248,11 +294,127 @@ class UIManager {
     applet.textAlign(applet.CENTER, applet.CENTER);
     applet.text("Crear", panelX + panelWidth - 130, panelY + panelHeight - 28);
     
-    applet.fill(ColorUtils.hexToColor("#f44336"));
+    applet.fill(ColorUtils.hexToColor("#F44336"));
     applet.rect(panelX + panelWidth - 80, panelY + panelHeight - 40, 70, 25, 5);
     applet.fill(255);
     applet.textSize(14);
     applet.textAlign(applet.CENTER, applet.CENTER);
     applet.text("Cancelar", panelX + panelWidth - 45, panelY + panelHeight - 28);
+  }
+  
+  /**
+   * Renderiza una vista previa del pez koi basado en las opciones seleccionadas
+   * 
+   * @param x Posición X del centro del pez
+   * @param y Posición Y del centro del pez
+   * @param length Longitud del pez
+   * @param koiColor Color del pez
+   * @param spotColors Colores de las manchas
+   * @param spotCount Número de manchas
+   * @param spotSize Tamaño de las manchas
+   */
+  void renderPreviewKoi(float x, float y, float length, String koiColor, ArrayList<String> spotColors, int spotCount, float spotSize) {
+    float width = length * 0.4; // Ancho proporcional al largo
+    float time = applet.millis() * 0.001; // Tiempo para animación
+    
+    // Movimiento suave de la cola
+    float tailFrequency = 0.1;
+    float tailAmplitude = 0.2;
+    float tailWag = sin(time * 5 * tailFrequency) * tailAmplitude;
+    
+    applet.pushMatrix();
+    applet.translate(x, y);
+    
+    // Obtiene el color del koi
+    color koiC = ColorUtils.hexToColor(koiColor);
+    
+    // Dibuja el cuerpo exterior (30% más grande)
+    applet.noStroke();
+    applet.fill(koiC);
+    applet.ellipse(0, 0, length * 1.3, width * 1.3);
+    
+    // Dibuja el cuerpo base del koi
+    applet.fill(koiC);
+    applet.ellipse(0, 0, length, width);
+    
+    // Genera y dibuja manchas aleatorias
+    if (spotCount > 0 && spotColors.size() > 0) {
+      // Usamos un algoritmo determinista para que las manchas no cambien cada frame
+      randomSeed(int(koiColor.hashCode() + spotCount + spotSize * 100));
+      
+      for (int i = 0; i < spotCount; i++) {
+        // Posición relativa de la mancha
+        float spotXRel = random(0.2, 0.8);
+        float spotYRel = random(0.2, 0.8);
+        
+        // Posición absoluta de la mancha
+        float spotX = (spotXRel - 0.5) * length;
+        float spotY = (spotYRel - 0.5) * width;
+        
+        // Tamaño de la mancha
+        float actualSpotSize;
+        if (spotSize < 0) { // Aleatorio
+          actualSpotSize = random(0.2, 0.5) * width;
+        } else {
+          actualSpotSize = spotSize * width;
+        }
+        
+        // Limita el tamaño y posición para que esté dentro del cuerpo
+        float distFromCenter = sqrt(spotX * spotX + spotY * spotY);
+        float maxAllowedDist = (length / 2) * 0.7; // 70% del radio
+        
+        if (distFromCenter > maxAllowedDist) {
+          float angle = atan2(spotY, spotX);
+          spotX = cos(angle) * maxAllowedDist;
+          spotY = sin(angle) * maxAllowedDist;
+        }
+        
+        // Ajusta el tamaño para evitar desbordamiento
+        actualSpotSize = min(actualSpotSize, width * 0.6);
+        
+        // Elige un color aleatorio de la lista de colores seleccionados
+        String spotColor = spotColors.get(i % spotColors.size());
+        color spotC = ColorUtils.hexToColor(spotColor);
+        
+        // Dibuja la mancha
+        applet.noStroke();
+        applet.fill(red(spotC), green(spotC), blue(spotC), 180);
+        applet.ellipse(spotX, spotY, actualSpotSize, actualSpotSize);
+      }
+      
+      // Restaura la semilla aleatoria
+      randomSeed(int(random(10000)));
+    }
+    
+    // Dibuja la cola con el mismo color que el cuerpo
+    // Dibuja primero la cola exterior (30% más grande)
+    applet.fill(koiC);
+    applet.beginShape();
+    applet.vertex(-length/2 * 1.3, 0);
+    applet.quadraticVertex(
+      (-length/2 - length/4) * 1.3, tailWag * width * 1.3,
+      (-length/2 - length/3) * 1.3, tailWag * width * 1.5 * 1.3
+    );
+    applet.quadraticVertex(
+      (-length/2 - length/4) * 1.3, tailWag * width * 1.3,
+      -length/2 * 1.3, 0
+    );
+    applet.endShape(CLOSE);
+    
+    // Dibuja la cola interior
+    applet.fill(koiC);
+    applet.beginShape();
+    applet.vertex(-length/2, 0);
+    applet.quadraticVertex(
+      -length/2 - length/4, tailWag * width,
+      -length/2 - length/3, tailWag * width * 1.5
+    );
+    applet.quadraticVertex(
+      -length/2 - length/4, tailWag * width,
+      -length/2, 0
+    );
+    applet.endShape(CLOSE);
+    
+    applet.popMatrix();
   }
 } 
