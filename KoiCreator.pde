@@ -94,23 +94,30 @@ class KoiCreator {
     float panelY = height/2 - panelHeight/2;
     float squareSize = 30; // Tamaño de los botones cuadrados
     float spacing = 5;     // Espacio entre elementos
-    
-    // Clic en el botón "Crear" con área ampliada
     float extendedArea = 8; // Pixels extra para mejor detección de clic
-    if (mouseX >= panelX + panelWidth - 170 - extendedArea && 
-        mouseX <= panelX + panelWidth - 90 + extendedArea &&
-        mouseY >= panelY + panelHeight - 40 - extendedArea && 
-        mouseY <= panelY + panelHeight - 15 + extendedArea) {
-      createNewKoi();
+    
+    // Definiciones de posición para coincidir con UIManager
+    float labelX = panelX + 20;
+    float selectorX = panelX + 130;
+    float verticalGap = 40;
+    
+    // Clic en el botón "X" (Cancelar) en la esquina superior derecha
+    float closeSize = 30; // Aumentado a 30 para coincidir con UIManager
+    float closeX = panelX + panelWidth - 25;
+    float closeY = panelY + 25;
+    
+    if (mouseX >= closeX - closeSize/2 - extendedArea && mouseX <= closeX + closeSize/2 + extendedArea &&
+        mouseY >= closeY - closeSize/2 - extendedArea && mouseY <= closeY + closeSize/2 + extendedArea) {
       isOpen = false;
       return true;
     }
     
-    // Clic en el botón "Cancelar" con área ampliada
-    if (mouseX >= panelX + panelWidth - 80 - extendedArea && 
-        mouseX <= panelX + panelWidth - 10 + extendedArea &&
+    // Clic en el botón "Crear" con área ampliada
+    if (mouseX >= panelX + panelWidth - 90 - extendedArea && 
+        mouseX <= panelX + panelWidth - 20 + extendedArea &&
         mouseY >= panelY + panelHeight - 40 - extendedArea && 
-        mouseY <= panelY + panelHeight - 15 + extendedArea) {
+        mouseY <= panelY + panelHeight - 10 + extendedArea) {
+      createNewKoi();
       isOpen = false;
       return true;
     }
@@ -119,7 +126,7 @@ class KoiCreator {
     float sizeY = panelY + 60;
     if (mouseY >= sizeY - squareSize/2 - extendedArea && mouseY <= sizeY + squareSize/2 + extendedArea) {
       for (int i = 0; i < sizeOptions.length; i++) {
-        float btnX = panelX + 80 + i * (squareSize + spacing);
+        float btnX = selectorX + i * (squareSize + spacing);
         if (mouseX >= btnX - extendedArea && mouseX <= btnX + squareSize + extendedArea) {
           selectedSizeIndex = i;
           return true;
@@ -128,10 +135,10 @@ class KoiCreator {
     }
     
     // Clic en selección de color con área ampliada
-    float colorY = panelY + 100;
+    float colorY = sizeY + verticalGap;
     if (mouseY >= colorY - squareSize/2 - extendedArea && mouseY <= colorY + squareSize/2 + extendedArea) {
       for (int i = 0; i < colorOptions.length; i++) {
-        float btnX = panelX + 80 + i * (squareSize + spacing);
+        float btnX = selectorX + i * (squareSize + spacing);
         if (mouseX >= btnX - extendedArea && mouseX <= btnX + squareSize + extendedArea) {
           selectedColorIndex = i;
           return true;
@@ -140,10 +147,10 @@ class KoiCreator {
     }
     
     // Clic en selección de color de manchas con área ampliada
-    float spotColorY = panelY + 140;
+    float spotColorY = colorY + verticalGap;
     if (mouseY >= spotColorY - squareSize/2 - extendedArea && mouseY <= spotColorY + squareSize/2 + extendedArea) {
       for (int i = 0; i < spotColorOptions.length; i++) {
-        float btnX = panelX + 120 + i * (squareSize + spacing);
+        float btnX = selectorX + i * (squareSize + spacing);
         if (mouseX >= btnX - extendedArea && mouseX <= btnX + squareSize + extendedArea) {
           // Toggle de selección
           selectedSpotColors[i] = !selectedSpotColors[i];
@@ -152,21 +159,9 @@ class KoiCreator {
       }
     }
     
-    // Clic en selección de tamaño de manchas con área ampliada
-    float spotSizeY = panelY + 230;
-    if (mouseY >= spotSizeY - squareSize/2 - extendedArea && mouseY <= spotSizeY + squareSize/2 + extendedArea) {
-      for (int i = 0; i < spotSizeOptions.length; i++) {
-        float btnX = panelX + 130 + i * (squareSize + spacing);
-        if (mouseX >= btnX - extendedArea && mouseX <= btnX + squareSize + extendedArea) {
-          selectedSpotSizeIndex = i;
-          return true;
-        }
-      }
-    }
-    
     // Clic en selección de número de manchas con botones + y -
-    float spotCountY = panelY + 180;
-    float spotCountControlX = panelX + 135;
+    float spotCountY = spotColorY + verticalGap;
+    float spotCountControlX = selectorX;
     
     // Botón disminuir (-)
     if (mouseY >= spotCountY - squareSize/2 - extendedArea && mouseY <= spotCountY + squareSize/2 + extendedArea &&
@@ -183,9 +178,26 @@ class KoiCreator {
       return true;
     }
     
+    // Clic en selección de tamaño de manchas con área ampliada
+    float spotSizeY = spotCountY + verticalGap;
+    if (mouseY >= spotSizeY - squareSize/2 - extendedArea && mouseY <= spotSizeY + squareSize/2 + extendedArea) {
+      for (int i = 0; i < spotSizeOptions.length; i++) {
+        float btnX = selectorX + i * (squareSize + spacing);
+        if (mouseX >= btnX - extendedArea && mouseX <= btnX + squareSize + extendedArea) {
+          selectedSpotSizeIndex = i;
+          return true;
+        }
+      }
+    }
+    
+    // Área de vista previa
+    float previewWidth = 180;
+    float previewHeight = 100;
+    float previewY = spotSizeY + verticalGap;
+    
     // Clic en botones de aumentar/disminuir cantidad de peces
-    float fishCountY = panelY + 290;
-    float countControlX = panelX + 330;
+    float fishCountY = previewY + previewHeight + verticalGap;
+    float countControlX = selectorX;
     
     // Botón disminuir (-)
     if (mouseY >= fishCountY - squareSize/2 - extendedArea && mouseY <= fishCountY + squareSize/2 + extendedArea &&
@@ -203,8 +215,8 @@ class KoiCreator {
     }
     
     // Toggle de peces iguales/aleatorios
-    float toggleY = panelY + 330;
-    float toggleX = panelX + 330;
+    float toggleY = fishCountY + verticalGap;
+    float toggleX = selectorX;
     float toggleButtonSize = squareSize;
     
     // Botón Aleatorios

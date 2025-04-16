@@ -105,10 +105,14 @@ class UIManager {
     applet.text("Agregar Nuevo Koi", applet.width/2, panelY + 25);
     
     // Sección de tamaño - Pequeños cuadrados en línea horizontal
+    float labelX = panelX + 20; // Posición X común para todas las etiquetas
+    float selectorX = panelX + 130; // Posición X común para todos los selectores (reducido para un diseño más compacto)
+    float verticalGap = 40; // Espacio vertical entre grupos de elementos (reducido)
+    
     applet.textSize(12);
     applet.textAlign(applet.LEFT, applet.CENTER);
     applet.fill(0);
-    applet.text("Tamaño:", panelX + 20, panelY + 60);
+    applet.text("Tamaño:", labelX, panelY + 60);
     
     // Botones de tamaño
     float sizeY = panelY + 60;
@@ -116,7 +120,7 @@ class UIManager {
     float spacing = 5; // Espacio entre elementos
     
     for (int i = 0; i < creator.sizeOptions.length; i++) {
-      float btnX = panelX + 80 + i * (squareSize + spacing);
+      float btnX = selectorX + i * (squareSize + spacing);
       
       applet.fill(creator.selectedSizeIndex == i ? ColorUtils.hexToColor("#4CAF50") : ColorUtils.hexToColor("#DDDDDD"));
       applet.rect(btnX, sizeY - squareSize/2, squareSize, squareSize, 5);
@@ -128,15 +132,15 @@ class UIManager {
     }
     
     // Sección de color base - En línea con etiqueta
-    float colorY = panelY + 100;
+    float colorY = sizeY + verticalGap;
     applet.fill(0);
     applet.textSize(12);
     applet.textAlign(applet.LEFT, applet.CENTER);
-    applet.text("Color base:", panelX + 20, colorY);
+    applet.text("Color base:", labelX, colorY);
     
     // Muestra de colores como pequeños cuadrados
     for (int i = 0; i < creator.colorOptions.length; i++) {
-      float btnX = panelX + 80 + i * (squareSize + spacing);
+      float btnX = selectorX + i * (squareSize + spacing);
       
       // Borde de selección
       if (creator.selectedColorIndex == i) {
@@ -155,15 +159,15 @@ class UIManager {
     }
     
     // Sección de color de manchas - En línea con etiqueta
-    float spotColorY = panelY + 140;
+    float spotColorY = colorY + verticalGap;
     applet.fill(0);
     applet.textSize(12);
     applet.textAlign(applet.LEFT, applet.CENTER);
-    applet.text("Color de manchas:", panelX + 20, spotColorY);
+    applet.text("Color de manchas:", labelX, spotColorY);
     
     // Muestra de colores de manchas como pequeños cuadrados
     for (int i = 0; i < creator.spotColorOptions.length; i++) {
-      float btnX = panelX + 120 + i * (squareSize + spacing);
+      float btnX = selectorX + i * (squareSize + spacing);
       
       // Borde de selección más grueso para los seleccionados
       if (creator.selectedSpotColors[i]) {
@@ -182,14 +186,14 @@ class UIManager {
     }
     
     // Sección de número de manchas
-    float spotCountY = panelY + 180;
+    float spotCountY = spotColorY + verticalGap;
     applet.fill(0);
     applet.textSize(12);
     applet.textAlign(applet.LEFT, applet.CENTER);
-    applet.text("Número de manchas:", panelX + 20, spotCountY);
+    applet.text("Número de manchas:", labelX, spotCountY);
     
     // Control de número de manchas con botones + y -
-    float spotCountControlX = panelX + 135;
+    float spotCountControlX = selectorX;
     
     // Botón -
     applet.fill(ColorUtils.hexToColor("#DDDDDD"));
@@ -218,15 +222,15 @@ class UIManager {
     applet.text("+", spotCountControlX + squareSize*2.2 + spacing*2 + squareSize/2, spotCountY);
     
     // Sección de tamaño de manchas - En línea con etiqueta
-    float spotSizeY = panelY + 230;
+    float spotSizeY = spotCountY + verticalGap;
     applet.fill(0);
     applet.textSize(12);
     applet.textAlign(applet.LEFT, applet.CENTER);
-    applet.text("Tamaño de manchas:", panelX + 20, spotSizeY);
+    applet.text("Tamaño de manchas:", labelX, spotSizeY);
     
     // Botones de tamaño de manchas
     for (int i = 0; i < creator.spotSizeOptions.length; i++) {
-      float btnX = panelX + 130 + i * (squareSize + spacing);
+      float btnX = selectorX + i * (squareSize + spacing);
       
       // Borde de selección
       if (creator.selectedSpotSizeIndex == i) {
@@ -243,11 +247,11 @@ class UIManager {
       applet.text(creator.spotSizeOptions[i], btnX + squareSize/2, spotSizeY);
     }
     
-    // Área de vista previa del pez koi
-    float previewX = panelX + 40;
-    float previewY = panelY + 270;
-    float previewWidth = 130;
-    float previewHeight = 70;
+    // Área de vista previa del pez koi - Centrada
+    float previewWidth = 180; // Aumentado ligeramente
+    float previewHeight = 100; // Aumentado ligeramente
+    float previewX = applet.width/2 - previewWidth/2;
+    float previewY = spotSizeY + verticalGap;
     
     // Panel de fondo con color del agua según el tiempo del día
     applet.fill(red(pondColors[timeOfDay]), green(pondColors[timeOfDay]), blue(pondColors[timeOfDay]), 180);
@@ -270,17 +274,16 @@ class UIManager {
       creator.getSelectedSpotSize()
     );
     
-    // Sección de cantidad de peces - Al lado de la vista previa
-    float fishCountY = panelY + 290;
-    float countLabelX = panelX + 200; // A la derecha de la vista previa
+    // Sección de cantidad de peces - Alineada a la izquierda debajo de la vista previa con espaciado consistente
+    float fishCountY = previewY + previewHeight + verticalGap;
     
     applet.fill(0);
     applet.textSize(12);
     applet.textAlign(applet.LEFT, applet.CENTER);
-    applet.text("Cantidad de peces (1-25):", countLabelX, fishCountY);
+    applet.text("Cantidad de peces:", labelX, fishCountY);
     
     // Selector de cantidad con botones + y -
-    float countControlX = panelX + 330;
+    float countControlX = selectorX;
     
     // Botón -
     applet.fill(ColorUtils.hexToColor("#DDDDDD"));
@@ -308,18 +311,17 @@ class UIManager {
     applet.textAlign(applet.CENTER, applet.CENTER);
     applet.text("+", countControlX + squareSize*2.2 + spacing*2 + squareSize/2, fishCountY);
     
-    // Sección de toggle de peces iguales/aleatorios
-    float toggleY = panelY + 330;
-    float toggleLabelX = countLabelX;
+    // Sección de toggle de peces iguales/aleatorios - Alineada a la izquierda debajo de cantidad de peces
+    float toggleY = fishCountY + verticalGap;
     
     applet.fill(0);
     applet.textSize(12);
     applet.textAlign(applet.LEFT, applet.CENTER);
-    applet.text("Patrón de manchas:", toggleLabelX, toggleY);
+    applet.text("Patrón de manchas:", labelX, toggleY);
     
     // Toggle switch como dos botones cuadrados
     float toggleButtonSize = squareSize;
-    float toggleX = panelX + 330;
+    float toggleX = selectorX;
     
     // Botón "Aleatorios"
     applet.fill(!creator.identicalFish ? ColorUtils.hexToColor("#2196F3") : ColorUtils.hexToColor("#DDDDDD"));
@@ -337,20 +339,30 @@ class UIManager {
     applet.textAlign(applet.CENTER, applet.CENTER);
     applet.text("=", toggleX + toggleButtonSize + spacing + toggleButtonSize/2, toggleY);
     
-    // Botones en la esquina inferior derecha
+    // Botón Crear en la esquina inferior derecha
     applet.fill(ColorUtils.hexToColor("#4CAF50"));
-    applet.rect(panelX + panelWidth - 170, panelY + panelHeight - 40, 80, 25, 5);
+    applet.rect(panelX + panelWidth - 90, panelY + panelHeight - 40, 70, 30, 5);
     applet.fill(255);
     applet.textSize(14);
     applet.textAlign(applet.CENTER, applet.CENTER);
-    applet.text("Crear", panelX + panelWidth - 130, panelY + panelHeight - 28);
+    applet.text("Crear", panelX + panelWidth - 55, panelY + panelHeight - 25);
     
-    applet.fill(ColorUtils.hexToColor("#F44336"));
-    applet.rect(panelX + panelWidth - 80, panelY + panelHeight - 40, 70, 25, 5);
-    applet.fill(255);
-    applet.textSize(14);
+    // Botón Cancelar como X en la esquina superior derecha
+    float closeSize = 35; // Aumentado de 30 a 35 para hacer la X más grande
+    float closeX = panelX + panelWidth - 25;
+    float closeY = panelY + 25;
+    
+    // Verifica si el cursor está sobre el botón X
+    boolean hoverClose = applet.mouseX >= closeX - closeSize/2 && 
+                         applet.mouseX <= closeX + closeSize/2 &&
+                         applet.mouseY >= closeY - closeSize/2 && 
+                         applet.mouseY <= closeY + closeSize/2;
+    
+    // Color de la X (negro normalmente, rojo al pasar por encima)
+    applet.fill(hoverClose ? ColorUtils.hexToColor("#F44336") : ColorUtils.hexToColor("#000000"));
+    applet.textSize(30); // Aumentado de 26 a 30 para una X más grande
     applet.textAlign(applet.CENTER, applet.CENTER);
-    applet.text("Cancelar", panelX + panelWidth - 45, panelY + panelHeight - 28);
+    applet.text("×", closeX, closeY);
   }
   
   /**
