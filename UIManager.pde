@@ -550,11 +550,11 @@ class UIManager {
     // Obtiene el color del koi
     color koiC = ColorUtils.hexToColor(koiColor);
     
-    // Dibuja la cola con el mismo color que el cuerpo pero un poco más oscuro
-    // Usar un color más oscuro para la cola (20% más oscuro)
+    // Declaramos el color de la cola una sola vez
     color koiTailColor = ColorUtils.darkenColor(koiC, 20);
     
-    // Dibuja dos óvalos para la cola
+    // Dibuja la cola con el mismo color que el cuerpo pero un poco más oscuro
+    // Usar un color más oscuro para la cola (20% más oscuro)
     applet.noStroke();
     applet.fill(koiTailColor);
     
@@ -589,6 +589,38 @@ class UIManager {
     applet.rotate(-tailWag - PI/6);
     // Dibujar el óvalo con origen en su extremo conectado al cuerpo
     applet.ellipse(-tailDistance, 0, ovalWidth, ovalHeight);
+    applet.popMatrix();
+    
+    // Dibuja las aletas laterales con el mismo color que la cola
+    // Usamos el mismo color de la cola declarado anteriormente
+    applet.noStroke();
+    applet.fill(koiTailColor);
+    
+    // Tamaño de las aletas (ligeramente más grandes)
+    float finWidth = length/3.0;  // Ajustado de 2.5 a 3.0
+    float finHeight = width/2.3;  // Ajustado de 2.0 a 2.3
+    
+    // Posición lateral de las aletas (ligeramente más hacia la cabeza)
+    float finX = -length/9;  // Ajustado de length/8 a -length/10
+    
+    // Aleta superior
+    applet.pushMatrix();
+    // Posicionar en la parte superior del cuerpo
+    applet.translate(finX, -width/2);
+    // Usar un movimiento similar al de la cola pero más sutil con ángulo invertido
+    applet.rotate(PI/3 - tailWag * 0.5);
+    // Dibujar la aleta
+    applet.ellipse(0, -finHeight/2, finWidth, finHeight);
+    applet.popMatrix();
+    
+    // Aleta inferior
+    applet.pushMatrix();
+    // Posicionar en la parte inferior del cuerpo
+    applet.translate(finX, width/2);
+    // Usar un movimiento similar al de la cola pero en dirección opuesta con ángulo invertido
+    applet.rotate(-PI/3 - tailWag * 0.5);
+    // Dibujar la aleta
+    applet.ellipse(0, finHeight/2, finWidth, finHeight);
     applet.popMatrix();
     
     // Dibuja el cuerpo exterior (30% más grande)

@@ -15,6 +15,11 @@ Este proyecto es una simulación interactiva de un estanque de peces koi creado 
     - Varios tamaños de manchas (S, M, L o aleatorio)
     - Opción para generar koi con patrones idénticos o aleatorios
   - Creación de múltiples koi simultáneamente (1-99)
+- Diseño anatómico detallado de los peces:
+  - Cuerpo hidrodinámico que reacciona al movimiento
+  - Cola dividida en dos lóbulos con movimiento ondulatorio realista
+  - Aletas laterales posicionadas estratégicamente para dar sensación de profundidad
+  - Ojos expresivos que mejoran la apariencia visual
 - Comportamiento de evasión de obstáculos
 - Interacción entre peces con comportamiento de cardumen
 - Gestión de población de peces:
@@ -58,6 +63,13 @@ Este proyecto es una simulación interactiva de un estanque de peces koi creado 
 - **Animación de salida**: Cuando se usa la papelera, los peces nadan rápidamente hacia los bordes del estanque y desaparecen
 - **Vista previa interactiva**: Al personalizar los koi, se muestra una vista previa animada con movimiento de cola
 - **Contador de peces**: Muestra la cantidad actual y el límite máximo de peces en el estanque
+- **Diseño detallado de peces koi**: Peces con diseño anatómico realista que incluye:
+  - Cuerpo principal con colores personalizables
+  - Cola dividida con movimiento ondulatorio natural
+  - Aletas laterales ubicadas detrás del cuerpo que acentúan el movimiento
+  - Patrones de manchas que varían en tamaño, cantidad y color
+  - Ojos expresivos que dan vida a los peces
+  - Efectos de burbujas cuando están excitados o alimentándose
 
 ## Requisitos
 

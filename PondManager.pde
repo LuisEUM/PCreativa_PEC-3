@@ -334,11 +334,11 @@ class PondManager {
       koiC = color(red(koiC), green(koiC), blue(koiC), 255 * currentOpacity);
     }
     
+    // Declaramos el color de la cola una sola vez fuera de los bloques condicionales
+    color koiTailColor = ColorUtils.darkenColor(koiC, 20);
+    
     // Dibuja la cola con el mismo color que el cuerpo pero un poco más oscuro
     if (!koi.sinking || koi.sinkingProgress < 0.5) {
-      // Usar un color más oscuro para la cola (20% más oscuro)
-      color koiTailColor = ColorUtils.darkenColor(koiC, 20);
-      
       // Dibuja dos óvalos para la cola
       sketch.noStroke();
       sketch.fill(koiTailColor);
@@ -374,6 +374,40 @@ class PondManager {
       sketch.rotate(-tailWag - PI/6);
       // Dibujar el óvalo con origen en su extremo conectado al cuerpo
       sketch.ellipse(-tailDistance, 0, ovalWidth, ovalHeight);
+      sketch.popMatrix();
+    }
+    
+    // Dibuja las aletas laterales con el mismo color que la cola
+    if (!koi.sinking || koi.sinkingProgress < 0.5) {
+      // Usamos el mismo color de la cola declarado anteriormente
+      sketch.noStroke();
+      sketch.fill(koiTailColor);
+      
+      // Tamaño de las aletas (ligeramente más grandes)
+      float finWidth = currentLength/3.0;  // Ajustado de 2.5 a 3.0
+      float finHeight = currentWidth/2.3;  // Ajustado de 2.0 a 2.3
+      
+      // Posición lateral de las aletas (ligeramente más hacia la cabeza)
+      float finX = -currentLength/9;  // Ajustado de length/8 a -currentLength/10
+      
+      // Aleta superior
+      sketch.pushMatrix();
+      // Posicionar en la parte superior del cuerpo
+      sketch.translate(finX, -currentWidth/2);
+      // Usar un movimiento similar al de la cola pero más sutil con ángulo invertido
+      sketch.rotate(PI/3 - tailWag * 0.5);
+      // Dibujar la aleta
+      sketch.ellipse(0, -finHeight/2, finWidth, finHeight);
+      sketch.popMatrix();
+      
+      // Aleta inferior
+      sketch.pushMatrix();
+      // Posicionar en la parte inferior del cuerpo
+      sketch.translate(finX, currentWidth/2);
+      // Usar un movimiento similar al de la cola pero en dirección opuesta con ángulo invertido
+      sketch.rotate(-PI/3 - tailWag * 0.5);
+      // Dibujar la aleta
+      sketch.ellipse(0, finHeight/2, finWidth, finHeight);
       sketch.popMatrix();
     }
     
