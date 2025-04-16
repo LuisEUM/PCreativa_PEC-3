@@ -22,6 +22,16 @@ class PondManager {
   float lastTimestamp = 0;
   float time = 0;
   
+  // Ciclo de tiempo del día
+  int timeOfDay = 0; // 0: día, 1: atardecer, 2: noche, 3: amanecer
+  color[] pondColors = {
+    color(25, 118, 210),    // Azul día
+    color(245, 164, 52),    // Naranja atardecer
+    color(10, 30, 80),      // Azul oscuro noche
+    color(70, 150, 230)     // Azul claro amanecer
+  };
+  Button timeButton;
+  
   /**
    * Constructor
    * 
@@ -54,6 +64,10 @@ class PondManager {
     
     // Inicializa el gestor de UI
     uiManager = new UIManager(sketch, koiManager);
+    
+    // Inicializa el botón de tiempo (a la izquierda del botón de añadir)
+    timeButton = new Button(sketch.width - 100, 10, 40, 40, "");
+    updateTimeButtonColor();
   }
   
   /**
@@ -120,6 +134,9 @@ class PondManager {
     
     // Renderiza los elementos de la UI
     uiManager.render();
+    
+    // Renderiza el botón de tiempo
+    renderTimeButton();
   }
   
   /**
@@ -129,6 +146,14 @@ class PondManager {
    * @param y Posición y del ratón
    */
   void handleClick(float x, float y) {
+    // Comprobar si se hizo clic en el botón de tiempo
+    if (timeButton.isClicked(x, y)) {
+      // Cambiar al siguiente estado de tiempo
+      timeOfDay = (timeOfDay + 1) % 4;
+      updateTimeButtonColor();
+      return;
+    }
+    
     // Primero comprueba si la UI consume el clic
     if (uiManager.handleClick(x, y)) {
       return; // Si la UI consumió el clic, no seguimos procesándolo
@@ -146,10 +171,34 @@ class PondManager {
     koiManager.attractToPoint(x, y, 200);
   }
   
+  /**
+   * Actualiza el color del botón de tiempo según el estado actual
+   */
+  void updateTimeButtonColor() {
+    switch(timeOfDay) {
+      case 0: // Día - Amarillo
+        timeButton.buttonColor = ColorUtils.hexToColor("#FFEB3B");
+        timeButton.hoverColor = ColorUtils.hexToColor("#FDD835");
+        break;
+      case 1: // Atardecer - Naranja
+        timeButton.buttonColor = ColorUtils.hexToColor("#FF9800");
+        timeButton.hoverColor = ColorUtils.hexToColor("#F57C00");
+        break;
+      case 2: // Noche - Gris
+        timeButton.buttonColor = ColorUtils.hexToColor("#9E9E9E");
+        timeButton.hoverColor = ColorUtils.hexToColor("#757575");
+        break;
+      case 3: // Amanecer - Azul claro
+        timeButton.buttonColor = ColorUtils.hexToColor("#81D4FA");
+        timeButton.hoverColor = ColorUtils.hexToColor("#4FC3F7");
+        break;
+    }
+  }
+  
   // Métodos de renderizado para cada capa
   
   void renderDeepWater() {
-    sketch.background(25, 118, 210); // Azul más profundo para agua profunda
+    sketch.background(pondColors[timeOfDay]); // Color del estanque según el tiempo del día
   }
   
   void renderRipples() {
@@ -455,6 +504,32 @@ class PondManager {
     sketch.rect(sketch.width - 210, sketch.height - 35, 200, 25, 5);
     sketch.fill(255);
     sketch.text("Haz clic para alimentar a los peces", sketch.width - 20, sketch.height - 17);
+  }
+  
+  /**
+   * Renderiza el botón de tiempo
+   */
+  void renderTimeButton() {
+    Button btn = timeButton;
+    
+    // Actualizar el estado del botón
+    btn.update(sketch.mouseX, sketch.mouseY);
+    
+    // Dibuja el fondo del botón
+    sketch.noStroke();
+    sketch.fill(btn.isHovered ? btn.hoverColor : btn.buttonColor);
+    
+    // Dibujar medio círculo o círculo completo según el estado
+    if (timeOfDay == 1) { // Atardecer - Medio círculo derecho
+      sketch.arc(btn.position.x + btn.width/2, btn.position.y + btn.height/2, 
+                btn.width, btn.height, -HALF_PI, HALF_PI, sketch.PIE);
+    } else if (timeOfDay == 3) { // Amanecer - Medio círculo izquierdo
+      sketch.arc(btn.position.x + btn.width/2, btn.position.y + btn.height/2, 
+                btn.width, btn.height, HALF_PI, PI + HALF_PI, sketch.PIE);
+    } else { // Día o noche - Círculo completo
+      sketch.ellipse(btn.position.x + btn.width/2, btn.position.y + btn.height/2, 
+                    btn.width, btn.height);
+    }
   }
 }
 
