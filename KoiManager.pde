@@ -277,9 +277,18 @@ class KoiManager {
    * @param deltaTime Tiempo transcurrido desde el último fotograma
    */
   void update(float deltaTime) {
-    for (Koi koi : kois) {
+    // Elimina los peces que han terminado de hundirse
+    for (int i = kois.size() - 1; i >= 0; i--) {
+      Koi koi = kois.get(i);
+      
+      // Si el pez ha terminado de hundirse, lo eliminamos
+      if (koi.isFinished()) {
+        kois.remove(i);
+        continue;
+      }
+      
       // Si el tiempo del objetivo ha terminado, establece un nuevo objetivo
-      if (koi.targetTime <= 0) {
+      if (!koi.sinking && koi.targetTime <= 0) {
         float padding = 50;
         
         // Intenta encontrar un objetivo lejos de las rocas
@@ -318,36 +327,39 @@ class KoiManager {
       // Actualiza el pez normalmente
       koi.update(deltaTime, canvasWidth, canvasHeight);
       
-      // Comprueba colisiones con rocas después de moverse
-      for (Rock rock : rocks) {
-        float dx = koi.position.x - rock.position.x;
-        float dy = koi.position.y - rock.position.y;
-        float distance = sqrt(dx * dx + dy * dy);
-        
-        // Si hay colisión, vuelve a la posición anterior y cambia la dirección
-        if (distance < rock.collisionRadius + koi.width / 2) {
-          // Restaura la posición anterior
-          koi.position.x = prevPosition.x;
-          koi.position.y = prevPosition.y;
+      // Solo comprueba colisiones si el pez no está hundiéndose
+      if (!koi.sinking) {
+        // Comprueba colisiones con rocas después de moverse
+        for (Rock rock : rocks) {
+          float dx = koi.position.x - rock.position.x;
+          float dy = koi.position.y - rock.position.y;
+          float distance = sqrt(dx * dx + dy * dy);
           
-          // Calcula el ángulo de rebote (alejándose de la roca)
-          float awayAngle = atan2(dy, dx);
-          
-          // Añade algo de aleatoriedad al ángulo de rebote
-          float randomOffset = ((random(1) - 0.5) * PI) / 4;
-          koi.angle = awayAngle + randomOffset;
-          
-          // Establece un nuevo objetivo lejos de la roca
-          float newTargetDistance = 100 + random(100);
-          float newTargetX = rock.position.x + cos(awayAngle) * newTargetDistance;
-          float newTargetY = rock.position.y + sin(awayAngle) * newTargetDistance;
-          
-          // Asegura que el nuevo objetivo esté dentro del lienzo
-          float targetX = max(50, min(canvasWidth - 50, newTargetX));
-          float targetY = max(50, min(canvasHeight - 50, newTargetY));
-          
-          koi.setTarget(targetX, targetY, RandomUtils.randomFloat(50, 100));
-          break;
+          // Si hay colisión, vuelve a la posición anterior y cambia la dirección
+          if (distance < rock.collisionRadius + koi.width / 2) {
+            // Restaura la posición anterior
+            koi.position.x = prevPosition.x;
+            koi.position.y = prevPosition.y;
+            
+            // Calcula el ángulo de rebote (alejándose de la roca)
+            float awayAngle = atan2(dy, dx);
+            
+            // Añade algo de aleatoriedad al ángulo de rebote
+            float randomOffset = ((random(1) - 0.5) * PI) / 4;
+            koi.angle = awayAngle + randomOffset;
+            
+            // Establece un nuevo objetivo lejos de la roca
+            float newTargetDistance = 100 + random(100);
+            float newTargetX = rock.position.x + cos(awayAngle) * newTargetDistance;
+            float newTargetY = rock.position.y + sin(awayAngle) * newTargetDistance;
+            
+            // Asegura que el nuevo objetivo esté dentro del lienzo
+            float targetX = max(50, min(canvasWidth - 50, newTargetX));
+            float targetY = max(50, min(canvasHeight - 50, newTargetY));
+            
+            koi.setTarget(targetX, targetY, RandomUtils.randomFloat(50, 100));
+            break;
+          }
         }
       }
     }
@@ -383,6 +395,7 @@ class KoiManager {
   
   /**
    * Repele a los peces cercanos de un punto (efecto contrario a la atracción)
+   * Si un pez está muy cerca del punto, será golpeado y se hundirá
    * 
    * @param x Coordenada X del punto de repulsión
    * @param y Coordenada Y del punto de repulsión
@@ -390,11 +403,21 @@ class KoiManager {
    */
   void repelFromPoint(float x, float y, float radius) {
     Vector2D point = new Vector2D(x, y);
+    float directHitRadius = 15.0; // Radio para considerar un golpe directo
     
     for (Koi koi : kois) {
       float distance = Vector2D.distance(koi.position, point);
       
-      if (distance < radius) {
+      // Si el pez ya está hundiéndose, lo ignoramos
+      if (koi.sinking) {
+        continue;
+      }
+      
+      if (distance < directHitRadius) {
+        // ¡Golpe directo! El pez comienza a hundirse
+        koi.setSinking();
+      }
+      else if (distance < radius) {
         // Calcula el ángulo de alejamiento (dirección opuesta al punto)
         float dx = koi.position.x - x;
         float dy = koi.position.y - y;

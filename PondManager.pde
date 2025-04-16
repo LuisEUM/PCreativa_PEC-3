@@ -300,13 +300,20 @@ class PondManager {
     sketch.translate(koi.position.x, koi.position.y);
     sketch.rotate(koi.angle);
     
-    // Dibuja primero la sombra
-    sketch.pushMatrix();
-    sketch.translate(koi.shadowOffset, koi.shadowOffset);
-    sketch.noStroke();
-    sketch.fill(0, 0, 0, 51); // Negro con 20% de opacidad
-    sketch.ellipse(0, 0, koi.length, koi.width);
-    sketch.popMatrix();
+    // Obtiene las dimensiones actuales teniendo en cuenta la animación de hundimiento
+    float currentLength = koi.getCurrentLength();
+    float currentWidth = koi.getCurrentWidth();
+    float currentOpacity = koi.sinking ? koi.opacity : 1.0;
+    
+    // Dibuja primero la sombra (no dibuja sombra si se está hundiendo)
+    if (!koi.sinking) {
+      sketch.pushMatrix();
+      sketch.translate(koi.shadowOffset, koi.shadowOffset);
+      sketch.noStroke();
+      sketch.fill(0, 0, 0, 51 * currentOpacity); // Negro con 20% de opacidad
+      sketch.ellipse(0, 0, currentLength, currentWidth);
+      sketch.popMatrix();
+    }
     
     // Dibuja el cuerpo del koi
     sketch.noStroke();
@@ -314,45 +321,96 @@ class PondManager {
     // Si está excitado, añade un ligero efecto de brillo
     if (koi.excited) {
       if (koi.koiColor.equals("#333333")) {
-        sketch.fill(80, 80, 80); // Aclara los peces gris oscuro
+        sketch.fill(80, 80, 80, 255 * currentOpacity); // Aclara los peces gris oscuro
       } else {
-        sketch.fill(ColorUtils.hexToColor(koi.koiColor));
+        color koiC = ColorUtils.hexToColor(koi.koiColor);
+        sketch.fill(red(koiC), green(koiC), blue(koiC), 255 * currentOpacity);
       }
     } else {
-      sketch.fill(ColorUtils.hexToColor(koi.koiColor));
+      color koiC = ColorUtils.hexToColor(koi.koiColor);
+      sketch.fill(red(koiC), green(koiC), blue(koiC), 255 * currentOpacity);
     }
     
-    sketch.ellipse(0, 0, koi.length, koi.width);
+    sketch.ellipse(0, 0, currentLength, currentWidth);
     
-    // Dibuja la cola
-    sketch.beginShape();
-    sketch.vertex(-koi.length/2, 0);
-    sketch.quadraticVertex(
-      -koi.length/2 - koi.length/4, tailWag * koi.width,
-      -koi.length/2 - koi.length/3, tailWag * koi.width * 1.5
-    );
-    sketch.quadraticVertex(
-      -koi.length/2 - koi.length/4, tailWag * koi.width,
-      -koi.length/2, 0
-    );
-    sketch.endShape(CLOSE);
+    // Dibuja la cola (solo si no está hundiéndose o al principio de la animación)
+    if (!koi.sinking || koi.sinkingProgress < 0.5) {
+      sketch.beginShape();
+      sketch.vertex(-currentLength/2, 0);
+      sketch.quadraticVertex(
+        -currentLength/2 - currentLength/4, tailWag * currentWidth,
+        -currentLength/2 - currentLength/3, tailWag * currentWidth * 1.5
+      );
+      sketch.quadraticVertex(
+        -currentLength/2 - currentLength/4, tailWag * currentWidth,
+        -currentLength/2, 0
+      );
+      sketch.endShape(CLOSE);
+    }
     
     // Dibuja las manchas
     for (Spot spot : koi.spots) {
-      float spotX = -koi.length/4 + (spot.x * koi.length/2);
-      float spotY = -koi.width/4 + (spot.y * koi.width/2);
-      float spotSize = (spot.size * koi.width/2);
+      float spotX = -currentLength/4 + (spot.x * currentLength/2);
+      float spotY = -currentWidth/4 + (spot.y * currentWidth/2);
+      float spotSize = (spot.size * currentWidth/2);
       
-      sketch.fill(ColorUtils.hexToColor(spot.spotColor));
+      color spotC = ColorUtils.hexToColor(spot.spotColor);
+      sketch.fill(red(spotC), green(spotC), blue(spotC), 255 * currentOpacity);
       sketch.ellipse(spotX, spotY, spotSize, spotSize);
     }
     
+    // Dibuja un efecto de ondulación cuando el pez se está hundiendo
+    if (koi.sinking) {
+      // Calculamos el número de ondas basado en el progreso del hundimiento
+      int numRipples = 3;
+      
+      for (int i = 0; i < numRipples; i++) {
+        // Cada onda tiene un tamaño y opacidad diferente
+        float progress = koi.sinkingProgress + (i * 0.15);
+        
+        // Aseguramos que solo dibujamos ondas que están en fase visible (0-1)
+        if (progress > 0 && progress < 1.0) {
+          // El tamaño aumenta con el tiempo
+          float rippleSize = currentLength * (1.0 + progress * 2.0);
+          
+          // La opacidad sigue una curva que primero aumenta y luego disminuye
+          float rippleOpacity;
+          if (progress < 0.3) {
+            // Fase inicial: aumenta la opacidad
+            rippleOpacity = 100 * (progress / 0.3);
+          } else {
+            // Fase final: disminuye la opacidad
+            rippleOpacity = 100 * (1.0 - ((progress - 0.3) / 0.7));
+          }
+          
+          // Aplicamos la opacidad del pez a la onda
+          rippleOpacity *= koi.opacity * 0.8;
+          
+          // Dibujamos la onda
+          sketch.noFill();
+          sketch.stroke(255, 255, 255, rippleOpacity);
+          sketch.strokeWeight(1.5 - progress); // Línea más gruesa al principio
+          sketch.ellipse(0, 0, rippleSize, rippleSize);
+        }
+      }
+      
+      // Efecto de burbujas cuando el pez se está hundiendo
+      if (random(1) < 0.2 * koi.sinkingProgress) {
+        float bubbleX = random(-currentLength/2, currentLength/2);
+        float bubbleY = random(-currentWidth/2, currentWidth/2);
+        float bubbleSize = random(1, 3);
+        
+        sketch.fill(255, 255, 255, 150 * koi.opacity);
+        sketch.noStroke();
+        sketch.ellipse(bubbleX, bubbleY, bubbleSize, bubbleSize);
+      }
+    }
     // Si está excitado, dibuja pequeñas burbujas cerca de la boca
-    if (koi.excited && random(1) < 0.2) {
-      float bubbleX = koi.length/2 + random(5);
+    else if (koi.excited && random(1) < 0.2) {
+      float bubbleX = currentLength/2 + random(5);
       float bubbleY = (random(1) - 0.5) * 5;
       
-      sketch.fill(255, 255, 255, 153); // Blanco con 60% de opacidad
+      sketch.fill(255, 255, 255, 153 * currentOpacity); // Blanco con 60% de opacidad
       sketch.ellipse(bubbleX, bubbleY, random(1.5) + 0.5, random(1.5) + 0.5);
     }
     
@@ -511,9 +569,9 @@ class PondManager {
     sketch.textSize(12);
     sketch.fill(0, 0, 0, 150);
     sketch.noStroke();
-    sketch.rect(sketch.width - 350, sketch.height - 35, 340, 25, 5);
+    sketch.rect(sketch.width - 425, sketch.height - 35, 415, 25, 5);
     sketch.fill(255);
-    sketch.text("Clic izquierdo: Alimentar | Clic derecho: Tirar rocas", sketch.width - 20, sketch.height - 17);
+    sketch.text("Clic izquierdo: Alimentar | Clic derecho: Tirar rocas (pueden golpear a los peces)", sketch.width - 20, sketch.height - 17);
   }
   
   /**

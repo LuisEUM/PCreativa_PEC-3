@@ -20,6 +20,7 @@ Este proyecto es una simulación interactiva de un estanque de peces koi creado 
 - Interacción con el usuario:
   - Clic izquierdo: Alimentar a los peces (los atrae)
   - Clic derecho: Tirar rocas (los repele)
+  - Golpe directo: Si una roca golpea directamente a un pez, este se hundirá gradualmente con una animación dramática
 
 ## Cómo usar
 
@@ -31,6 +32,14 @@ Este proyecto es una simulación interactiva de un estanque de peces koi creado 
 6. Interactúe con los peces:
    - Clic izquierdo: Alimentar a los peces (los atrae)
    - Clic derecho: Tirar rocas (los repele)
+   - Para eliminar un pez, haga clic derecho muy cerca de él para golpearlo directamente con una roca
+
+## Efectos visuales
+
+- **Ondulaciones de agua**: Aparecen cuando se tira comida o rocas al estanque
+- **Pétalos flotantes**: Caen lentamente sobre el agua, creando ondulaciones
+- **Ciclo día/noche**: Cambia el color del agua según el momento del día
+- **Animación de hundimiento**: Cuando un pez es golpeado por una roca, se detiene, disminuye su tamaño progresivamente mientras aparecen ondulaciones en el agua y burbujas, y finalmente desaparece
 
 ## Requisitos
 
