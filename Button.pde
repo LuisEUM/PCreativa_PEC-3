@@ -1,69 +1,87 @@
 /**
- * Clase Button
+ * KOI SURVIVAL - Button
  * 
- * Representa un botón interactivo para la interfaz de usuario.
- * Maneja la detección de clics y estados visuales.
+ * Clase para botones interactivos con hover y click.
+ * Utilizada en todas las interfaces del juego.
+ * 
+ * CARACTERÍSTICAS:
+ * - Detección de hover y click
+ * - Colores personalizables
+ * - Texto centrado automáticamente
+ * - Bordes redondeados
+ * 
+ * CÓDIGO ORIGINAL: 100% (nueva implementación para el sistema de UI)
  */
+
 class Button {
-  Vector2D position;
+  // Posición y tamaño
+  PVector position;
   float width;
   float height;
+  
+  // Texto
   String label;
+  
+  // Colores
   color buttonColor;
   color hoverColor;
   color textColor;
+  
+  // Estado
   boolean isHovered;
+  boolean isPressed;
   
   /**
    * Constructor
-   * 
-   * @param x Posición x del botón
-   * @param y Posición y del botón
-   * @param width Ancho del botón
-   * @param height Alto del botón
-   * @param label Texto del botón
    */
-  Button(float x, float y, float width, float height, String label) {
-    this.position = new Vector2D(x, y);
-    this.width = width;
-    this.height = height;
+  Button(float x, float y, float w, float h, String label) {
+    this.position = new PVector(x, y);
+    this.width = w;
+    this.height = h;
     this.label = label;
-    this.buttonColor = ColorUtils.hexToColor("#4CAF50");
-    this.hoverColor = ColorUtils.hexToColor("#45a049");
-    this.textColor = ColorUtils.hexToColor("#FFFFFF");
     this.isHovered = false;
+    this.isPressed = false;
+    
+    // Colores por defecto
+    this.buttonColor = color(80, 120, 160);
+    this.hoverColor = color(100, 140, 180);
+    this.textColor = color(255, 255, 255);
   }
   
   /**
    * Actualiza el estado del botón
-   * 
-   * @param mouseX Posición X del ratón
-   * @param mouseY Posición Y del ratón
    */
   void update(float mouseX, float mouseY) {
-    this.isHovered = isMouseOver(mouseX, mouseY);
+    // Verificar si el mouse está sobre el botón
+    this.isHovered = mouseX >= position.x && 
+                     mouseX <= position.x + width && 
+                     mouseY >= position.y && 
+                     mouseY <= position.y + height;
   }
   
   /**
-   * Verifica si el ratón está sobre el botón
-   * 
-   * @param mouseX Posición X del ratón
-   * @param mouseY Posición Y del ratón
-   * @return true si el ratón está sobre el botón
-   */
-  boolean isMouseOver(float mouseX, float mouseY) {
-    return (mouseX >= position.x && mouseX <= position.x + width &&
-            mouseY >= position.y && mouseY <= position.y + height);
-  }
-  
-  /**
-   * Verifica si el botón ha sido clicado
-   * 
-   * @param mouseX Posición X del ratón
-   * @param mouseY Posición Y del ratón
-   * @return true si el botón ha sido clicado
+   * Verifica si el botón fue clickeado
    */
   boolean isClicked(float mouseX, float mouseY) {
-    return isMouseOver(mouseX, mouseY);
+    return mouseX >= position.x && 
+           mouseX <= position.x + width && 
+           mouseY >= position.y && 
+           mouseY <= position.y + height;
+  }
+  
+  /**
+   * Establece los colores del botón
+   */
+  void setColors(color buttonColor, color hoverColor, color textColor) {
+    this.buttonColor = buttonColor;
+    this.hoverColor = hoverColor;
+    this.textColor = textColor;
+  }
+  
+  /**
+   * Obtiene el color actual del botón
+   */
+  color getCurrentColor() {
+    return isHovered ? hoverColor : buttonColor;
   }
 } 

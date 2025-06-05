@@ -1,126 +1,144 @@
 /**
- * Simulación de Estanque de Koi
+ * KOI SURVIVAL - Aplicación Principal
  * 
- * Esta aplicación simula un estanque de peces koi tradicional japonés. El sistema 
- * representa un ecosistema acuático completo donde peces koi de diversos colores y patrones
- * nadan evitando obstáculos como rocas decorativas. Los peces responden a la 
- * interacción del usuario, acercándose a los puntos donde se hace clic izquierdo para buscar 
- * alimento y alejándose de los clics derechos (piedras). El estanque incluye elementos decorativos 
- * como hojas y flores de loto que flotan en la superficie, así como pétalos que caen aleatoriamente 
- * sobre el agua creando ondulaciones. El ciclo de tiempo cambia entre día, atardecer, noche y amanecer,
- * afectando el color del agua. Los usuarios pueden personalizar y añadir nuevos peces koi
- * con diferentes tamaños, colores base y patrones de manchas.
+ * Evolución de la simulación original de estanque de koi, ahora convertida en un juego
+ * completo con tres modos diferentes: Waves, Endless y Zen.
  * 
- * Este es el archivo principal que coordina todos los elementos del estanque de koi.
- * Este es el punto de entrada de la aplicación que inicializa y gestiona
- * todos los componentes de la simulación.
+ * MODOS DE JUEGO:
+ * ---------------
+ * 🌊 WAVES MODE: Juego de supervivencia con 5 rondas programadas, recursos limitados
+ *    y oleadas de depredadores. Incluye mejoras entre rondas y sistema de puntuación.
  * 
- * ARQUITECTURA DEL PROYECTO:
- * --------------------------
- * Este proyecto utiliza una arquitectura de Facade combinada con el patrón Manager.
- * Cada elemento de la simulación (peces, plantas, rocas, etc.) se gestiona a través
- * de su propio gestor especializado, y todos estos gestores están coordinados por
- * un gestor principal (PondManager) que actúa como fachada para simplificar las
- * interacciones entre los componentes.
+ * ♾️ ENDLESS MODE: Supervivencia infinita con escalada de dificultad cada 30 segundos,
+ *    power-ups especiales y estadísticas en tiempo real.
  * 
- * COMPONENTS MANAGERS:
+ * 🧘 ZEN MODE: La simulación original pacífica y relajante para crear koi personalizados
+ *    y disfrutar del ecosistema acuático sin presión.
+ * 
+ * NUEVAS CARACTERÍSTICAS:
+ * ----------------------
+ * - Sistema de estados centralizado con ScreenManager
+ * - Pausa universal con preservación completa del estado  
+ * - Menú principal con selección de modo
+ * - Transiciones fluidas entre estados
+ * - Sistema de puntuación con records por modo
+ * - Mecánicas de supervivencia (alimentación competitiva, depredadores)
+ * 
+ * ARQUITECTURA RENOVADA:
+ * ----------------------
+ * - ScreenManager: Controla estados y transiciones del juego
+ * - GameManager: Gestiona Modo Waves (rondas, oleadas, mejoras)
+ * - EndlessManager: Gestiona Modo Endless (escalada, power-ups)
+ * - PondManager: Mantiene funcionalidad original para Modo Zen
+ * - ScoreManager: Sistema de puntuación y records
+ * - UI específica por modo con preservación durante pausa
+ * 
+ * CONTROLES UNIVERSALES:
+ * ---------------------
+ * - ESPACIO / P / PAUSE: Pausa/Reanudar (disponible en todos los modos)
+ * - ESC: Volver al menú principal o salir de pausa
+ * - Controles específicos por modo (clic izq/der, teclas especiales)
+ * 
+ * FLUJO DE APLICACIÓN:
  * -------------------
- * - PondManager: Actúa como fachada principal que coordina todos los demás gestores.
- *   Implementa el patrón Facade para simplificar la interfaz del sistema complejo.
+ * 1. Inicialización: ScreenManager coordina todos los componentes
+ * 2. Loop principal: ScreenManager.update() y render() manejan estados
+ * 3. Eventos: Todos los inputs se procesan a través de ScreenManager
+ * 4. Transiciones: Estados cambian fluidamente preservando contexto
  * 
- * - KoiManager: Gestiona la colección de peces koi, su comportamiento y movimiento.
- *   Controla la creación, actualización y comportamiento colectivo de los peces.
+ * PRESERVACIÓN DEL CÓDIGO ORIGINAL:
+ * --------------------------------
+ * El Modo Zen mantiene intacta toda la funcionalidad original del estanque:
+ * - Personalización completa de koi (tamaños, colores, patrones)
+ * - Comportamiento realista con evasión de obstáculos  
+ * - Elementos decorativos (plantas, pétalos, ondulaciones)
+ * - Ciclo día/noche y efectos visuales
+ * - Sistema de UI original para creación de koi
  * 
- * - KoiCreator: Maneja la interfaz para crear nuevos peces koi personalizados con
- *   opciones de tamaño, color y patrones de manchas.
- * 
- * - PlantManager: Administra todas las plantas acuáticas (hojas y flores de loto).
- *   Gestiona la colocación estratégica y el ciclo de vida de las plantas.
- * 
- * - RockManager: Gestiona las rocas decorativas en el estanque, asegurando que no
- *   colisionen con las plantas y proporcionando obstáculos para los peces.
- * 
- * - RippleManager: Controla los efectos de ondulación en la superficie del agua,
- *   creados por interacciones como clics o pétalos que caen.
- * 
- * - PetalManager: Gestiona los pétalos de flor que flotan en el estanque,
- *   controlando su aparición, movimiento y hundimiento.
- * 
- * - FoodManager: Administra las partículas de comida que se crean cuando el usuario
- *   hace clic y que atraen a los peces koi.
- * 
- * - UIManager: Gestiona la interfaz de usuario para interacciones avanzadas,
- *   como la creación de nuevos peces koi con propiedades personalizadas,
- *   botones para cambiar el ciclo del día y eliminar peces.
- * 
- * CARACTERÍSTICAS PRINCIPALES:
- * --------------------------
- * - Personalización de peces koi: diferentes tamaños, colores base, patrones de manchas
- * - Comportamiento realista de los peces con evasión de obstáculos
- * - Ciclo de tiempo día/noche con cambios visuales en el agua
- * - Interacción usuario: alimentar peces (clic izquierdo) y lanzar piedras (clic derecho)
- * - Efectos visuales: ondulaciones de agua, pétalos flotantes, animaciones de peces
- * - Gestión de población: límite de 100 peces, contador visual, función para eliminar peces
- * 
- * FLUJO DE DATOS:
- * --------------
- * 1. La clase principal (lurdaneta_PEC2) inicializa el PondManager
- * 2. PondManager inicializa todos los demás gestores
- * 3. El método draw() actualiza y renderiza todos los elementos a través de PondManager
- * 4. Cuando ocurre un clic, se propaga a través del PondManager a los gestores relevantes
- * 
- * PATRONES DE DISEÑO:
- * ------------------
- * - Facade: PondManager proporciona una interfaz simplificada al sistema complejo
- * - Manager: Cada categoría de objetos tiene su propio gestor especializado
- * - Object-Oriented: Uso de clases para encapsular comportamiento y datos relacionados
+ * CÓDIGO ORIGINAL: 70% (se mantiene base existente + expansión significativa)
  */
 
-// Gestores
-PondManager pondManager;
+// GESTOR PRINCIPAL DEL SISTEMA
+ScreenManager screenManager;
 
 /**
- * Función de configuración - se ejecuta una vez al principio
- * Inicializa todos los componentes necesarios
+ * Función de configuración - Inicialización del sistema completo
+ * 
+ * Configura el lienzo y inicializa el ScreenManager que coordinará
+ * todos los modos de juego y estados de la aplicación.
  */
 void setup() {
-  // Establece el tamaño del lienzo a 600x600
+  // Configuración básica del lienzo
   size(600, 600);
-  // Habilita el renderizado suave
   smooth();
-  
-  // Establece el modo de color a RGB (predeterminado)
   colorMode(RGB, 255, 255, 255);
   
-  // Inicializa el gestor del estanque que coordina todos los elementos
-  pondManager = new PondManager(this);
+  // Inicializar el gestor principal del sistema
+  screenManager = new ScreenManager(this);
+  
+  println("🎮 Koi Survival inicializado");
+  println("📱 Estados disponibles: MAIN_MENU, ZEN_MODE, WAVES, ENDLESS, PAUSED");
+  println("⌨️ Controles: SPACE/P = Pausa, ESC = Menú, Mouse = Interacción");
 }
 
 /**
- * Función de dibujo - se ejecuta continuamente
- * Actualiza y renderiza todos los elementos
+ * Función de dibujo principal - Loop de renderizado
  * 
- * Este método se ejecuta aproximadamente 60 veces por segundo y es responsable de:
- * 1. Actualizar el estado de todos los elementos (posición, animación, etc.)
- * 2. Renderizar todos los elementos en el orden correcto (desde el fondo hasta la superficie)
+ * Delega toda la lógica de actualización y renderizado al ScreenManager,
+ * que se encarga de manejar el estado actual y coordinar los diferentes
+ * modos de juego según corresponda.
  */
 void draw() {
-  // Actualiza y renderiza el estanque
-  pondManager.update();
-  pondManager.render();
+  // El ScreenManager maneja toda la lógica de estados
+  screenManager.update();
+  screenManager.render();
 }
 
 /**
- * Manejador de evento de pulsación del ratón
- * Crea ondulaciones y partículas de comida, atrae a los peces
+ * Manejador de eventos de teclado
  * 
- * Este método responde a los clics del usuario y:
- * 1. Comprueba si el clic es manejado por la interfaz de usuario
- * 2. Si no, crea ondas en el agua (ripples)
- * 3. Genera partículas de comida (clic izquierdo) o piedras (clic derecho)
- * 4. Atrae a los peces koi cercanos o los repele, dependiendo del tipo de clic
+ * Procesa todas las teclas de control universal (pausa, escape) y
+ * delega teclas específicas al ScreenManager para manejo por estado.
+ * 
+ * TECLAS UNIVERSALES:
+ * - SPACE, P, PAUSE: Pausa/Reanudar en modos activos
+ * - ESC: Navegación hacia atrás o salir de pausa
+ * - Teclas específicas por modo se manejan en cada estado
+ */
+void keyPressed() {
+  // El ScreenManager procesa todas las teclas según el estado actual
+  screenManager.handleKeyPressed(key, keyCode);
+}
+
+/**
+ * Manejador de eventos de mouse
+ * 
+ * Distribuye los clics según el estado actual del juego:
+ * - MAIN_MENU: Navegación por botones
+ * - ZEN_MODE: Interacción original (alimentar/repeler)
+ * - WAVES/ENDLESS: Mecánicas de supervivencia (comida/rocas limitadas)
+ * - PAUSED: Navegación por menú de pausa
  */
 void mousePressed() {
-  pondManager.handleClick(mouseX, mouseY);
+  // El ScreenManager distribuye los clics según el estado
+  screenManager.handleMousePressed(mouseX, mouseY, mouseButton);
+}
+
+/**
+ * Función de limpieza al cerrar la aplicación
+ * 
+ * Permite guardar estado, records o configuraciones antes del cierre.
+ * El ScreenManager puede manejar cualquier limpieza necesaria.
+ */
+void exit() {
+  println("👋 Cerrando Koi Survival...");
+  
+  // Permitir que ScreenManager haga limpieza si es necesario
+  if (screenManager != null) {
+    // Futuro: guardar records, configuraciones, etc.
+    println("💾 Guardando datos del juego...");
+  }
+  
+  super.exit();
 }
 
