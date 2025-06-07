@@ -14,7 +14,10 @@ class Koi {
   float tailAmplitude; // Amplitud del movimiento de la cola
   float tailFrequency; // Frecuencia del movimiento de la cola
   Vector2D target; // Posición objetivo
+  Vector2D targetFood; // Posición de la comida objetivo
   float targetTime; // Tiempo restante en el objetivo actual
+  boolean seekingFood; // Si está persiguiendo comida
+  int competitionPriority; // Prioridad en la competencia por comida
   String koiColor; // Color principal del pez
   ArrayList<Spot> spots; // Manchas del pez
   float shadowOffset; // Desplazamiento de sombra para efecto 3D
@@ -26,6 +29,17 @@ class Koi {
   float sinkingTime; // Tiempo total de la animación de hundimiento
   float sinkingProgress; // Progreso de la animación (0-1)
   float opacity; // Opacidad del pez
+  
+  // Sistema de invulnerabilidad
+  boolean isInvulnerable;
+  float invulnerabilityTimer;
+  float invulnerabilityDuration;
+  float blinkTimer;
+  float blinkInterval;
+  boolean isVisible;
+  
+  Vector2D velocity;
+  Vector2D acceleration;
   
   /**
    * Constructor
@@ -45,7 +59,10 @@ class Koi {
     this.tailAmplitude = RandomUtils.randomFloat(0.15, 0.25);
     this.tailFrequency = RandomUtils.randomFloat(0.05, 0.1);
     this.target = new Vector2D(x, y);
+    this.targetFood = null;
     this.targetTime = 0;
+    this.seekingFood = false;
+    this.competitionPriority = 0;
     this.koiColor = koiColor;
     this.spots = new ArrayList<Spot>();
     this.shadowOffset = RandomUtils.randomFloat(3, 8);
@@ -57,6 +74,14 @@ class Koi {
     this.sinkingTime = 360; // Aproximadamente 6 segundos a 60 FPS (más lento que antes)
     this.sinkingProgress = 0;
     this.opacity = 1.0;
+    
+    // Inicializar sistema de invulnerabilidad
+    this.isInvulnerable = false;
+    this.invulnerabilityTimer = 0;
+    this.invulnerabilityDuration = 180; // 3 segundos (60 frames * 3)
+    this.blinkTimer = 0;
+    this.blinkInterval = 8; // Parpadeo cada 8 frames
+    this.isVisible = true;
   }
   
   /**
@@ -154,6 +179,18 @@ class Koi {
       }
     }
     
+    // Si está buscando comida, actualiza el objetivo
+    if (this.seekingFood && this.targetFood != null) {
+      setTarget(this.targetFood.x, this.targetFood.y, 60);
+      
+      // Si llega cerca de la comida, deja de buscarla
+      if (getDistanceToFood(this.targetFood) < 5) {
+        this.seekingFood = false;
+        this.targetFood = null;
+        this.competitionPriority = 0;
+      }
+    }
+    
     // Calcula el ángulo hacia el objetivo
     float targetAngle = Vector2D.angle(this.position, this.target);
     
@@ -177,6 +214,24 @@ class Koi {
     if (this.position.x > canvasWidth) this.position.x = canvasWidth;
     if (this.position.y < 0) this.position.y = 0;
     if (this.position.y > canvasHeight) this.position.y = canvasHeight;
+    
+    // Actualizar invulnerabilidad
+    if (isInvulnerable) {
+      invulnerabilityTimer += deltaTime;
+      blinkTimer += deltaTime;
+      
+      // Efecto de parpadeo
+      if (blinkTimer >= blinkInterval) {
+        isVisible = !isVisible;
+        blinkTimer = 0;
+      }
+      
+      // Terminar invulnerabilidad
+      if (invulnerabilityTimer >= invulnerabilityDuration) {
+        isInvulnerable = false;
+        isVisible = true;
+      }
+    }
   }
   
   /**
@@ -215,6 +270,97 @@ class Koi {
    */
   float easeInOutQuad(float x) {
     return x < 0.5 ? 2 * x * x : 1 - pow(-2 * x + 2, 2) / 2;
+  }
+  
+  /**
+   * Obtiene la distancia a una comida específica (Vector2D)
+   */
+  float getDistanceToFood(Vector2D foodPosition) {
+    return Vector2D.distance(position, foodPosition);
+  }
+  
+  /**
+   * Obtiene la distancia a una comida específica (PVector) - Compatibilidad Processing
+   */
+  float getDistanceToFood(PVector foodPosition) {
+    return PVector.dist(new PVector(position.x, position.y), foodPosition);
+  }
+  
+  /**
+   * Establece una comida como objetivo (Vector2D)
+   */
+  void setFoodTarget(Vector2D foodPosition, int priority) {
+    this.targetFood = foodPosition.clone();
+    this.seekingFood = true;
+    this.competitionPriority = priority;
+    
+    // Dirigirse inmediatamente hacia la comida
+    setTarget(foodPosition.x, foodPosition.y, 60);
+    setExcited(60);
+  }
+  
+  /**
+   * Establece una comida como objetivo (PVector) - Compatibilidad Processing
+   */
+  void setFoodTarget(PVector foodPosition, int priority) {
+    this.targetFood = new Vector2D(foodPosition.x, foodPosition.y);
+    this.seekingFood = true;
+    this.competitionPriority = priority;
+    
+    // Dirigirse inmediatamente hacia la comida
+    setTarget(foodPosition.x, foodPosition.y, 60);
+    setExcited(60);
+  }
+  
+  /**
+   * Activa el período de invulnerabilidad
+   */
+  void makeInvulnerable() {
+    isInvulnerable = true;
+    invulnerabilityTimer = 0;
+    blinkTimer = 0;
+    isVisible = true;
+  }
+  
+  /**
+   * Recibe daño y retorna true si el koi muere
+   */
+  boolean takeDamage(int damage) {
+    if (isInvulnerable) return false;
+    
+    // Activar invulnerabilidad
+    makeInvulnerable();
+    
+    // Reducir tamaño si el daño no mata al koi
+    if (length > 10 && damage < getHealthPoints()) {
+      length = getPreviousSize();
+      width = length * 0.4; // Mantener la proporción
+      return false;
+    }
+    
+    // El koi muere
+    return true;
+  }
+  
+  /**
+   * Obtiene los puntos de vida basados en el tamaño
+   */
+  int getHealthPoints() {
+    if (length >= 35) return 5;      // XL
+    if (length >= 28) return 4;      // L
+    if (length >= 20) return 3;      // M
+    if (length >= 15) return 2;      // S
+    return 1;                      // XS
+  }
+  
+  /**
+   * Obtiene el tamaño del nivel anterior
+   */
+  float getPreviousSize() {
+    if (length >= 35) return 28;     // XL -> L
+    if (length >= 28) return 20;     // L -> M
+    if (length >= 20) return 15;     // M -> S
+    return 10;                     // S -> XS
   }
 }
 

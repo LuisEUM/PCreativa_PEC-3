@@ -18,6 +18,7 @@ class WavesManager {
   PlantManager plantManager;
   RockManager rockManager;
   WavesUIManager uiManager;
+  PowerUpManager powerUpManager;
   
   // Seguimiento de tiempo
   float lastTimestamp = 0;
@@ -64,6 +65,10 @@ class WavesManager {
     
     // Inicializa el gestor de UI para Waves
     uiManager = new WavesUIManager(sketch, koiManager);
+    koiManager.setUIManager(uiManager); // Establece la referencia al UIManager
+    
+    // Inicializa el gestor de power-ups
+    powerUpManager = new PowerUpManager(sketch.width, sketch.height, rockManager.getRocks());
   }
   
   /**
@@ -95,6 +100,10 @@ class WavesManager {
     
     // Actualiza el tiempo del día según la wave actual
     timeOfDay = uiManager.getCurrentTimeOfDay();
+    
+    // Actualiza power-ups y verifica colisiones
+    powerUpManager.update(deltaTime);
+    powerUpManager.checkCollisions(koiManager.getKois(), koiManager);
   }
   
   /**
@@ -127,6 +136,9 @@ class WavesManager {
     
     // CAPA 9: Renderiza pétalos de flor de cerezo (capa superior)
     renderPetals();
+    
+    // CAPA 5.5: Renderiza power-ups (entre los peces y las hojas)
+    renderPowerUps();
     
     // Renderiza texto de interfaz
     renderUI();
@@ -653,6 +665,10 @@ class WavesManager {
     sketch.ellipse(0, 0, currentSize * 2, currentSize * 3);
     
     sketch.popMatrix();
+  }
+  
+  void renderPowerUps() {
+    powerUpManager.render();
   }
   
   void renderUI() {

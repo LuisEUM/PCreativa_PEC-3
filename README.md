@@ -28,19 +28,78 @@ Modo de supervivencia sin límite de tiempo donde los depredadores aparecen cons
 
 ## 🕹️ MECÁNICAS PRINCIPALES
 
-### 🐟 **SISTEMA DE ALIMENTACIÓN**
+### 🐟 **SISTEMA DE CRECIMIENTO KOI**
 
-- **Detección automática:** Todos los koi detectan y buscan comida automáticamente
-- **Competencia limitada:** Todos los koi pueden competir por cada partícula de comida
-- **Crecimiento:** Solo los tres primeros kois en llegar comen y crecen un nivel de tamaño
-- **Pérdida de nivel:** Los koi bajan un nivel si no comen por 20 segundos o son mordidos por un enemigo
+| Nivel | Tamaño | Velocidad | Puntos de Vida |
+| ----- | ------ | --------- | -------------- |
+| XS    | 10     | 1.4x      | 1              |
+| S     | 15     | 1.2x      | 2              |
+| M     | 20     | 1.0x      | 3              |
+| L     | 28     | 0.8x      | 4              |
+| XL    | 35     | 0.6x      | 5              |
+
+### 🍜 **SISTEMA DE ALIMENTACIÓN**
+
+- **Partículas flotantes:** La comida flota en el agua por 3 segundos
+- **Competencia:** Solo los peces que llegan a la comida antes de que desaparezca obtienen el buff
+- **Crecimiento:** Cada 10 comidas consumidas el pez crece un nivel
+- **Pérdida de nivel:** Los koi bajan un nivel al ser mordidos por enemigos
+- **Muerte:** Los koi mueren si son atacados siendo nivel XS
+
+### 🐟 **SISTEMA DE DAÑO Y RECUPERACIÓN**
+
+| Nivel Actual | Daño Recibido | Nuevo Nivel | Puntos de Vida |
+| ------------ | ------------- | ----------- | -------------- |
+| XL (35px)    | 1-3           | L           | 5              |
+| L (28px)     | 1-2           | M           | 4              |
+| M (20px)     | 1             | S           | 3              |
+| S (15px)     | 1             | XS          | 2              |
+| XS (10px)    | 1             | Muerte      | 1              |
+
+**Mecánicas de Daño:**
+
+- Al recibir daño menor a puntos de vida, el koi baja un nivel
+- Período de invulnerabilidad de 3 segundos tras recibir daño
+- Efecto visual de parpadeo durante invulnerabilidad
+- Si el daño iguala o supera los puntos de vida, el koi muere
+- La invulnerabilidad previene daño múltiple del mismo enemigo
+
+**Recuperación:**
+
+- Crecimiento al comer 10 partículas de comida
+- Power-ups de comida aceleran la recuperación
+- El crecimiento restaura todos los puntos de vida
+- No hay recuperación automática de nivel
 
 ### ⚔️ **SISTEMA DE COMBATE**
 
-- **Rocas limitadas:** Cantidad máxima de rocas disponibles por ronda
-- **Daño por impacto:** Los depredadores reciben daño al ser golpeados por rocas
-- **Vidas múltiples:** Depredadores requieren múltiples golpes según su tamaño
-- **Targeting inteligente:** Los depredadores persiguen automáticamente al koi más vulnerable
+- **Puntos de daño:** Cada enemigo tiene puntos de daño específicos
+- **Colisiones:** Si el daño del enemigo iguala o supera los puntos de vida del koi, este muere
+- **Decrecimiento:** Los koi pierden un nivel al ser mordidos y sobrevivir
+
+### 🎁 **SISTEMA DE POWER-UPS**
+
+Los power-ups aparecen en burbujas cada 20 segundos:
+
+| Power-up  | Contenido         | Cantidad                 |
+| --------- | ----------------- | ------------------------ |
+| 🪨 Rocas  | +5/+10/+20 rocas  | Regeneración instantánea |
+| 🐠 Koi    | +5/+10/+20 koi    | Spawn inmediato          |
+| 🍜 Comida | +5/+10/+20 comida | Regeneración instantánea |
+
+**Mecánicas de Power-ups:**
+
+- **Spawn:** Cada 20 segundos aparece una burbuja aleatoria
+- **Duración:** Las burbujas permanecen 5 segundos en pantalla
+- **Colecta:** El primer koi en tocar la burbuja obtiene el power-up
+- **Regeneración:** Los recursos SOLO se regeneran a través de power-ups
+
+### 📈 **SISTEMA DE RECURSOS**
+
+- **Comida y Rocas:** NO se regeneran automáticamente
+- **Obtención:** Solo a través de power-ups en burbujas
+- **Estrategia:** Gestión cuidadosa de recursos entre power-ups
+- **Competencia:** Los koi deben competir por las burbujas de power-up
 
 ### 📈 **SISTEMA DE CRECIMIENTO KOI**
 
@@ -56,7 +115,7 @@ Modo de supervivencia sin límite de tiempo donde los depredadores aparecen cons
 
 - **Regeneración temporal:** Rocas y comida se regeneran cada 5 segundos
 - **Gestión estratégica:** El jugador debe decidir cuándo y cómo usar cada recurso
-- **Mejoras entre rondas:** Elegir entre +10 rocas máximas, +10 comidas máximas O +5 koi refuerzo
+- **Mejoras entre rondas:** Elegir entre +10 rocas máximas, +10 comidas máximas o +5 koi refuerzo
 
 ---
 
@@ -66,54 +125,54 @@ Modo de supervivencia sin límite de tiempo donde los depredadores aparecen cons
 
 - **Duración:** 2 minutos
 - **Koi inicial:** 8 koi pequeños (S y M)
-- **Recursos iniciales:** 5 rocas máx, 8 comidas máx
-- **Oleadas de enemigos:**
-  - 0:30 → 1 Bagre pequeño (2 vidas)
-  - 1:00 → 1 Bagre pequeño
-  - 1:30 → 2 Bagres pequeños
+- **Spawn de enemigos:** 1 enemigo cada 2 segundos
+- **Tipos de enemigos:** Solo Bagres pequeños (90%), Carpas medianas (10%)
 - **Puntos base:** 100 pts por koi superviviente
 
 ### 🥈 **RONDA 2: "Amenaza Creciente"**
 
 - **Duración:** 2 minutos
 - **Koi:** Supervivientes + 2 koi nuevos (M)
-- **Oleadas de enemigos:**
-  - 0:20 → 1 Bagre pequeño
-  - 0:50 → 1 Carpa mediana (3 vidas)
-  - 1:20 → 1 Bagre + 1 Carpa
-  - 1:50 → 2 Carpas medianas
+- **Spawn de enemigos:** 1-2 enemigos cada 2 segundos
+- **Tipos de enemigos:**
+  - Bagres pequeños (60%)
+  - Carpas medianas (30%)
+  - Lucios grandes (10%)
 - **Puntos base:** 150 pts por koi superviviente
 
 ### 🥉 **RONDA 3: "Depredadores Grandes"**
 
 - **Duración:** 2 minutos
 - **Koi:** Supervivientes + 1 koi grande (L)
-- **Oleadas de enemigos:**
-  - 0:15 → 1 Carpa mediana
-  - 0:45 → 1 Lucio grande (4 vidas)
-  - 1:05 → 2 Carpas + 1 Bagre
-  - 1:35 → 1 Lucio + 1 Carpa
+- **Spawn de enemigos:** 2-3 enemigos cada 2 segundos
+- **Tipos de enemigos:**
+  - Bagres pequeños (40%)
+  - Carpas medianas (30%)
+  - Lucios grandes (20%)
+  - Tiburones (10%)
 - **Puntos base:** 200 pts por koi superviviente
 
 ### 🏆 **RONDA 4: "Invasión Masiva"**
 
 - **Duración:** 2 minutos
 - **Koi:** Supervivientes + 1 koi XL
-- **Oleadas de enemigos:**
-  - 0:10 → 2 Bagres
-  - 0:30 → 1 Lucio grande
-  - 0:50 → 3 Carpas medianas
-  - 1:10 → 2 Lucios grandes
-  - 1:40 → 1 Tiburón gigante (5 vidas)
+- **Spawn de enemigos:** 4-5 enemigos cada 2 segundos
+- **Tipos de enemigos:**
+  - Bagres pequeños (30%)
+  - Carpas medianas (30%)
+  - Lucios grandes (25%)
+  - Tiburones (15%)
 - **Puntos base:** 300 pts por koi superviviente
 
 ### 👑 **RONDA 5: "Supervivencia Final"**
 
 - **Duración:** 2 minutos
 - **Koi:** Solo supervivientes
-- **Oleadas de enemigos:**
-  - Cada 20 segundos → Wave aleatoria de 2-4 depredadores
-  - 1:30 → **JEFE:** Tiburón Rey (8 vidas, tamaño gigante)
+- **Spawn de enemigos:** 4-5 enemigos cada 2 segundos
+- **Tipos de enemigos:**
+  - Carpas medianas (20%)
+  - Lucios grandes (35%)
+  - Tiburones (45%)
 - **Puntos base:** 500 pts por koi superviviente
 
 ---
@@ -148,7 +207,7 @@ Modo de supervivencia sin límite de tiempo donde los depredadores aparecen cons
 - **Multiplicador temporal:** x1.1 cada 30 segundos (máximo x5.0) - Afecta TODOS los puntos
 - **Bonus de hitos:** +1000 pts por cada minuto sobrevivido
 
-### 🎁 **POWER-UPS ESPECIALES (Solo Modo Endless)**
+<!-- ### 🎁 **POWER-UPS ESPECIALES (Solo Modo Endless)**
 
 Los power-ups caen del cielo aleatoriamente cada 45-90 segundos:
 
@@ -163,7 +222,7 @@ Los power-ups caen del cielo aleatoriamente cada 45-90 segundos:
 - **Duración en pantalla:** 5 segundos antes de desaparecer
 - **Alerta visual:** Titila/parpadea los últimos 3 segundos
 - **Competencia:** Solo 1 koi puede tomar cada power-up
-- **Spawn:** Posición aleatoria en el estanque
+- **Spawn:** Posición aleatoria en el estanque -->
 
 ### 📊 **ESTADÍSTICAS EN TIEMPO REAL (Modo Endless)**
 
@@ -225,13 +284,38 @@ Mostradas en la esquina inferior izquierda:
 
 ## 🦈 TIPOS DE DEPREDADORES
 
-| Tipo               | Tamaño | Vidas | Velocidad | Puede Comer |
-| ------------------ | ------ | ----- | --------- | ----------- |
-| Bagre Pequeño      | 25     | 2     | 0.5x      | XS, S       |
-| Carpa Mediana      | 35     | 3     | 0.6x      | XS, S, M    |
-| Lucio Grande       | 45     | 4     | 0.7x      | XS, S, M, L |
-| Tiburón Gigante    | 55     | 5     | 0.8x      | Todos       |
-| Tiburón Rey (Jefe) | 70     | 8     | 0.9x      | Todos       |
+Los depredadores son manejados por el KoiManager como peces especiales:
+
+| Tipo          | Tamaño | Puntos de Daño | Velocidad | Puntos de Vida |
+| ------------- | ------ | -------------- | --------- | -------------- |
+| Bagre Pequeño | 25     | 1              | 0.7x      | 2              |
+| Carpa Mediana | 35     | 2              | 0.8x      | 3              |
+| Lucio Grande  | 45     | 3              | 0.9x      | 4              |
+| Tiburón       | 55     | 4              | 1.0x      | 5              |
+
+**Características:**
+
+- Atraídos tanto por comida como por otros peces
+- Causan daño al contacto basado en sus puntos de daño
+- Si el daño supera los puntos de vida del koi, este muere
+- Si el daño es menor, el koi pierde un nivel
+- Requieren múltiples golpes de roca para ser eliminados (puntos de vida)
+
+**Sistema de Spawn:**
+
+- Aparecen cada 2 segundos
+- Cantidad y tipos varían según la ronda
+- Spawn desde bordes aleatorios del mapa
+- Probabilidades ajustadas por ronda
+- Mayor dificultad = Más enemigos fuertes
+
+**Comportamiento:**
+
+- Persiguen al koi más cercano
+- Evitan rocas y obstáculos
+- Se mueven más rápido al detectar koi cercano
+- Pueden ser eliminados con rocas
+- Dejan power-ups al morir (10% de probabilidad)
 
 ---
 
@@ -425,94 +509,71 @@ SurvivalUI.pde           // Interfaz específica para Waves/Endless
 
 ## ✅ TODO LIST - DESARROLLO
 
-### 🎮 **FASE 1: ESTADOS Y PANTALLAS (Semana 1)**
+### 🎮 **FASE 1: SISTEMA BASE Y KOI MANAGER (Completado)**
 
-- [ ] Crear ScreenManager.pde para gestión de estados de los 3 modos
-- [ ] Implementar pantalla de inicio con selección de modo (MAIN_MENU)
-- [ ] Implementar pantalla de instrucciones (INSTRUCTIONS)
-- [ ] Configurar Modo Zen usando código existente (ZEN_MODE)
-- [ ] Implementar pantalla de pausa universal (PAUSED) para todos los modos
-- [ ] Crear sistema de preservación de estado durante pausa
-- [ ] Implementar pantalla de game over para Waves/Endless (GAME_OVER)
-- [ ] Implementar pantalla de victoria para Waves (GAME_WON)
-- [ ] Crear transiciones entre pantallas y modos
-- [ ] Testear navegación completa entre los 3 modos y pausa
+- [x] Implementar sistema base de simulación
+- [x] Crear KoiManager con funcionalidades básicas
+- [x] Implementar sistema de partículas para pétalos
+- [x] Implementar sistema de velocidad basado en tamaño
+- [x] Implementar sistema de vidas/daño para koi
+- [x] Agregar contador de alimentación (10 comidas = crecimiento)
+- [x] Implementar comportamiento de enemigos en KoiManager
+- [x] Crear sistema de colisiones koi-enemigo con daño
 
-### ⚔️ **FASE 2: MECÁNICAS BÁSICAS DE SUPERVIVENCIA (Semana 2)**
+### 🎯 **FASE 2: SISTEMA DE PARTÍCULAS Y POWER-UPS (En Progreso)**
 
-- [ ] Expandir clase Koi con sistema de niveles
-- [ ] Implementar pérdida de nivel (20s sin comer + mordeduras)
-- [ ] Crear sistema de competencia por comida (máximo 3 koi)
-- [ ] Implementar ResourceManager para rocas y comida limitadas
-- [ ] Crear regeneración de recursos cada 5 segundos
-- [ ] Testear mecánicas básicas de alimentación y crecimiento
+- [x] Modificar partículas de comida para flotar 3 segundos
+- [ ] Implementar sistema de burbujas power-up
+- [ ] Crear efectos visuales para burbujas
+- [ ] Agregar spawning aleatorio de power-ups cada 20 segundos
+- [ ] Implementar tres tipos de power-ups:
+  - [ ] Burbuja con rocas (+5/+10/+20)
+  - [ ] Burbuja con koi (+5/+10/+20)
+  - [ ] Burbuja con comida (+5/+10/+20)
 
-### 🦈 **FASE 3: SISTEMA DE DEPREDADORES (Semana 3)**
+### ⚔️ **FASE 3: SISTEMA DE WAVES Y DIFICULTAD (Prioritario)**
 
-- [ ] Crear clase Predator con diferentes tipos
-- [ ] Implementar sistema de vidas múltiples
-- [ ] Crear PredatorManager para spawning desde fuera del mapa
-- [ ] Implementar targeting inteligente (koi más vulnerable)
-- [ ] Crear sistema de daño por rocas
-- [ ] Testear combate y eliminación de depredadores
+- [ ] Implementar sistema de spawn de enemigos cada 2 segundos
+- [ ] Crear sistema de probabilidad de tipos de enemigos por ronda
+- [ ] Implementar escalado de cantidad de enemigos por ronda
+- [ ] Balancear dificultad y tipos de enemigos
+- [ ] Implementar sistema de puntuación por ronda
+- [ ] Crear transiciones entre rondas
 
-### 🌊 **FASE 4: SISTEMA DE RONDAS Y ENDLESS (Semana 4)**
+### 🎨 **FASE 4: UI Y FEEDBACK VISUAL**
 
-- [ ] Crear GameManager para control de Modo Waves
-- [ ] Implementar timer de 2 minutos por ronda (Waves)
-- [ ] Programar oleadas específicas por ronda (1-5) (Waves)
-- [ ] Crear pantalla de mejoras entre rondas (Waves)
-- [ ] Implementar sistema de mejoras (+10 rocas/comida/+5 koi XS) (Waves)
-- [ ] Crear EndlessManager para Modo Endless
-- [ ] Implementar escalada de dificultad cada 30s (Endless)
-- [ ] Programar spawning constante de depredadores (Endless)
-- [ ] Crear PowerUpManager para power-ups especiales (Endless)
-- [ ] Implementar power-ups: Comida Dorada, Escudo, Multiplicador x2 (Endless)
-- [ ] Crear condiciones de victoria/derrota para ambos modos
-- [ ] Testear ambos sistemas de juego independientemente
+- [ ] Crear indicadores visuales de vidas
+- [ ] Implementar efectos de daño
+- [ ] Agregar animaciones de power-ups
+- [ ] Mejorar feedback de crecimiento/decrecimiento
+- [ ] Implementar UI para contadores (comida, vidas)
+- [ ] Crear indicador de ronda actual
+- [ ] Mostrar probabilidades de enemigos
 
-### 🎨 **FASE 5: INTERFAZ Y FEEDBACK VISUAL (Semana 5)**
+### 🎵 **FASE 5: PULIDO Y OPTIMIZACIÓN**
 
-- [ ] Crear SurvivalUI.pde para interfaz de Waves/Endless
-- [ ] Implementar contador de tiempo para Waves (centro superior)
-- [ ] Implementar contador de supervivencia para Endless (centro superior)
-- [ ] Crear billboard de puntuación para Waves/Endless (esquina superior derecha)
-- [ ] Implementar sistema de puntos en tiempo real
-- [ ] Crear panel de estadísticas en tiempo real para Endless (esquina inferior izquierda)
-- [ ] Mantener UI original del Modo Zen (botones creación, día/noche, etc.)
-- [ ] Crear indicadores de recursos para Waves/Endless (barras rocas/comida)
-- [ ] Implementar alertas de oleadas (5s antes) para Waves
-- [ ] Implementar alerta de escalada de dificultad para Endless
-- [ ] Crear efectos visuales de power-ups (spawn, titilado, colecta)
-- [ ] Implementar indicadores de power-ups activos con timers
-- [ ] Crear efectos visuales de crecimiento/pérdida de nivel
-- [ ] Implementar efectos de impacto y muerte
-- [ ] Agregar multiplicadores visuales por ronda/tiempo
-
-### 🏆 **FASE 6: PUNTUACIÓN Y BALANCING (Semana 6)**
-
-- [ ] Implementar sistema de puntuación completo para Waves con multiplicadores
-- [ ] Implementar sistema de puntuación para Endless con escalada temporal
-- [ ] Crear billboard interactivo con animaciones de puntos
-- [ ] Implementar guardado de records separados para cada modo (Waves/Endless/Zen)
-- [ ] Crear estadísticas detalladas por ronda (Waves) y tiempo (Endless)
-- [ ] Implementar pantalla de mejoras con opción de +5 koi XS (Waves)
-- [ ] Balancear puntuación base por ronda Waves (100, 150, 200, 300, 500)
-- [ ] Balancear escalada de dificultad Endless (30s intervals)
-- [ ] Balancear frecuencia y efectos de power-ups (Endless)
-- [ ] Calibrar multiplicadores: Waves (por ronda) vs Endless (temporal, afecta todos los puntos)
-- [ ] Ajustar velocidades de koi y depredadores para ambos modos
-- [ ] Calibrar tiempos de regeneración de recursos
-- [ ] Testear experiencia completa de los 3 modos
-
-### 🎵 **FASE 7: AUDIO Y PULIDO (Semana 7)**
-
-- [ ] Agregar efectos de sonido básicos
-- [ ] Implementar música de fondo (opcional)
-- [ ] Crear feedback auditivo para acciones importantes
-- [ ] Pulir transiciones y animaciones
-- [ ] Optimizar rendimiento
+- [ ] Optimizar sistema de partículas
+- [ ] Mejorar rendimiento de colisiones
+- [ ] Agregar efectos de sonido
+- [ ] Pulir animaciones y transiciones
 - [ ] Testing final y corrección de bugs
+
+### 📊 **SISTEMA DE PUNTUACIÓN ACTUALIZADO**
+
+- **Puntos por Ronda:**
+
+  - Ronda 1: 100 pts por koi
+  - Ronda 2: 150 pts por koi
+  - Ronda 3: 200 pts por koi
+  - Ronda 4: 300 pts por koi
+  - Ronda 5: 500 pts por koi
+
+- **Bonus:**
+  - Enemigo eliminado: +50 pts
+  - Koi crecido: +25 pts
+  - Power-up recolectado: +100 pts
+  - Ronda completada: +1000 pts
+  - Victoria total: +5000 pts
 
 ### 📚 **FASE 8: DOCUMENTACIÓN Y ENTREGA (Semana 8)**
 

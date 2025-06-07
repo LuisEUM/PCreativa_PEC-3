@@ -39,7 +39,7 @@ class WavesUIManager {
     // Inicializar waves
     this.currentWave = 1;
     this.waveStartTime = millis();
-    this.waveDuration = 120; // 2 minutos en milisegundos
+    this.waveDuration = 120000; // 2 minutos en milisegundos
     this.waveComplete = false;
     
     // Inicializar recursos limitados (más recursos que en Endless)
@@ -253,5 +253,26 @@ class WavesUIManager {
     applet.textSize(14);
     applet.textAlign(applet.CENTER, applet.CENTER);
     applet.text("FISH: " + currentFishCount, 60, 35);
+  }
+  
+  /**
+   * Aplica el efecto de un power-up
+   */
+  void applyPowerUp(PowerUp powerUp) {
+    switch (powerUp.type) {
+      case ROCKS:
+        // Aumentar rocas disponibles
+        maxRocks += powerUp.amount;
+        rockCount += powerUp.amount;
+        break;
+      case KOI:
+        // Los koi se añaden directamente en PowerUpManager
+        break;
+      case FOOD:
+        // Aumentar comida disponible
+        maxFood += powerUp.amount;
+        foodCount += powerUp.amount;
+        break;
+    }
   }
 } 
