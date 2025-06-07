@@ -261,17 +261,17 @@ class WavesUIManager {
   void applyPowerUp(PowerUp powerUp) {
     switch (powerUp.type) {
       case ROCKS:
-        // Aumentar rocas disponibles
-        maxRocks += powerUp.amount;
-        rockCount += powerUp.amount;
+        // Solo añadir rocas hasta el máximo actual (sin exceder el límite)
+        int rocksToAdd = min(powerUp.amount, maxRocks - rockCount);
+        rockCount += rocksToAdd;
         break;
       case KOI:
         // Los koi se añaden directamente en PowerUpManager
         break;
       case FOOD:
-        // Aumentar comida disponible
-        maxFood += powerUp.amount;
-        foodCount += powerUp.amount;
+        // Solo añadir comida hasta el máximo actual (sin exceder el límite)
+        int foodToAdd = min(powerUp.amount, maxFood - foodCount);
+        foodCount += foodToAdd;
         break;
     }
   }

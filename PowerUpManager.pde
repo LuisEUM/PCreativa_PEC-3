@@ -21,7 +21,7 @@ class PowerUpManager {
   PowerUpManager(float canvasWidth, float canvasHeight, ArrayList<Rock> rocks) {
     this.powerUps = new ArrayList<PowerUp>();
     this.spawnTimer = 0;
-    this.spawnInterval = 1200; // 20 segundos (60 frames * 20)
+    this.spawnInterval = 20000; // 20 segundos en milisegundos (no frames)
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
     this.rocks = rocks;

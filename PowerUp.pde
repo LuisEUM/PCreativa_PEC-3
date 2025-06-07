@@ -25,11 +25,11 @@ class PowerUp {
     this.type = type;
     this.amount = amount;
     this.size = 40;
-    this.maxLifeTime = 600; // 10 segundos (60 frames * 10)
+    this.maxLifeTime = 20000; // 20 segundos en milisegundos (no frames)
     this.lifeTime = maxLifeTime;
     this.bobTimer = 0;
-    this.bobAmplitude = 5;
-    this.bobFrequency = 0.05;
+    this.bobAmplitude = 3; // Reducido para movimiento más sutil
+    this.bobFrequency = 0.002; // Reducido para movimiento más lento
     this.alpha = 255;
     this.bubbleRotation = random(TWO_PI);
   }
@@ -38,19 +38,19 @@ class PowerUp {
    * Actualiza el estado del power-up
    */
   void update(float deltaTime) {
-    // Actualizar tiempo de vida
+    // Actualizar tiempo de vida (deltaTime ya está en milisegundos)
     lifeTime -= deltaTime;
     
-    // Actualizar movimiento de flotación
+    // Actualizar movimiento de flotación más sutil
     bobTimer += deltaTime * bobFrequency;
-    position.y += sin(bobTimer) * bobAmplitude * (deltaTime / 16.67);
+    position.y += sin(bobTimer) * bobAmplitude * (deltaTime / 1000.0);
     
-    // Rotar burbuja suavemente
-    bubbleRotation += 0.01 * (deltaTime / 16.67);
+    // Rotar burbuja más lentamente
+    bubbleRotation += 0.0005 * deltaTime;
     
-    // Fade out en últimos 2 segundos
-    if (lifeTime < 120) {
-      alpha = map(lifeTime, 0, 120, 0, 255);
+    // Fade out en últimos 4 segundos (4000 ms)
+    if (lifeTime < 4000) {
+      alpha = map(lifeTime, 0, 4000, 0, 255);
     }
   }
   
