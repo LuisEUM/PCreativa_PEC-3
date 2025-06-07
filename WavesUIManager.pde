@@ -15,7 +15,7 @@ class WavesUIManager {
   boolean waveComplete;
   
   // Nombres y tiempos de día de las waves
-  String[] waveNames = {"DAY", "SUNSET", "NIGHT", "DAWN", "DAY"};
+  String[] waveNames = {"DÍA", "ATARDECER", "NOCHE", "AMANECER", "DÍA"};
   int[] waveTimes = {0, 1, 2, 3, 0}; // 0=día, 1=atardecer, 2=noche, 3=amanecer
   
   // Sistema de recursos
@@ -39,7 +39,7 @@ class WavesUIManager {
     // Inicializar waves
     this.currentWave = 1;
     this.waveStartTime = millis();
-    this.waveDuration = 120000; // 2 minutos en milisegundos
+    this.waveDuration = 120; // 2 minutos en milisegundos
     this.waveComplete = false;
     
     // Inicializar recursos limitados (más recursos que en Endless)
@@ -89,7 +89,7 @@ class WavesUIManager {
       currentWave++;
       waveStartTime = millis();
       waveComplete = false;
-      println("🌊 Avanzando a Wave " + currentWave);
+      println("Avanzando a la Oleada " + currentWave);
     }
   }
   
@@ -175,7 +175,7 @@ class WavesUIManager {
       applet.fill(color(100, 255, 100));
       applet.textSize(14);
       applet.textAlign(applet.CENTER, applet.CENTER);
-      applet.text("ALL WAVES COMPLETE!", applet.width/2, 32);
+      applet.text("¡TODAS LAS OLEADAS COMPLETAS!", applet.width/2, 32);
     }
   }
   
@@ -230,12 +230,12 @@ class WavesUIManager {
     // Comida
     color foodColor = foodCount > 20 ? color(100, 255, 100) : color(255, 100, 100);
     applet.fill(foodColor);
-    applet.text("FOOD: " + foodCount + "/" + maxFood, applet.width - 130, 35);
+    applet.text("COMIDA: " + foodCount + "/" + maxFood, applet.width - 130, 35);
     
     // Piedras
     color rockColor = rockCount > 10 ? color(100, 255, 100) : color(255, 100, 100);
     applet.fill(rockColor);
-    applet.text("ROCKS: " + rockCount + "/" + maxRocks, applet.width - 130, 55);
+    applet.text("ROCAS: " + rockCount + "/" + maxRocks, applet.width - 130, 55);
   }
   
   /**

@@ -1,5 +1,5 @@
 /**
- * KOI SURVIVAL - WaterManager
+ * Jardín Koi  - WaterManager
  * 
  * Gestor de efectos de agua como ondas y salpicaduras.
  * Maneja la simulación de efectos visuales en el agua del estanque.

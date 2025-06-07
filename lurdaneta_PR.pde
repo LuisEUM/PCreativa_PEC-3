@@ -1,5 +1,5 @@
   /**
- * KOI SURVIVAL - Aplicación Principal
+ * Jardín Koi  - Aplicación Principal
  * 
  * Evolución de la simulación original de estanque de koi, ahora convertida en un juego
  * completo con tres modos diferentes: Waves, Endless y Zen.
@@ -76,7 +76,7 @@ void setup() {
   // Inicializar el gestor principal del sistema
   screenManager = new ScreenManager(this);
   
-  println("🎮 Koi Survival inicializado");
+  println("🎮 Jardín Koi  inicializado");
   println("📱 Estados disponibles: MAIN_MENU, ZEN_MODE, WAVES, ENDLESS, PAUSED");
   println("⌨️ Controles: SPACE/P = Pausa, ESC = Menú, Mouse = Interacción");
 }
@@ -131,7 +131,7 @@ void mousePressed() {
  * El ScreenManager puede manejar cualquier limpieza necesaria.
  */
 void exit() {
-  println("👋 Cerrando Koi Survival...");
+  println("👋 Cerrando Jardín Koi ...");
   
   // Permitir que ScreenManager haga limpieza si es necesario
   if (screenManager != null) {

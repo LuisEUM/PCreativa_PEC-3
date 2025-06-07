@@ -1,10 +1,10 @@
-# 🎮 KOI SURVIVAL
+# 🎮 Jardín Koi
 
 **Un juego de supervivencia basado en la simulación de estanque de peces koi donde debes proteger y hacer crecer tu colección de koi mientras enfrentas oleadas de depredadores a lo largo de 5 rondas intensas.**
 
 ## 🎯 CONCEPTO DEL JUEGO
 
-Koi Survival es una evolución de la simulación de estanque original que ofrece **tres experiencias de juego distintas**:
+Jardín Koi es una evolución de la simulación de estanque original que ofrece **tres experiencias de juego distintas**:
 
 ### 🌊 **MODO WAVES** (Principal)
 

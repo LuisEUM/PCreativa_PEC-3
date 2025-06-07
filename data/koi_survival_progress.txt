@@ -1,0 +1,2 @@
+waves_completed=1
+endless_unlocked=1

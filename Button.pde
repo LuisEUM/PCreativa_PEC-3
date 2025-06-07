@@ -1,5 +1,5 @@
 /**
- * KOI SURVIVAL - Button
+ * Jardín Koi - Button
  * 
  * Clase para botones interactivos con hover y click.
  * Utilizada en todas las interfaces del juego.

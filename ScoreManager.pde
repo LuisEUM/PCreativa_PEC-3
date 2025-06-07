@@ -1,5 +1,5 @@
 /**
- * KOI SURVIVAL - ScoreManager
+ * Jardín Koi  - ScoreManager
  * 
  * Gestor del sistema de puntuación y records para los diferentes modos de juego.
  * Maneja puntuaciones, multiplicadores, estadísticas y guardado de records.

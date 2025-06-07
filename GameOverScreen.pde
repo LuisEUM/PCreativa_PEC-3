@@ -1,5 +1,5 @@
 /**
- * KOI SURVIVAL - GameOverScreen (Placeholder)
+ * Jardín Koi  - GameOverScreen (Placeholder)
  * 
  * Pantalla de derrota para los modos Waves y Endless.
  * 
@@ -62,13 +62,13 @@ class GameOverScreen {
     float totalWidth = (buttonWidth * 3) + (buttonSpacing * 2);
     float startX = (width - totalWidth) / 2;
     
-    restartButton = new Button(startX, startY, buttonWidth, buttonHeight, "RESTART");
+    restartButton = new Button(startX, startY, buttonWidth, buttonHeight, "REINICIAR");
     restartButton.setColors(color(76, 175, 80), color(129, 199, 132), color(255));
     
-    mainMenuButton = new Button(startX + buttonWidth + buttonSpacing, startY, buttonWidth, buttonHeight, "MAIN MENU");
+    mainMenuButton = new Button(startX + buttonWidth + buttonSpacing, startY, buttonWidth, buttonHeight, "MENU PRINCIPAL");
     mainMenuButton.setColors(color(33, 150, 243), color(100, 181, 246), color(255));
     
-    quitButton = new Button(startX + (buttonWidth + buttonSpacing) * 2, startY, buttonWidth, buttonHeight, "QUIT GAME");
+    quitButton = new Button(startX + (buttonWidth + buttonSpacing) * 2, startY, buttonWidth, buttonHeight, "SALIR DEL JUEGO");
     quitButton.setColors(color(244, 67, 54), color(239, 154, 154), color(255));
   }
   
@@ -127,16 +127,16 @@ class GameOverScreen {
     fill(0, 0, 0, fadeAlpha * 0.6);
     textAlign(CENTER, CENTER);
     textSize(38);
-    text("GAME OVER", width/2 + 2, panelY + 62);
+    text("JUEGO TERMINADO", width/2 + 2, panelY + 62);
     
     fill(red(titleColor), green(titleColor), blue(titleColor), fadeAlpha);
     textSize(38);
-    text("GAME OVER", width/2, panelY + 60);
+    text("JUEGO TERMINADO", width/2, panelY + 60);
     
     // Subtítulo
     fill(red(subtitleColor), green(subtitleColor), blue(subtitleColor), fadeAlpha);
     textSize(16);
-    text("All Koi Fish Have Died", width/2, panelY + 110);
+    text("Todos los Peces Koi Han Muerto", width/2, panelY + 110);
     
     // Información del juego
     renderGameStats(panelX, panelY, panelWidth);
@@ -152,7 +152,7 @@ class GameOverScreen {
     fill(red(subtitleColor), green(subtitleColor), blue(subtitleColor), fadeAlpha * 0.7);
     textAlign(CENTER);
     textSize(11);
-    text("Press ESC to return to main menu • R=Restart • M=Menu • Q=Quit", width/2, height - 30);
+    text("Presiona ESC para volver al menú • R=Reiniciar • M=Menú • Q=Salir", width/2, height - 30);
   }
   
   /**
@@ -171,17 +171,17 @@ class GameOverScreen {
     textSize(16);
     
     // Modo de juego
-    text("MODE: " + gameMode.toUpperCase(), width/2, statsY + 10);
+    text("MODO: " + gameMode.toUpperCase(), width/2, statsY + 10);
     
     textSize(14);
     if (gameMode.equals("endless")) {
       // Estadísticas para modo Endless
-      text("FINAL SCORE: " + finalScore, width/2, statsY + 35);
-      text("SURVIVAL TIME: " + survivalTime, width/2, statsY + 55);
+      text("PUNTUACIÓN FINAL: " + finalScore, width/2, statsY + 35);
+      text("TIEMPO DE SUPERVIVENCIA: " + survivalTime, width/2, statsY + 55);
     } else if (gameMode.equals("waves")) {
       // Estadísticas para modo Waves
-      text("REACHED WAVE: " + currentWave, width/2, statsY + 35);
-      text("SURVIVAL TIME: " + survivalTime, width/2, statsY + 55);
+      text("OLEADA ALCANZADA: " + currentWave, width/2, statsY + 35);
+      text("TIEMPO DE SUPERVIVENCIA: " + survivalTime, width/2, statsY + 55);
     }
   }
   
@@ -237,16 +237,16 @@ class GameOverScreen {
     if (!isFullyVisible()) return;
     
     if (restartButton.isClicked(mouseX, mouseY)) {
-      println("🔄 Reiniciando " + gameMode + "...");
+      println("Reiniciando " + gameMode + "...");
       handleRestart();
       
     } else if (mainMenuButton.isClicked(mouseX, mouseY)) {
-      println("🏠 Volviendo al menú principal...");
+      println("Volviendo al menú principal...");
       screenManager.returnToMenu();
       hide();
       
     } else if (quitButton.isClicked(mouseX, mouseY)) {
-      println("🚪 Saliendo del juego...");
+      println("Saliendo del juego...");
       screenManager.quitGame();
     }
   }

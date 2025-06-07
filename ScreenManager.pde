@@ -1,5 +1,5 @@
 /**
- * KOI SURVIVAL - ScreenManager
+ * Jardín Koi  - ScreenManager
  * 
  * Gestor principal de estados y pantallas para los tres modos de juego:
  * - Waves: Juego de 5 rondas con oleadas programadas
@@ -33,7 +33,8 @@ enum GameState {
   PAUSED,           // Pantalla de pausa (disponible desde cualquier modo activo)
   ROUND_COMPLETE,   // Evaluación y mejoras (solo Modo Waves)
   GAME_OVER,        // Pantalla de derrota (Waves & Endless)
-  GAME_WON          // Pantalla de victoria (solo Modo Waves)
+  GAME_WON,         // Pantalla de victoria (solo Modo Waves)
+  VICTORY           // Pantalla de felicitaciones por completar Wave 5
 }
 
 class ScreenManager {
@@ -47,6 +48,7 @@ class ScreenManager {
   GameManager gameManager;         // Para Modo Waves  
   EndlessManager endlessManager;   // Para Modo Endless
   ScoreManager scoreManager;       // Sistema de puntuación
+  ProgressManager progressManager; // Sistema de progreso y desbloqueos
   
   // UI y pantallas
   MainMenu mainMenu;
@@ -79,6 +81,7 @@ class ScreenManager {
   void initializeComponents() {
     // Managers del juego
     this.scoreManager = new ScoreManager();
+    this.progressManager = new ProgressManager();
     this.pondManager = new PondManager(app);  // Para Modo Zen
     
     // UI y pantallas
@@ -140,6 +143,10 @@ class ScreenManager {
       case GAME_WON:
         updateGameWon();
         break;
+        
+      case VICTORY:
+        updateVictory();
+        break;
     }
   }
   
@@ -191,6 +198,10 @@ class ScreenManager {
       case GAME_WON:
         renderGameWon();
         break;
+        
+      case VICTORY:
+        renderVictory();
+        break;
     }
   }
   
@@ -231,6 +242,14 @@ class ScreenManager {
         float totalGameTime = ((wavesManager.uiManager.currentWave - 1) * 120.0f) + 
                              ((millis() - wavesManager.uiManager.waveStartTime) / 1000.0f);
         showGameOver("waves", 0, getFormattedTimeFloat(totalGameTime), wavesManager.uiManager.currentWave);
+      }
+      
+      // Verificar si se completó Wave 5 (la última)
+      if (wavesManager.uiManager.currentWave == 5 && wavesManager.uiManager.waveComplete && !upgradeScreen.isShowing()) {
+        // ¡Wave 5 completada! Mostrar pantalla de victoria
+        progressManager.completeWaves();
+        showVictoryScreen();
+        return;
       }
       
       // Verificar si la wave se completó y necesita upgrade
@@ -281,6 +300,12 @@ class ScreenManager {
   
   void updateGameWon() {
     // Victoria - estático
+  }
+  
+  void updateVictory() {
+    if (victoryScreen != null) {
+      victoryScreen.update();
+    }
   }
   
   // ===============================================
@@ -354,6 +379,12 @@ class ScreenManager {
   }
   
   void renderGameWon() {
+    if (victoryScreen != null) {
+      victoryScreen.render();
+    }
+  }
+  
+  void renderVictory() {
     if (victoryScreen != null) {
       victoryScreen.render();
     }
@@ -575,6 +606,10 @@ class ScreenManager {
       case GAME_OVER:
         if (gameOverScreen != null) gameOverScreen.handleKey(key, keyCode);
         break;
+        
+      case VICTORY:
+        if (victoryScreen != null) victoryScreen.handleKey(key, keyCode);
+        break;
     }
   }
   
@@ -597,6 +632,7 @@ class ScreenManager {
       case UPGRADE_SCREEN:
       case GAME_OVER:
       case GAME_WON:
+      case VICTORY:
         changeState(GameState.MAIN_MENU);
         break;
     }
@@ -638,6 +674,10 @@ class ScreenManager {
       case GAME_OVER:
         if (gameOverScreen != null) gameOverScreen.handleClick(mouseX, mouseY);
         break;
+        
+      case VICTORY:
+        if (victoryScreen != null) victoryScreen.handleClick(mouseX, mouseY);
+        break;
     }
   }
   
@@ -649,6 +689,8 @@ class ScreenManager {
    * Inicia el Modo Zen
    */
   void startZenMode() {
+    // Resetear el manager para empezar un juego completamente nuevo
+    pondManager = null;
     changeState(GameState.ZEN_MODE);
   }
   
@@ -688,7 +730,7 @@ class ScreenManager {
    * Sale de la aplicación
    */
   void quitGame() {
-    println("👋 Cerrando Koi Survival...");
+    println("👋 Cerrando Jardín Koi ...");
     app.exit();
   }
   
@@ -724,6 +766,13 @@ class ScreenManager {
     return scoreManager;
   }
   
+  /**
+   * Obtiene el ProgressManager
+   */
+  ProgressManager getProgressManager() {
+    return progressManager;
+  }
+  
   // ===============================================
   // MÉTODOS AUXILIARES PARA GAME OVER Y UPGRADES
   // ===============================================
@@ -745,6 +794,16 @@ class ScreenManager {
     if (upgradeScreen != null && wavesManager != null) {
       upgradeScreen.show(completedWave, wavesManager.uiManager);
       changeState(GameState.UPGRADE_SCREEN);
+    }
+  }
+  
+  /**
+   * Muestra la pantalla de Victoria (Wave 5 completada)
+   */
+  void showVictoryScreen() {
+    if (victoryScreen != null) {
+      victoryScreen.show();
+      changeState(GameState.VICTORY);
     }
   }
   

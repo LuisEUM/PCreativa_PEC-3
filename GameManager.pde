@@ -1,5 +1,5 @@
 /**
- * KOI SURVIVAL - GameManager (Placeholder)
+ * Jardín Koi  - GameManager (Placeholder)
  * 
  * Gestor para el Modo Waves - 5 rondas con oleadas programadas.
  * 

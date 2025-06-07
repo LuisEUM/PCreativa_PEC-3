@@ -134,7 +134,7 @@ class EndlessUIManager {
    * Renderiza la puntuación
    */
   void renderScore() {
-    String scoreText = "SCORE: " + score;
+    String scoreText = "Puntuación: " + score;
     
     // Fondo de la puntuación
     applet.fill(backgroundColor);
@@ -167,12 +167,12 @@ class EndlessUIManager {
     // Comida
     color foodColor = foodCount > 10 ? color(100, 255, 100) : color(255, 100, 100);
     applet.fill(foodColor);
-    applet.text("FOOD: " + foodCount + "/" + maxFood, applet.width - 130, 35);
+    applet.text("COMIDA: " + foodCount + "/" + maxFood, applet.width - 130, 35);
     
     // Piedras
     color rockColor = rockCount > 5 ? color(100, 255, 100) : color(255, 100, 100);
     applet.fill(rockColor);
-    applet.text("ROCKS: " + rockCount + "/" + maxRocks, applet.width - 130, 55);
+    applet.text("ROCAS: " + rockCount + "/" + maxRocks, applet.width - 130, 55);
   }
   
   /**

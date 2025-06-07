@@ -1,5 +1,5 @@
 /**
- * KOI SURVIVAL - PauseScreen
+ * Jardín Koi  - PauseScreen
  * 
  * Pantalla de pausa universal que se superpone al juego activo.
  * Funciona para todos los modos: Waves, Endless y Zen.
@@ -68,7 +68,7 @@ class PauseScreen {
       centerY - buttonSpacing * 1.5, 
       buttonWidth, 
       buttonHeight, 
-      "▶️ Resume"
+      "Reanudar"
     );
     
     restartButton = new Button(
@@ -76,7 +76,7 @@ class PauseScreen {
       centerY - buttonSpacing/2, 
       buttonWidth, 
       buttonHeight, 
-      "🔄 Restart"
+      "Reiniciar"
     );
     
     mainMenuButton = new Button(
@@ -84,7 +84,7 @@ class PauseScreen {
       centerY + buttonSpacing/2, 
       buttonWidth, 
       buttonHeight, 
-      "🏠 Main Menu"
+      "Menú Principal"
     );
     
     quitButton = new Button(
@@ -92,7 +92,7 @@ class PauseScreen {
       centerY + buttonSpacing * 1.5, 
       buttonWidth, 
       buttonHeight, 
-      "🚪 Quit Game"
+      "Salir del Juego"
     );
     
     // Personalizar colores de botones
@@ -229,7 +229,7 @@ class PauseScreen {
     pushMatrix();
     translate(width/2, height/2 - 120);
     scale(pulse);
-    text("⏸️ PAUSED", 0, 0);
+    text("PAUSADO", 0, 0);
     popMatrix();
   }
   
@@ -242,7 +242,7 @@ class PauseScreen {
     textSize(12);
     
     String currentMode = getCurrentModeString();
-    text("Mode: " + currentMode, width/2, height/2 - 85);
+    text("Modo: " + currentMode, width/2, height/2 - 85);
     
     // Estadísticas específicas según el modo
     String stats = getGameStats();
@@ -257,10 +257,10 @@ class PauseScreen {
   String getCurrentModeString() {
     GameState previousState = screenManager.previousState;
     switch(previousState) {
-      case ZEN_MODE: return "🧘 Zen Mode";
-      case WAVES_ACTIVE: return "🌊 Waves Mode";
-      case ENDLESS_ACTIVE: return "♾️ Endless Mode";
-      default: return "Unknown";
+      case ZEN_MODE: return "Modo Zen";
+      case WAVES_ACTIVE: return "Modo Waves";
+      case ENDLESS_ACTIVE: return "Modo Endless";
+      default: return "Desconocido";
     }
   }
   
@@ -275,17 +275,17 @@ class PauseScreen {
         // Modo Zen - estadísticas básicas
         if (screenManager.pondManager != null) {
           int koiCount = screenManager.pondManager.koiManager.getKoiCount();
-          return "Koi in pond: " + koiCount;
+          return "Koi en el estanque: " + koiCount;
         }
         break;
         
       case WAVES_ACTIVE:
         // Modo Waves - estadísticas futuras
-        return "Round: ? • Score: ? • Koi: ?";
+        return "Oleada: ? • Puntuación: ? • Koi: ?";
         
       case ENDLESS_ACTIVE:
         // Modo Endless - estadísticas futuras
-        return "Time: ?:?? • Score: ? • Koi: ?";
+        return "Tiempo: ?:?? • Puntuación: ? • Koi: ?";
     }
     
     return "";
@@ -343,7 +343,7 @@ class PauseScreen {
     fill(red(textColor), green(textColor), blue(textColor), fadeAlpha * 0.6);
     textAlign(CENTER);
     textSize(10);
-    text("Press SPACE, P, or ESC to resume", width/2, height/2 + 140);
+    text("Presiona ESPACIO, P, o ESC para reanudar", width/2, height/2 + 140);
   }
   
   /**
@@ -370,19 +370,19 @@ class PauseScreen {
     if (!isVisible) return;
     
     if (resumeButton.isClicked(mouseX, mouseY)) {
-      println("▶️ Reanudando juego...");
+      println("Reanudando juego...");
       screenManager.resumeGame();
       
     } else if (restartButton.isClicked(mouseX, mouseY)) {
-      println("🔄 Reiniciando...");
+      println("Reiniciando...");
       handleRestart();
       
     } else if (mainMenuButton.isClicked(mouseX, mouseY)) {
-      println("🏠 Volviendo al menú principal...");
+      println("Volviendo al menú principal...");
       screenManager.returnToMenu();
       
     } else if (quitButton.isClicked(mouseX, mouseY)) {
-      println("🚪 Saliendo del juego...");
+      println("Saliendo del juego...");
       screenManager.quitGame();
     }
   }

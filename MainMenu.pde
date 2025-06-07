@@ -1,5 +1,5 @@
 /**
- * KOI SURVIVAL - MainMenu
+ * Jardín Koi  - MainMenu
  * 
  * Pantalla principal de selección de modo de juego.
  * Presenta tres opciones principales: Waves, Endless y Zen.
@@ -39,6 +39,9 @@ class MainMenu {
   float titlePulse;
   float particleTime;
   
+  // Estado de desbloqueos
+  boolean endlessUnlocked = false;
+  
   /**
    * Constructor
    */
@@ -53,18 +56,18 @@ class MainMenu {
    */
   void initializeUI() {
     float centerX = width / 2;
-    float buttonWidth = 200;
-    float buttonHeight = 50;
-    float buttonSpacing = 70;
-    float startY = height / 2 - 80;
+    float buttonWidth = 220; // Botones principales más anchos
+    float buttonHeight = 55; // Ligeramente más altos
+    float buttonSpacing = 85; // Más espacio entre botones principales
+    float startY = height / 2 - 120; // Más arriba para mejor distribución
     
-    // Crear botones principales
+    // Crear botones principales con mejor espaciado
     wavesButton = new Button(
       centerX - buttonWidth/2, 
       startY, 
       buttonWidth, 
       buttonHeight, 
-      "🌊 WAVES MODE"
+      "MODO WAVES"
     );
     
     endlessButton = new Button(
@@ -72,7 +75,7 @@ class MainMenu {
       startY + buttonSpacing, 
       buttonWidth, 
       buttonHeight, 
-      "♾️ ENDLESS MODE"
+      "MODO ENDLESS"
     );
     
     zenButton = new Button(
@@ -80,27 +83,28 @@ class MainMenu {
       startY + buttonSpacing * 2, 
       buttonWidth, 
       buttonHeight, 
-      "🧘 ZEN MODE"
+      "MODO ZEN"
     );
     
-    // Botones secundarios (más pequeños)
-    float smallButtonWidth = 150;
-    float smallButtonHeight = 35;
+    // Botones secundarios con mejor posicionamiento
+    float smallButtonWidth = 140;
+    float smallButtonHeight = 38;
+    float secondarySpacing = 20; // Espacio entre botones secundarios
     
     instructionsButton = new Button(
-      centerX - smallButtonWidth - 10, 
-      startY + buttonSpacing * 3 + 20, 
+      centerX - smallButtonWidth - secondarySpacing/2, 
+      startY + buttonSpacing * 3 + 40, // Más separación de los principales
       smallButtonWidth, 
       smallButtonHeight, 
-      "📋 Instructions"
+      "Instrucciones"
     );
     
     quitButton = new Button(
-      centerX + 10, 
-      startY + buttonSpacing * 3 + 20, 
+      centerX + secondarySpacing/2, 
+      startY + buttonSpacing * 3 + 40, 
       smallButtonWidth, 
       smallButtonHeight, 
-      "🚪 Quit"
+      "Salir"
     );
     
     // Personalizar colores de botones
@@ -144,6 +148,9 @@ class MainMenu {
    * Actualización del menú
    */
   void update() {
+    // Actualizar estado de desbloqueos
+    endlessUnlocked = screenManager.getProgressManager().isEndlessModeUnlocked();
+    
     // Actualizar animaciones
     titlePulse += 0.02;
     particleTime += 0.01;
@@ -212,23 +219,34 @@ class MainMenu {
    * Renderiza el título principal
    */
   void renderTitle() {
-    // Título principal
-    fill(titleColor);
+    // Sombra del título para mayor impacto
+    fill(0, 0, 0, 100);
     textAlign(CENTER);
-    textSize(48);
+    textSize(52);
+    text("Jardín Koi ", width/2 + 3, 73);
     
-    float pulse = 1.0 + sin(titlePulse) * 0.1;
+    // Título principal con pulso
+    fill(titleColor);
+    textSize(52); // Ligeramente más grande
+    
+    float pulse = 1.0 + sin(titlePulse) * 0.08; // Pulso más sutil
     
     pushMatrix();
-    translate(width/2, 80);
+    translate(width/2, 70); // Posición ligeramente más alta
     scale(pulse);
-    text("KOI SURVIVAL", 0, 0);
+    text("Jardín Koi ", 0, 0);
     popMatrix();
     
-    // Subtítulo
+    // Línea decorativa
+    stroke(titleColor);
+    strokeWeight(2);
+    float lineWidth = 200;
+    line(width/2 - lineWidth/2, 90, width/2 + lineWidth/2, 90);
+    
+    // Subtítulo con mejor posicionamiento
     fill(subtitleColor);
-    textSize(16);
-    text("Choose Your Adventure", width/2, 110);
+    textSize(18); // Ligeramente más grande
+    text("Elige Tu Aventura", width/2, 115);
   }
   
   /**
@@ -236,20 +254,20 @@ class MainMenu {
    */
   void renderModeDescriptions() {
     textAlign(CENTER);
-    textSize(11);
-    fill(200, 220, 240, 150);
+    textSize(12); // Texto ligeramente más grande
+    fill(200, 220, 240, 180); // Más opacidad para mejor legibilidad
     
-    float descY = height/2 - 80 + 58; // Justo debajo de los botones
-    float spacing = 70;
+    float descY = height/2 - 120 + 75; // Ajustado para la nueva posición de botones
+    float spacing = 85; // Coincide con el espaciado de botones
     
     // Waves Mode
-    text("5 rounds • Strategic survival • Upgrades", width/2, descY);
+    text("5 oleadas • Supervivencia estratégica • Mejoras", width/2, descY);
     
     // Endless Mode  
-    text("Infinite survival • Power-ups • High scores", width/2, descY + spacing);
+    text("Supervivencia infinita • Poderes • Puntuación alta", width/2, descY + spacing);
     
     // Zen Mode
-    text("Peaceful simulation • Creative • Relaxing", width/2, descY + spacing * 2);
+    text("Simulación pacífica • Creativo • Relajante", width/2, descY + spacing * 2);
   }
   
   /**
@@ -257,7 +275,7 @@ class MainMenu {
    */
   void renderButtons() {
     renderButton(wavesButton);
-    renderButton(endlessButton);
+    renderEndlessButton(); // Método especial para Endless
     renderButton(zenButton);
     renderButton(instructionsButton);
     renderButton(quitButton);
@@ -270,45 +288,108 @@ class MainMenu {
     // Color del botón
     color currentColor = button.isHovered ? button.hoverColor : button.buttonColor;
     
-    // Sombra
-    fill(0, 0, 0, 100);
+    // Sombra más pronunciada
+    fill(0, 0, 0, 120);
     noStroke();
-    rect(button.position.x + 3, button.position.y + 3, button.width, button.height, 8);
+    rect(button.position.x + 4, button.position.y + 4, button.width, button.height, 10);
     
-    // Botón principal
+    // Botón principal con esquinas más redondeadas
     fill(currentColor);
-    rect(button.position.x, button.position.y, button.width, button.height, 8);
+    rect(button.position.x, button.position.y, button.width, button.height, 10);
     
-    // Borde
-    if (button.isHovered) {
-      stroke(255, 255, 255, 150);
-      strokeWeight(2);
-      noFill();
-      rect(button.position.x, button.position.y, button.width, button.height, 8);
+    // Highlight superior para efecto 3D
+    if (!button.isHovered) {
+      fill(255, 255, 255, 40);
+      rect(button.position.x + 2, button.position.y + 2, button.width - 4, button.height/4, 8);
     }
     
-    // Texto
+    // Borde con glow cuando hover
+    if (button.isHovered) {
+      stroke(255, 255, 255, 200);
+      strokeWeight(3);
+      noFill();
+      rect(button.position.x - 1, button.position.y - 1, button.width + 2, button.height + 2, 11);
+    }
+    
+    // Texto con mejor tipografía
     fill(button.textColor);
     textAlign(CENTER, CENTER);
-    textSize(14);
+    textSize(15); // Ligeramente más grande
     text(button.label, 
          button.position.x + button.width/2, 
          button.position.y + button.height/2);
   }
   
   /**
+   * Renderiza el botón de Endless con estado de bloqueo
+   */
+  void renderEndlessButton() {
+    Button button = endlessButton;
+    
+    if (endlessUnlocked) {
+      // Renderizar como botón normal
+      renderButton(button);
+    } else {
+      // Renderizar como botón bloqueado
+      color lockedColor = color(60, 60, 60);
+      color lockedHoverColor = color(80, 80, 80);
+      
+      // Sombra más pronunciada
+      fill(0, 0, 0, 120);
+      noStroke();
+      rect(button.position.x + 4, button.position.y + 4, button.width, button.height, 10);
+      
+      // Botón bloqueado con esquinas más redondeadas
+      fill(button.isHovered ? lockedHoverColor : lockedColor);
+      rect(button.position.x, button.position.y, button.width, button.height, 10);
+      
+      // Patrón de bloqueo (líneas diagonales)
+      stroke(40, 40, 40);
+      strokeWeight(1);
+      for (int i = 0; i < button.width + button.height; i += 8) {
+        line(button.position.x + i, button.position.y, 
+             button.position.x, button.position.y + i);
+      }
+      
+      // Texto bloqueado
+      fill(120, 120, 120);
+      textAlign(CENTER, CENTER);
+      textSize(15); // Consistente con otros botones
+      text("MODO ENDLESS", 
+           button.position.x + button.width/2, 
+           button.position.y + button.height/2 - 8);
+      
+      // Texto de desbloqueo
+      fill(150, 150, 150);
+      textSize(11); // Ligeramente más grande
+      text("Completa la Oleada 5 para desbloquear", 
+           button.position.x + button.width/2, 
+           button.position.y + button.height/2 + 8);
+    }
+  }
+  
+  /**
    * Renderiza el footer con información adicional
    */
   void renderFooter() {
+    // Línea separadora
+    stroke(subtitleColor);
+    strokeWeight(1);
+    float lineY = height - 60;
+    line(width/4, lineY, 3*width/4, lineY);
+    
+    // Información del footer
     fill(subtitleColor);
     textAlign(CENTER);
-    textSize(10);
-    text("Press ESC anytime to return to menu • Pause: SPACE or P", width/2, height - 35);
-    text("Shortcuts: 1=Waves, 2=Endless, 3=Zen, I=Instructions, Q=Quit", width/2, height - 20);
+    textSize(11); // Ligeramente más grande
+    text("Presiona ESC para volver al menú • Pausa: ESPACIO o P", width/2, height - 40);
+    text("Atajos: 1=Waves, 2=Endless, 3=Zen, I=Instrucciones, Q=Salir", width/2, height - 25);
     
-    // Versión
+    // Versión con mejor posicionamiento
     textAlign(RIGHT);
-    text("v1.0", width - 10, height - 10);
+    textSize(10);
+    fill(subtitleColor);
+    text("v1.0", width - 15, height - 10);
   }
   
   /**
@@ -319,13 +400,25 @@ class MainMenu {
     if (key == '1') {
       screenManager.startWavesMode();
     } else if (key == '2') {
-      screenManager.startEndlessMode();
+      if (endlessUnlocked) {
+        screenManager.startEndlessMode();
+      } else {
+        println("Modo Endless bloqueado - completa la Oleada 5 primero!");
+      }
     } else if (key == '3') {
       screenManager.startZenMode();
     } else if (key == 'i' || key == 'I') {
       screenManager.showInstructions();
     } else if (key == 'q' || key == 'Q') {
       screenManager.quitGame();
+    } else if (key == 'u' || key == 'U') {
+      // Debug: forzar unlock de Endless
+      screenManager.getProgressManager().forceUnlockEndless();
+      println("DEBUG: Modo Endless desbloqueado forzadamente!");
+    } else if (key == 'r' || key == 'R') {
+      // Debug: resetear progreso
+      screenManager.getProgressManager().resetProgress();
+      println("DEBUG: Progreso reseteado!");
     }
   }
   
@@ -334,23 +427,27 @@ class MainMenu {
    */
   void handleClick(float mouseX, float mouseY) {
     if (wavesButton.isClicked(mouseX, mouseY)) {
-      println("🌊 Iniciando Modo Waves...");
+      println("Iniciando Modo Waves...");
       screenManager.startWavesMode();
       
     } else if (endlessButton.isClicked(mouseX, mouseY)) {
-      println("♾️ Iniciando Modo Endless...");
-      screenManager.startEndlessMode();
+      if (endlessUnlocked) {
+        println("Iniciando Modo Endless...");
+        screenManager.startEndlessMode();
+      } else {
+        println("Modo Endless bloqueado - completa la Oleada 5 primero!");
+      }
       
     } else if (zenButton.isClicked(mouseX, mouseY)) {
-      println("🧘 Iniciando Modo Zen...");
+      println("Iniciando Modo Zen...");
       screenManager.startZenMode();
       
     } else if (instructionsButton.isClicked(mouseX, mouseY)) {
-      println("📋 Mostrando instrucciones...");
+      println("Mostrando instrucciones...");
       screenManager.showInstructions();
       
     } else if (quitButton.isClicked(mouseX, mouseY)) {
-      println("🚪 Saliendo del juego...");
+      println("Saliendo del juego...");
       screenManager.quitGame();
     }
   }

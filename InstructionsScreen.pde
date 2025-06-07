@@ -1,5 +1,5 @@
 /**
- * KOI SURVIVAL - InstructionsScreen
+ * Jardín Koi  - InstructionsScreen
  * 
  * Pantalla de instrucciones que explica los controles y mecánicas del juego.
  * 
