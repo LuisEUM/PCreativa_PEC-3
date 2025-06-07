@@ -467,18 +467,28 @@ class ScreenManager {
    * Inicializa el Modo Waves
    */
   void initializeWavesMode() {
-    // Siempre crear un nuevo WavesManager para restart limpio
-    wavesManager = new WavesManager(app);
-    println("🌊 Inicializando Modo Waves...");
+    // Solo crear un nuevo WavesManager si no existe (para restart limpio)
+    // Si ya existe, mantener el progreso actual
+    if (wavesManager == null) {
+      wavesManager = new WavesManager(app);
+      println("🌊 Inicializando Modo Waves (nuevo manager)...");
+    } else {
+      println("🔄 Reanudando Modo Waves (manteniendo progreso)...");
+    }
   }
   
   /**
    * Inicializa el Modo Endless
    */
   void initializeEndlessMode() {
-    // Siempre crear un nuevo EndlessManager para restart limpio
-    endlessManager = new EndlessManager(app);
-    println("♾️ Inicializando Modo Endless...");
+    // Solo crear un nuevo EndlessManager si no existe (para restart limpio)
+    // Si ya existe, mantener el progreso actual
+    if (endlessManager == null) {
+      endlessManager = new EndlessManager(app);
+      println("♾️ Inicializando Modo Endless (nuevo manager)...");
+    } else {
+      println("🔄 Reanudando Modo Endless (manteniendo progreso)...");
+    }
   }
   
   // ===============================================
@@ -646,6 +656,8 @@ class ScreenManager {
    * Inicia el Modo Waves
    */
   void startWavesMode() {
+    // Resetear el manager para empezar un juego completamente nuevo
+    wavesManager = null;
     changeState(GameState.WAVES_ACTIVE);
   }
   
@@ -653,6 +665,8 @@ class ScreenManager {
    * Inicia el Modo Endless
    */
   void startEndlessMode() {
+    // Resetear el manager para empezar un juego completamente nuevo
+    endlessManager = null;
     changeState(GameState.ENDLESS_ACTIVE);
   }
   
