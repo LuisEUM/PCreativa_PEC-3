@@ -112,6 +112,32 @@ class PetalManager {
   ArrayList<Petal> getPetals() {
     return petals;
   }
+  
+  /**
+   * Renderiza todos los pétalos
+   */
+  void render() {
+    for (Petal petal : petals) {
+      renderPetal(petal);
+    }
+  }
+  
+  /**
+   * Renderiza un pétalo individual
+   */
+  void renderPetal(Petal petal) {
+    pushMatrix();
+    translate(petal.position.x, petal.position.y);
+    rotate(petal.rotation);
+    
+    noStroke();
+    fill(255, 183, 197, petal.opacity * 255); // Rosa claro
+    
+    float currentSize = petal.getCurrentSize();
+    ellipse(0, 0, currentSize * 2, currentSize * 3);
+    
+    popMatrix();
+  }
 }
 
 /**
@@ -132,4 +158,3 @@ class RippleInfo {
     this.maxRadius = maxRadius;
   }
 }
-

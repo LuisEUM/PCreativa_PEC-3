@@ -1,12 +1,12 @@
 /**
- * Clase EndlessManager
+ * Clase WavesManager
  * 
- * Gestor principal que coordina todos los elementos del estanque de koi para el Modo Endless.
- * Es una copia exacta del WavesManager pero con UI diferente.
+ * Gestor principal que coordina todos los elementos del estanque de koi para el Modo Waves.
+ * Es una copia exacta del PondManager pero sin el botón de crear peces koi.
  * Implementa el patrón Facade para proporcionar una interfaz simplificada
  * al subsistema complejo de gestores y renderizadores.
  */
-class EndlessManager {
+class WavesManager {
   // Referencia al PApplet principal
   PApplet sketch;
   
@@ -17,7 +17,7 @@ class EndlessManager {
   FoodManager foodManager;
   PlantManager plantManager;
   RockManager rockManager;
-  EndlessUIManager uiManager;
+  WavesUIManager uiManager;
   
   // Seguimiento de tiempo
   float lastTimestamp = 0;
@@ -37,7 +37,7 @@ class EndlessManager {
    * 
    * @param sketch Referencia al PApplet principal
    */
-  EndlessManager(PApplet sketch) {
+  WavesManager(PApplet sketch) {
     this.sketch = sketch;
     
     // Inicializa gestores
@@ -62,8 +62,8 @@ class EndlessManager {
     // Inicializa petalManager con cantidades reducidas
     petalManager = new PetalManager(sketch.width, sketch.height, 15, 8);
     
-    // Inicializa el gestor de UI para Endless
-    uiManager = new EndlessUIManager(sketch, koiManager);
+    // Inicializa el gestor de UI para Waves
+    uiManager = new WavesUIManager(sketch, koiManager);
   }
   
   /**
@@ -90,8 +90,11 @@ class EndlessManager {
       rippleManager.createRipple(ripple.x, ripple.y, ripple.opacity, ripple.maxRadius);
     }
     
-    // Actualiza la UI
+    // Actualiza la UI y el sistema de waves
     uiManager.update();
+    
+    // Actualiza el tiempo del día según la wave actual
+    timeOfDay = uiManager.getCurrentTimeOfDay();
   }
   
   /**
@@ -164,6 +167,8 @@ class EndlessManager {
       }
     }
   }
+  
+
   
   // Métodos de renderizado para cada capa
   
@@ -293,41 +298,78 @@ class EndlessManager {
     color koiTailColor = ColorUtils.darkenColor(koiC, 20);
     
     // Dibuja la cola con el mismo color que el cuerpo pero un poco más oscuro
-    // Usar un color más oscuro para la cola (20% más oscuro)
-    sketch.noStroke();
-    sketch.fill(koiTailColor);
+    if (!koi.sinking || koi.sinkingProgress < 0.5) {
+      // Dibuja dos óvalos para la cola
+      sketch.noStroke();
+      sketch.fill(koiTailColor);
+      
+      // Posición base para la cola (en la parte trasera del pez)
+      float tailBaseX = -currentLength/2;
+      
+      // Offset del movimiento de la cola
+      float tailOffsetY = tailWag * currentWidth;
+      
+      // Tamaño de los óvalos (ajustados para mejor apariencia)
+      float ovalWidth = currentLength/2.5;
+      float ovalHeight = currentWidth/1.8;
+      
+      // Ajustar posición más cerca del cuerpo
+      float tailDistance = currentLength/6;
+      
+      // Primer óvalo (superior)
+      sketch.pushMatrix();
+      // Mantener el punto de anclaje en la parte trasera del cuerpo
+      sketch.translate(tailBaseX, 0);
+      // Hacer que la cola gire en lugar de abrirse y cerrarse
+      sketch.rotate(tailWag + PI/6);
+      // Dibujar el óvalo con origen en su extremo conectado al cuerpo
+      sketch.ellipse(-tailDistance, 0, ovalWidth, ovalHeight);
+      sketch.popMatrix();
+      
+      // Segundo óvalo (inferior)
+      sketch.pushMatrix();
+      // Mantener el punto de anclaje en la parte trasera del cuerpo
+      sketch.translate(tailBaseX, 0);
+      // Hacer que la cola gire en dirección opuesta
+      sketch.rotate(-tailWag - PI/6);
+      // Dibujar el óvalo con origen en su extremo conectado al cuerpo
+      sketch.ellipse(-tailDistance, 0, ovalWidth, ovalHeight);
+      sketch.popMatrix();
+    }
     
-    // Posición base para la cola (en la parte trasera del pez)
-    float tailBaseX = -currentLength/2;
-    
-    // Offset del movimiento de la cola
-    float tailOffsetY = tailWag * currentWidth;
-    
-    // Tamaño de los óvalos (ajustados para mejor apariencia)
-    float ovalWidth = currentLength/2.5;
-    float ovalHeight = currentWidth/1.8;
-    
-    // Ajustar posición más cerca del cuerpo
-    float tailDistance = currentLength/6;
-    
-    // Primer óvalo de la cola (el más cercano al cuerpo)
-    sketch.ellipse(tailBaseX - tailDistance, tailOffsetY * 0.3, ovalWidth, ovalHeight * 0.8);
-    
-    // Segundo óvalo de la cola (más alejado y más pequeño)
-    sketch.ellipse(tailBaseX - tailDistance*1.8, tailOffsetY * 0.7, ovalWidth * 0.7, ovalHeight * 0.6);
-    
-    // Aleta dorsal (parte superior del pez)
-    float finX = 0;
-    float finY = -currentWidth/2 * 0.9;
-    float finWidth = currentLength/5;
-    float finHeight = currentWidth/4;
-    
-    sketch.pushMatrix();
-    sketch.translate(finX, finY);
-    
-    // Dibujar la aleta
-    sketch.ellipse(0, finHeight/2, finWidth, finHeight);
-    sketch.popMatrix();
+    // Dibuja las aletas laterales con el mismo color que la cola
+    if (!koi.sinking || koi.sinkingProgress < 0.5) {
+      // Usamos el mismo color de la cola declarado anteriormente
+      sketch.noStroke();
+      sketch.fill(koiTailColor);
+      
+      // Tamaño de las aletas (ligeramente más grandes)
+      float finWidth = currentLength/3.0;  // Ajustado de 2.5 a 3.0
+      float finHeight = currentWidth/2.3;  // Ajustado de 2.0 a 2.3
+      
+      // Posición lateral de las aletas (ligeramente más hacia la cabeza)
+      float finX = -currentLength/9;  // Ajustado de length/8 a -currentLength/10
+      
+      // Aleta superior
+      sketch.pushMatrix();
+      // Posicionar en la parte superior del cuerpo
+      sketch.translate(finX, -currentWidth/2);
+      // Usar un movimiento similar al de la cola pero más sutil con ángulo invertido
+      sketch.rotate(PI/3 - tailWag * 0.5);
+      // Dibujar la aleta
+      sketch.ellipse(0, -finHeight/2, finWidth, finHeight);
+      sketch.popMatrix();
+      
+      // Aleta inferior
+      sketch.pushMatrix();
+      // Posicionar en la parte inferior del cuerpo
+      sketch.translate(finX, currentWidth/2);
+      // Usar un movimiento similar al de la cola pero en dirección opuesta con ángulo invertido
+      sketch.rotate(-PI/3 - tailWag * 0.5);
+      // Dibujar la aleta
+      sketch.ellipse(0, finHeight/2, finWidth, finHeight);
+      sketch.popMatrix();
+    }
     
     // Dibuja el cuerpo exterior (30% más grande)
     sketch.noStroke();
@@ -396,8 +438,42 @@ class EndlessManager {
     sketch.ellipse(0, 0, eyeWidth, eyeHeight);
     sketch.popMatrix();
     
-    // Si el pez se está hundiendo, dibuja burbujas ocasionales
+    // Dibuja un efecto de ondulación cuando el pez se está hundiendo
     if (koi.sinking) {
+      // Calculamos el número de ondas basado en el progreso del hundimiento
+      int numRipples = 3;
+      
+      for (int i = 0; i < numRipples; i++) {
+        // Cada onda tiene un tamaño y opacidad diferente
+        float progress = koi.sinkingProgress + (i * 0.15);
+        
+        // Aseguramos que solo dibujamos ondas que están en fase visible (0-1)
+        if (progress > 0 && progress < 1.0) {
+          // El tamaño aumenta con el tiempo
+          float rippleSize = currentLength * (1.0 + progress * 2.0);
+          
+          // La opacidad sigue una curva que primero aumenta y luego disminuye
+          float rippleOpacity;
+          if (progress < 0.3) {
+            // Fase inicial: aumenta la opacidad
+            rippleOpacity = 100 * (progress / 0.3);
+          } else {
+            // Fase final: disminuye la opacidad
+            rippleOpacity = 100 * (1.0 - ((progress - 0.3) / 0.7));
+          }
+          
+          // Aplicamos la opacidad del pez a la onda
+          rippleOpacity *= koi.opacity * 0.8;
+          
+          // Dibujamos la onda
+          sketch.noFill();
+          sketch.stroke(255, 255, 255, rippleOpacity);
+          sketch.strokeWeight(1.5 - progress); // Línea más gruesa al principio
+          sketch.ellipse(0, 0, rippleSize, rippleSize);
+        }
+      }
+      
+      // Efecto de burbujas cuando el pez se está hundiendo
       if (random(1) < 0.2 * koi.sinkingProgress) {
         float bubbleX = random(-currentLength/2, currentLength/2);
         float bubbleY = random(-currentWidth/2, currentWidth/2);
@@ -580,6 +656,8 @@ class EndlessManager {
   }
   
   void renderUI() {
-    // Sin instrucciones en modo Endless simplificado
+    // Sin instrucciones en modo Waves simplificado
   }
+  
+
 } 

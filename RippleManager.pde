@@ -46,4 +46,3 @@ class RippleManager {
     return ripples;
   }
 }
-

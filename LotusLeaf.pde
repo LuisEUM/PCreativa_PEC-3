@@ -59,4 +59,3 @@ class LotusLeaf {
     return sin(time * 0.5 + this.wavePhase) * 0.5;
   }
 }
-

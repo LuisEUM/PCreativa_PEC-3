@@ -110,4 +110,3 @@ class RockManager {
     return rocks;
   }
 }
-

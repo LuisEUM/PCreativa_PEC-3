@@ -1,4 +1,4 @@
-/**
+  /**
  * KOI SURVIVAL - Aplicación Principal
  * 
  * Evolución de la simulación original de estanque de koi, ahora convertida en un juego
@@ -141,4 +141,3 @@ void exit() {
   
   super.exit();
 }
-

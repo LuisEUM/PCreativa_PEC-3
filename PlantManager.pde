@@ -162,6 +162,126 @@ class PlantManager {
   ArrayList<LotusFlower> getFlowers() {
     return flowers;
   }
+  
+  /**
+   * Renderiza todas las plantas
+   */
+  void render() {
+    // Renderiza hojas de loto
+    for (LotusLeaf leaf : leaves) {
+      renderLotusLeaf(leaf);
+    }
+    
+    // Renderiza flores de loto
+    for (LotusFlower flower : flowers) {
+      renderLotusFlower(flower);
+    }
+  }
+  
+  /**
+   * Renderiza una hoja de loto
+   */
+  void renderLotusLeaf(LotusLeaf leaf) {
+    pushMatrix();
+    translate(leaf.position.x, leaf.position.y);
+    rotate(leaf.rotation);
+    
+    // Dibuja primero la sombra
+    pushMatrix();
+    translate(leaf.shadowOffset, leaf.shadowOffset);
+    noStroke();
+    fill(0, 0, 0, 76); // Negro con 30% de opacidad
+    drawLeafShape(leaf.size, leaf.variation);
+    popMatrix();
+    
+    // Dibuja la hoja con color verde brillante
+    noStroke();
+    fill(34, 180, 34, leaf.opacity * 255); // Verde brillante
+    drawLeafShape(leaf.size, leaf.variation);
+    
+    // Dibuja venas muy sutiles
+    stroke(255, 255, 255, 25); // Blanco con 10% de opacidad
+    strokeWeight(0.5);
+    
+    int veins = 8;
+    for (int i = 0; i < veins; i++) {
+      float angle = (TWO_PI / veins) * i;
+      line(0, 0, cos(angle) * leaf.size * 0.9, sin(angle) * leaf.size * 0.9);
+    }
+    
+    popMatrix();
+  }
+  
+  /**
+   * Renderiza una flor de loto
+   */
+  void renderLotusFlower(LotusFlower flower) {
+    pushMatrix();
+    translate(flower.position.x, flower.position.y);
+    rotate(flower.rotation);
+    
+    // Dibuja primero la sombra
+    pushMatrix();
+    translate(flower.shadowOffset, flower.shadowOffset);
+    noStroke();
+    fill(0, 0, 0, 76); // Negro con 30% de opacidad
+    ellipse(0, 0, flower.size * flower.bloomProgress * 2, flower.size * flower.bloomProgress * 2);
+    popMatrix();
+    
+    // Calcula el factor de floración basado en el estado
+    float bloomFactor = flower.bloomProgress;
+    
+    // Dibuja el centro de la flor
+    noStroke();
+    fill(255, 235, 59); // Amarillo para el centro
+    ellipse(0, 0, flower.size * 0.6, flower.size * 0.6);
+    
+    // Dibuja los pétalos
+    int petalCount = flower.petalCount;
+    color baseColor = ColorUtils.hexToColor(flower.flowerColor);
+    
+    for (int i = 0; i < petalCount; i++) {
+      float angle = (TWO_PI / petalCount) * i;
+      float petalLength = flower.size * bloomFactor;
+      
+      pushMatrix();
+      rotate(angle);
+      
+      // Dibuja la forma del pétalo
+      noStroke();
+      fill(baseColor);
+      beginShape();
+      vertex(0, 0);
+      quadraticVertex(petalLength * 0.5, petalLength * 0.3, petalLength, 0);
+      quadraticVertex(petalLength * 0.5, -petalLength * 0.3, 0, 0);
+      endShape(CLOSE);
+      
+      popMatrix();
+    }
+    
+    popMatrix();
+  }
+  
+  /**
+   * Dibuja la forma de una hoja de loto
+   */
+  void drawLeafShape(float size, float variation) {
+    beginShape();
+    
+    // Dibuja un círculo casi completo con una pequeña muesca
+    int segments = 36;
+    for (int i = 0; i < segments; i++) {
+      float angle = map(i, 0, segments, 0, TWO_PI * 0.9);
+      float x = cos(angle) * size;
+      float y = sin(angle) * size;
+      vertex(x, y);
+    }
+    
+    // Añade una pequeña muesca para hacer la hoja más realista
+    quadraticVertex(size * 0.5, -size * 0.2 * variation, 0, 0);
+    
+    endShape(CLOSE);
+  }
 }
 
 /**
@@ -184,4 +304,3 @@ class PlantGroup {
     this.flowerCount = flowerCount;
   }
 }
-

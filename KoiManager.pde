@@ -10,7 +10,7 @@ class KoiManager {
   float canvasWidth;
   float canvasHeight;
   ArrayList<Rock> rocks = new ArrayList<Rock>(); // Referencia a las rocas a evitar
-  final int MAX_FISH = 100; // Límite máximo de peces en el estanque
+  int MAX_FISH = 100; // Límite máximo de peces en el estanque (puede aumentar con upgrades)
   
   // Estado para la animación de vaciado del estanque
   boolean isEmptyingPond = false; // Indica si se está vaciando el estanque
@@ -511,6 +511,111 @@ class KoiManager {
   boolean isEmptyingPond() {
     return false; // Ya no tenemos animación de vaciado
   }
+  
+  /**
+   * Crea comida en una posición específica y atrae a los peces
+   * 
+   * @param x Posición x de la comida
+   * @param y Posición y de la comida
+   */
+  void addFood(float x, float y) {
+    // Atrae a los peces cercanos al punto de comida
+    attractToPoint(x, y, 200);
+  }
+  
+  /**
+   * Crea un pez koi sin verificar límites (para upgrades)
+   * 
+   * @param x Posición x inicial
+   * @param y Posición y inicial
+   * @param length Longitud del pez
+   * @param koiColor Color del pez en formato hexadecimal
+   */
+  void addKoiForced(float x, float y, float length, String koiColor) {
+    // Comprueba que la posición no colisione con rocas
+    float koiWidth = length * 0.4;
+    
+    for (Rock rock : rocks) {
+      float dx = x - rock.position.x;
+      float dy = y - rock.position.y;
+      float distance = sqrt(dx * dx + dy * dy);
+      
+      if (distance < rock.collisionRadius + koiWidth/2) {
+        // Ajusta la posición para evitar la colisión
+        float angle = atan2(dy, dx);
+        float newDistance = rock.collisionRadius + koiWidth/2 + 10; // Añade margen
+        x = rock.position.x + cos(angle) * newDistance;
+        y = rock.position.y + sin(angle) * newDistance;
+        break;
+      }
+    }
+    
+    // Asegura que el pez esté dentro del lienzo
+    x = constrain(x, 50, canvasWidth - 50);
+    y = constrain(y, 50, canvasHeight - 50);
+    
+    // Crea el nuevo pez koi
+    Koi koi = new Koi(x, y, length, koiColor);
+    
+    // Generar manchas automáticamente
+    generateSpots(koi);
+    
+    // Establece objetivo inicial
+    float targetX = x + RandomUtils.randomFloat(-100, 100);
+    float targetY = y + RandomUtils.randomFloat(-100, 100);
+    
+    // Asegura que el objetivo esté dentro del lienzo
+    targetX = constrain(targetX, 50, canvasWidth - 50);
+    targetY = constrain(targetY, 50, canvasHeight - 50);
+    
+    koi.setTarget(targetX, targetY, RandomUtils.randomFloat(100, 300));
+    
+    // Excita al pez cuando se crea
+    koi.setExcited(60);
+    
+    // Añade el pez a la colección SIN VERIFICAR LÍMITES
+    kois.add(koi);
+  }
+  
+  /**
+   * Renderiza todos los peces koi de forma simple
+   */
+  void render() {
+    for (Koi koi : kois) {
+      renderSimpleKoi(koi);
+    }
+  }
+  
+  /**
+   * Renderiza un pez koi de forma simplificada
+   */
+  void renderSimpleKoi(Koi koi) {
+    pushMatrix();
+    translate(koi.position.x, koi.position.y);
+    rotate(koi.angle);
+    
+    // Color del koi
+    color koiC = ColorUtils.hexToColor(koi.koiColor);
+    
+    // Cuerpo del koi
+    noStroke();
+    fill(koiC);
+    ellipse(0, 0, koi.length, koi.width);
+    
+    // Cola simple
+    fill(ColorUtils.darkenColor(koiC, 20));
+    ellipse(-koi.length/2, 0, koi.length/3, koi.width/2);
+    
+    // Manchas (usando los nombres correctos de campos)
+    for (Spot spot : koi.spots) {
+      float spotX = (spot.x - 0.5) * koi.length;
+      float spotY = (spot.y - 0.5) * koi.width;
+      float spotSize = spot.size * koi.width;
+      
+      fill(ColorUtils.hexToColor(spot.spotColor));
+      ellipse(spotX, spotY, spotSize, spotSize);
+    }
+    
+    popMatrix();
+  }
 }
-
-

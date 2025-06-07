@@ -42,4 +42,3 @@ class Rock {
     this.collisionRadius = this.size * 0.8;
   }
 }
-

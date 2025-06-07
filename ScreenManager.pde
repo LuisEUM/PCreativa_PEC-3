@@ -29,6 +29,7 @@ enum GameState {
   WAVES_PREP,       // Preparación de ronda (solo Modo Waves)
   WAVES_ACTIVE,     // Gameplay activo Modo Waves
   ENDLESS_ACTIVE,   // Gameplay activo Modo Endless  
+  UPGRADE_SCREEN,   // Pantalla de upgrades entre waves
   PAUSED,           // Pantalla de pausa (disponible desde cualquier modo activo)
   ROUND_COMPLETE,   // Evaluación y mejoras (solo Modo Waves)
   GAME_OVER,        // Pantalla de derrota (Waves & Endless)
@@ -42,6 +43,7 @@ class ScreenManager {
   
   // Managers específicos por modo
   PondManager pondManager;         // Para Modo Zen (código original)
+  WavesManager wavesManager;       // Para Modo Waves (sin botón de crear)
   GameManager gameManager;         // Para Modo Waves  
   EndlessManager endlessManager;   // Para Modo Endless
   ScoreManager scoreManager;       // Sistema de puntuación
@@ -51,6 +53,7 @@ class ScreenManager {
   InstructionsScreen instructionsScreen;
   PauseScreen pauseScreen;
   GameOverScreen gameOverScreen;
+  UpgradeScreen upgradeScreen;
   VictoryScreen victoryScreen;
   
   // Variables de control
@@ -83,6 +86,7 @@ class ScreenManager {
     this.instructionsScreen = new InstructionsScreen(this);
     this.pauseScreen = new PauseScreen(this);
     this.gameOverScreen = new GameOverScreen(this);
+    this.upgradeScreen = new UpgradeScreen(this);
     this.victoryScreen = new VictoryScreen(this);
     
     println("🎮 ScreenManager inicializado con estado: " + currentState);
@@ -115,6 +119,10 @@ class ScreenManager {
         
       case ENDLESS_ACTIVE:
         updateEndlessActive();
+        break;
+        
+      case UPGRADE_SCREEN:
+        updateUpgradeScreen();
         break;
         
       case PAUSED:
@@ -164,6 +172,10 @@ class ScreenManager {
         renderEndlessActive();
         break;
         
+      case UPGRADE_SCREEN:
+        renderUpgradeScreen();
+        break;
+        
       case PAUSED:
         renderPaused();
         break;
@@ -193,7 +205,10 @@ class ScreenManager {
   }
   
   void updateInstructions() {
-    // Instrucciones son estáticas, no necesitan actualización
+    // Actualizar la pantalla de instrucciones
+    if (instructionsScreen != null) {
+      instructionsScreen.update();
+    }
   }
   
   void updateZenMode() {
@@ -207,14 +222,43 @@ class ScreenManager {
   }
   
   void updateWavesActive() {
-    if (gameManager != null) {
-      gameManager.update();
+    if (wavesManager != null) {
+      wavesManager.update();
+      
+      // Verificar si todos los kois han muerto
+      if (wavesManager.koiManager.getKoiCount() == 0) {
+        // Calcular tiempo total del juego (todas las waves completadas + tiempo actual)
+        float totalGameTime = ((wavesManager.uiManager.currentWave - 1) * 120.0f) + 
+                             ((millis() - wavesManager.uiManager.waveStartTime) / 1000.0f);
+        showGameOver("waves", 0, getFormattedTimeFloat(totalGameTime), wavesManager.uiManager.currentWave);
+      }
+      
+      // Verificar si la wave se completó y necesita upgrade
+      if (wavesManager.uiManager.waveComplete && wavesManager.uiManager.currentWave <= 5 && !upgradeScreen.isShowing()) {
+        showUpgradeScreen(wavesManager.uiManager.currentWave);
+      }
     }
   }
   
   void updateEndlessActive() {
     if (endlessManager != null) {
       endlessManager.update();
+      
+      // Verificar si todos los kois han muerto
+      if (endlessManager.koiManager.getKoiCount() == 0) {
+        showGameOver("endless", endlessManager.uiManager.score, getFormattedTime(endlessManager.uiManager.startTime), 0);
+      }
+    }
+  }
+  
+  void updateUpgradeScreen() {
+    if (upgradeScreen != null) {
+      upgradeScreen.update();
+      
+      // Si la upgrade screen se oculta, volver al juego
+      if (!upgradeScreen.isShowing()) {
+        changeState(GameState.WAVES_ACTIVE);
+      }
     }
   }
   
@@ -230,7 +274,9 @@ class ScreenManager {
   }
   
   void updateGameOver() {
-    // Game over - estático
+    if (gameOverScreen != null) {
+      gameOverScreen.update();
+    }
   }
   
   void updateGameWon() {
@@ -264,14 +310,26 @@ class ScreenManager {
   }
   
   void renderWavesActive() {
-    if (gameManager != null) {
-      gameManager.render();
+    if (wavesManager != null) {
+      wavesManager.render();
     }
   }
   
   void renderEndlessActive() {
     if (endlessManager != null) {
       endlessManager.render();
+    }
+  }
+  
+  void renderUpgradeScreen() {
+    // Renderizar el juego de fondo (congelado)
+    if (wavesManager != null) {
+      wavesManager.render();
+    }
+    
+    // Renderizar la pantalla de upgrade encima
+    if (upgradeScreen != null) {
+      upgradeScreen.render();
     }
   }
   
@@ -310,7 +368,7 @@ class ScreenManager {
         if (pondManager != null) pondManager.render();
         break;
       case WAVES_ACTIVE:
-        if (gameManager != null) gameManager.render();
+        if (wavesManager != null) wavesManager.render();
         break;
       case ENDLESS_ACTIVE:
         if (endlessManager != null) endlessManager.render();
@@ -409,9 +467,8 @@ class ScreenManager {
    * Inicializa el Modo Waves
    */
   void initializeWavesMode() {
-    if (gameManager == null) {
-      gameManager = new GameManager(this);
-    }
+    // Siempre crear un nuevo WavesManager para restart limpio
+    wavesManager = new WavesManager(app);
     println("🌊 Inicializando Modo Waves...");
   }
   
@@ -419,9 +476,8 @@ class ScreenManager {
    * Inicializa el Modo Endless
    */
   void initializeEndlessMode() {
-    if (endlessManager == null) {
-      endlessManager = new EndlessManager(this);
-    }
+    // Siempre crear un nuevo EndlessManager para restart limpio
+    endlessManager = new EndlessManager(app);
     println("♾️ Inicializando Modo Endless...");
   }
   
@@ -501,6 +557,14 @@ class ScreenManager {
       case ZEN_MODE:
         // Modo Zen maneja sus propias teclas a través de pondManager
         break;
+        
+      case UPGRADE_SCREEN:
+        if (upgradeScreen != null) upgradeScreen.handleKey(key, keyCode);
+        break;
+        
+      case GAME_OVER:
+        if (gameOverScreen != null) gameOverScreen.handleKey(key, keyCode);
+        break;
     }
   }
   
@@ -520,6 +584,7 @@ class ScreenManager {
         break;
         
       case INSTRUCTIONS:
+      case UPGRADE_SCREEN:
       case GAME_OVER:
       case GAME_WON:
         changeState(GameState.MAIN_MENU);
@@ -530,10 +595,14 @@ class ScreenManager {
   /**
    * Maneja eventos de mouse
    */
-  void handleMousePressed(int mouseX, int mouseY, int mouseButton) {
+  void handleMousePressed(float mouseX, float mouseY, int mouseButton) {
     switch(currentState) {
       case MAIN_MENU:
         if (mainMenu != null) mainMenu.handleClick(mouseX, mouseY);
+        break;
+        
+      case INSTRUCTIONS:
+        if (instructionsScreen != null) instructionsScreen.handleClick(mouseX, mouseY);
         break;
         
       case PAUSED:
@@ -545,11 +614,19 @@ class ScreenManager {
         break;
         
       case WAVES_ACTIVE:
-        if (gameManager != null) gameManager.handleClick(mouseX, mouseY, mouseButton);
+        if (wavesManager != null) wavesManager.handleClick(mouseX, mouseY);
         break;
         
       case ENDLESS_ACTIVE:
-        if (endlessManager != null) endlessManager.handleClick(mouseX, mouseY, mouseButton);
+        if (endlessManager != null) endlessManager.handleClick(mouseX, mouseY);
+        break;
+        
+      case UPGRADE_SCREEN:
+        if (upgradeScreen != null) upgradeScreen.handleClick(mouseX, mouseY);
+        break;
+        
+      case GAME_OVER:
+        if (gameOverScreen != null) gameOverScreen.handleClick(mouseX, mouseY);
         break;
     }
   }
@@ -631,5 +708,48 @@ class ScreenManager {
    */
   ScoreManager getScoreManager() {
     return scoreManager;
+  }
+  
+  // ===============================================
+  // MÉTODOS AUXILIARES PARA GAME OVER Y UPGRADES
+  // ===============================================
+  
+  /**
+   * Muestra la pantalla de Game Over
+   */
+  void showGameOver(String mode, int score, String time, int wave) {
+    if (gameOverScreen != null) {
+      gameOverScreen.show(mode, score, time, wave);
+      changeState(GameState.GAME_OVER);
+    }
+  }
+  
+  /**
+   * Muestra la pantalla de Upgrade
+   */
+  void showUpgradeScreen(int completedWave) {
+    if (upgradeScreen != null && wavesManager != null) {
+      upgradeScreen.show(completedWave, wavesManager.uiManager);
+      changeState(GameState.UPGRADE_SCREEN);
+    }
+  }
+  
+  /**
+   * Formatea el tiempo de supervivencia desde un timestamp
+   */
+  String getFormattedTime(float startTime) {
+    float timeAlive = (millis() - startTime) / 1000.0;
+    int minutes = (int)(timeAlive / 60);
+    int seconds = (int)(timeAlive % 60);
+    return nf(minutes, 2) + ":" + nf(seconds, 2);
+  }
+  
+  /**
+   * Formatea el tiempo de supervivencia desde un float
+   */
+  String getFormattedTimeFloat(float timeInSeconds) {
+    int minutes = (int)(timeInSeconds / 60);
+    int seconds = (int)(timeInSeconds % 60);
+    return nf(minutes, 2) + ":" + nf(seconds, 2);
   }
 } 

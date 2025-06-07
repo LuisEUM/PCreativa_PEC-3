@@ -90,8 +90,8 @@ class UIManager {
     if (this.randomKoiButton.isClicked(mouseX, mouseY)) {
       // Primero eliminamos todos los peces
       koiManager.removeAllKoi();
-      // Luego creamos 25 peces aleatorios
-      koiManager.initialize(25);
+      // Luego creamos 20 peces aleatorios
+      koiManager.initialize(20);
       return true;
     }
     

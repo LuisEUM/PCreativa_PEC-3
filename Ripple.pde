@@ -48,4 +48,3 @@ class Ripple {
     return this.opacity <= 0 || this.radius > this.maxRadius;
   }
 }
-
