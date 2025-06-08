@@ -87,7 +87,7 @@ class EnemyManager {
   /**
    * Actualiza todos los enemigos
    */
-  void update(float deltaTime, ArrayList<Koi> kois, String gameMode) {
+  void update(float deltaTime, ArrayList<Koi> kois, String gameMode, ArrayList<FoodParticle> foodParticles) {
     // Actualizar indicadores de spawn
     updateSpawnIndicators(deltaTime);
     
@@ -96,7 +96,7 @@ class EnemyManager {
       Enemy enemy = enemies.get(i);
       
       if (enemy.isActive()) {
-        enemy.update(deltaTime, kois, canvasWidth, canvasHeight);
+        enemy.update(deltaTime, kois, canvasWidth, canvasHeight, foodParticles);
       } else {
         // Enemigo muerto, remover
         enemies.remove(i);
@@ -376,14 +376,25 @@ class EnemyManager {
    * Establece la wave actual (para modo Waves)
    */
   void setCurrentWave(int wave) {
-    this.currentWave = wave;
-    
     // Reiniciar sistema de alerta para nueva wave
-    if (wave != currentWave) {
+    if (wave != this.currentWave) {
       waveStarted = false;
       showingInitialAlert = false;
       initialAlertTimer = 0;
+      println("🌊 Reiniciando alerta para Wave " + wave);
     }
+    
+    this.currentWave = wave;
+  }
+  
+  /**
+   * Reinicia el sistema de alerta para modo Endless
+   */
+  void restartEndlessAlert() {
+    endlessStarted = false;
+    showingEndlessInitialAlert = false;
+    endlessInitialAlertTimer = 0;
+    println("♾️ Reiniciando alerta para modo Endless");
   }
   
   /**
@@ -391,6 +402,26 @@ class EnemyManager {
    */
   void clearAllEnemies() {
     enemies.clear();
+    spawnIndicators.clear();
+    
+    // Reiniciar timers según el modo
+    if (waveStarted) {
+      // Reset del sistema de waves
+      waveStarted = false;
+      showingInitialAlert = false;
+      initialAlertTimer = 0;
+      waveSpawnTimer = 0;
+    }
+    
+    if (endlessStarted) {
+      // Reset del sistema endless 
+      endlessStarted = false;
+      showingEndlessInitialAlert = false;
+      endlessInitialAlertTimer = 0;
+      endlessSpawnTimer = 0;
+    }
+    
+    println("🧹 Todos los enemigos han sido eliminados");
   }
   
   /**
@@ -477,6 +508,28 @@ class EnemyManager {
     difficultyTimer = 0;
     difficultyLevel = 1;
     endlessSpawnInterval = 5000;
+  }
+  
+  /**
+   * Atrae a todos los enemigos hacia un punto (comida del jugador)
+   */
+  void attractToPoint(float x, float y, float radius) {
+    for (Enemy enemy : enemies) {
+      if (enemy.isActive()) {
+        enemy.attractToPoint(x, y, radius);
+      }
+    }
+  }
+  
+  /**
+   * Repele a todos los enemigos de un punto (rocas)
+   */
+  void repelFromPoint(float x, float y, float radius) {
+    for (Enemy enemy : enemies) {
+      if (enemy.isActive()) {
+        enemy.repelFromPoint(x, y, radius);
+      }
+    }
   }
 }
 

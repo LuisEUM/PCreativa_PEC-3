@@ -7,6 +7,7 @@
 class WavesUIManager {
   PApplet applet;
   KoiManager koiManager;
+  EnemyManager enemyManager; // Referencia para limpiar enemigos entre waves
   
   // Sistema de waves
   int currentWave;
@@ -35,6 +36,7 @@ class WavesUIManager {
   WavesUIManager(PApplet applet, KoiManager koiManager) {
     this.applet = applet;
     this.koiManager = koiManager;
+    this.enemyManager = null; // Se asignará después
     
     // Inicializar waves
     this.currentWave = 1;
@@ -47,6 +49,13 @@ class WavesUIManager {
     this.maxRocks = 60;
     this.foodCount = maxFood;
     this.rockCount = maxRocks;
+  }
+  
+  /**
+   * Establece la referencia al EnemyManager
+   */
+  void setEnemyManager(EnemyManager enemyManager) {
+    this.enemyManager = enemyManager;
   }
   
   /**
@@ -86,6 +95,12 @@ class WavesUIManager {
    */
   void advanceToNextWave() {
     if (currentWave < 5) {
+      // Limpiar todos los enemigos antes de avanzar
+      if (enemyManager != null) {
+        enemyManager.clearAllEnemies();
+        println("🌊 Enemigos limpiados al avanzar a Wave " + (currentWave + 1));
+      }
+      
       currentWave++;
       waveStartTime = millis();
       waveComplete = false;

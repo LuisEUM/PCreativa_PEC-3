@@ -74,6 +74,9 @@ class WavesManager {
     // Inicializa el gestor de enemigos
     enemyManager = new EnemyManager(sketch.width, sketch.height);
     enemyManager.setRocks(rockManager.getRocks()); // Establecer rocas para colisiones
+    
+    // Conectar EnemyManager con UIManager para limpieza entre waves
+    uiManager.setEnemyManager(enemyManager);
   }
   
   /**
@@ -112,7 +115,11 @@ class WavesManager {
     
     // Actualiza enemigos y sincroniza con la wave actual
     enemyManager.setCurrentWave(uiManager.currentWave);
-    enemyManager.update(deltaTime, koiManager.getKois(), "waves");
+    enemyManager.update(deltaTime, koiManager.getKois(), "waves", foodManager.getParticles());
+    
+    // Actualiza el sistema de alimentación
+    koiManager.updateFoodAttraction(foodManager.getParticles());
+    koiManager.checkFoodConsumption(foodManager.getParticles(), deltaTime);
   }
   
   /**
@@ -185,6 +192,9 @@ class WavesManager {
         rippleManager.createRipple(x, y, 0.7, 50);
         foodManager.createFoodParticles(x, y, 12);
         koiManager.attractToPoint(x, y, 200);
+        
+        // Atraer enemigos que estén en modo WANDERING
+        enemyManager.attractToPoint(x, y, 250);
       }
     } else if (mouseButton == RIGHT) {
       // Clic derecho: Tirar rocas (si hay rocas disponibles)
@@ -194,7 +204,10 @@ class WavesManager {
         rippleManager.createRipple(x, y, 0.9, 70); // Ondulación más grande para rocas
         koiManager.repelFromPoint(x, y, 250.0f);
         
-        // Verificar colisiones con enemigos
+        // Repeler enemigos que estén en modo WANDERING
+        enemyManager.repelFromPoint(x, y, 200);
+        
+        // Verificar colisiones directas con enemigos
         enemyManager.checkRockCollisions(x, y, 15.0f, uiManager);
       }
     }
@@ -222,12 +235,32 @@ class WavesManager {
     ArrayList<FoodParticle> particles = foodManager.getParticles();
     for (FoodParticle particle : particles) {
       sketch.noStroke();
-      sketch.fill(particle.particleColor, particle.opacity * 255);
+      
+      // Cambiar el color según el estado de la comida
+      if (particle.consumed) {
+        // Comida consumida: blanco brillante
+        sketch.fill(255, 255, 255, particle.opacity * 255);
+      } else if (!particle.canBeConsumed()) {
+        // Comida que aún no puede ser comida: un poco más tenue
+        sketch.fill(particle.particleColor, particle.opacity * 128);
+      } else {
+        // Comida que puede ser comida: color normal
+        sketch.fill(particle.particleColor, particle.opacity * 255);
+      }
+      
+      float renderSize = particle.size * 2;
+      
+      // Efecto de pulsación para comida que puede ser comida
+      if (particle.canBeConsumed() && !particle.consumed) {
+        float pulsation = 1.0 + sin(time * 8) * 0.2; // Pulsación sutil
+        renderSize *= pulsation;
+      }
+      
       sketch.ellipse(
         particle.position.x + particle.offset.x, 
         particle.position.y + particle.offset.y, 
-        particle.size * 2, 
-        particle.size * 2
+        renderSize, 
+        renderSize
       );
     }
   }
@@ -297,9 +330,9 @@ class WavesManager {
     sketch.translate(koi.position.x, koi.position.y);
     sketch.rotate(koi.angle);
     
-    // Obtiene las dimensiones actuales teniendo en cuenta la animación de hundimiento
-    float currentLength = koi.getCurrentLength();
-    float currentWidth = koi.getCurrentWidth();
+    // Obtiene las dimensiones actuales teniendo en cuenta todas las animaciones
+    float currentLength = koi.getCurrentAnimatedLength();
+    float currentWidth = koi.getCurrentAnimatedWidth();
     float currentOpacity = koi.sinking ? koi.opacity : 1.0;
     
     // Dibuja primero la sombra (no dibuja sombra si se está hundiendo)

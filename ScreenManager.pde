@@ -563,6 +563,9 @@ class ScreenManager {
     if (endlessManager == null) {
       endlessManager = new EndlessManager(app);
       println("♾️ Inicializando Modo Endless (nuevo manager)...");
+      
+      // Reiniciar la alerta de enemigos para nuevo juego
+      endlessManager.enemyManager.restartEndlessAlert();
     } else {
       println("🔄 Reanudando Modo Endless (manteniendo progreso)...");
     }

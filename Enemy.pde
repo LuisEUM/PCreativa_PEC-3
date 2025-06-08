@@ -2,8 +2,15 @@
  * Clase Enemy
  * 
  * Representa un enemigo/depredador en el juego.
- * Los enemigos persiguen y atacan a los koi.
+ * Los enemigos persiguen y atacan a los koi, pero también pueden ser distraídos.
  */
+
+// Estados de comportamiento del enemigo
+enum EnemyState {
+  WANDERING,    // Explorando - puede ser distraído por comida y asustado por rocas
+  HUNTING       // Persiguiendo koi - más rojizo, no se distrae
+}
+
 class Enemy {
   Vector2D position;
   Vector2D target;
@@ -14,12 +21,15 @@ class Enemy {
   int damage;
   int health;
   int maxHealth;
-  color enemyColor;
+  color baseEnemyColor;
   
   // Estados de comportamiento
   boolean isActive;
   float huntingRadius;
+  float foodAttractionRadius;
   Koi targetKoi;
+  Vector2D targetFood;
+  EnemyState currentState;
   
   // Sistema de colisión con rocas
   ArrayList<Rock> rocks;
@@ -35,6 +45,12 @@ class Enemy {
   boolean showHealthIndicator;
   float healthIndicatorTimer;
   
+  // Comportamiento inicial temporal (evitar bordes)
+  boolean initialMovement;
+  float initialMovementTimer;
+  float initialMovementDuration; // Duración del comportamiento inicial
+  Vector2D initialDirection; // Dirección para alejarse del borde
+  
   /**
    * Constructor
    */
@@ -45,6 +61,8 @@ class Enemy {
     this.type = type;
     this.isActive = true;
     this.targetKoi = null;
+    this.targetFood = null;
+    this.currentState = EnemyState.WANDERING;
     this.angle = RandomUtils.randomAngle();
     
     // Sistema de daño
@@ -57,6 +75,12 @@ class Enemy {
     this.showHealthIndicator = false;
     this.healthIndicatorTimer = 0;
     
+    // Movimiento inicial temporal para alejarse del borde de spawn
+    this.initialMovement = true;
+    this.initialMovementTimer = 0;
+    this.initialMovementDuration = 3000; // 3 segundos
+    this.initialDirection = calculateInitialDirection(x, y);
+    
     // Configurar propiedades según el tipo
     switch (type) {
       case SMALL_CATFISH:
@@ -65,7 +89,8 @@ class Enemy {
         this.damage = 1;
         this.health = 2;
         this.huntingRadius = 80;
-        this.enemyColor = color(139, 69, 19); // Marrón
+        this.foodAttractionRadius = 120;
+        this.baseEnemyColor = color(139, 69, 19); // Marrón
         break;
       case MEDIUM_CARP:
         this.size = 35;
@@ -73,7 +98,8 @@ class Enemy {
         this.damage = 2;
         this.health = 3;
         this.huntingRadius = 100;
-        this.enemyColor = color(85, 107, 47); // Verde oliva
+        this.foodAttractionRadius = 140;
+        this.baseEnemyColor = color(85, 107, 47); // Verde oliva
         break;
       case LARGE_PIKE:
         this.size = 45;
@@ -81,7 +107,8 @@ class Enemy {
         this.damage = 3;
         this.health = 4;
         this.huntingRadius = 120;
-        this.enemyColor = color(47, 79, 79); // Gris pizarra
+        this.foodAttractionRadius = 160;
+        this.baseEnemyColor = color(47, 79, 79); // Gris pizarra
         break;
       case SHARK:
         this.size = 55;
@@ -89,7 +116,8 @@ class Enemy {
         this.damage = 4;
         this.health = 5;
         this.huntingRadius = 150;
-        this.enemyColor = color(70, 70, 70); // Gris oscuro
+        this.foodAttractionRadius = 180;
+        this.baseEnemyColor = color(70, 70, 70); // Gris oscuro
         break;
     }
     
@@ -106,30 +134,18 @@ class Enemy {
   /**
    * Actualiza el comportamiento del enemigo
    */
-  void update(float deltaTime, ArrayList<Koi> kois, float canvasWidth, float canvasHeight) {
+  void update(float deltaTime, ArrayList<Koi> kois, float canvasWidth, float canvasHeight, ArrayList<FoodParticle> foodParticles) {
     if (!isActive) return;
     
     // Actualizar animaciones
     updateAnimations(deltaTime);
     
-    // Buscar koi objetivo si no tiene uno o si el actual está muerto/hundido
-    if (targetKoi == null || targetKoi.sinking || targetKoi.isFinished()) {
-      findNearestKoi(kois);
-    }
+    // Actualizar comportamiento normal (incluyendo atracción/repulsión)
+    updateBehavior(kois, foodParticles);
     
-    // Si tiene objetivo, perseguirlo
-    if (targetKoi != null) {
-      target.x = targetKoi.position.x;
-      target.y = targetKoi.position.y;
-      
-      // Verificar si puede atacar
-      float distance = Vector2D.distance(position, targetKoi.position);
-      if (distance < size/2 + targetKoi.length/2) {
-        attackKoi(targetKoi);
-      }
-    } else {
-      // Sin objetivo, moverse aleatoriamente
-      moveRandomly(canvasWidth, canvasHeight);
+    // Si todavía está en movimiento inicial, añadir influencia para alejarse del borde
+    if (initialMovement) {
+      updateInitialMovement(deltaTime);
     }
     
     // Guardar posición actual como válida
@@ -147,6 +163,150 @@ class Enemy {
     // Mantener dentro del canvas
     position.x = constrain(position.x, 0, canvasWidth);
     position.y = constrain(position.y, 0, canvasHeight);
+  }
+  
+  /**
+   * Calcula la dirección inicial para alejarse del borde de spawn
+   */
+  Vector2D calculateInitialDirection(float spawnX, float spawnY) {
+    float centerX = 300; // Centro del canvas
+    float centerY = 300;
+    
+    // Calcular dirección hacia el centro desde la posición de spawn
+    float dirX = centerX - spawnX;
+    float dirY = centerY - spawnY;
+    
+    // Normalizar la dirección
+    float magnitude = sqrt(dirX * dirX + dirY * dirY);
+    if (magnitude > 0) {
+      dirX /= magnitude;
+      dirY /= magnitude;
+    }
+    
+    return new Vector2D(dirX, dirY);
+  }
+  
+  /**
+   * Actualiza el movimiento inicial temporal
+   */
+  void updateInitialMovement(float deltaTime) {
+    initialMovementTimer += deltaTime;
+    
+    // Finalizar movimiento inicial después del tiempo establecido
+    if (initialMovementTimer >= initialMovementDuration) {
+      initialMovement = false;
+      return;
+    }
+    
+    // Calcular posición objetivo alejándose del borde
+    float distanceFromCenter = 150; // Distancia mínima del centro
+    float targetX = position.x + (initialDirection.x * distanceFromCenter);
+    float targetY = position.y + (initialDirection.y * distanceFromCenter);
+    
+    // Aplicar influencia hacia esta dirección
+    float influence = 0.4; // Influencia del 40%
+    target.x = target.x * (1 - influence) + targetX * influence;
+    target.y = target.y * (1 - influence) + targetY * influence;
+  }
+  
+  /**
+   * Actualiza el comportamiento principal del enemigo
+   */
+  void updateBehavior(ArrayList<Koi> kois, ArrayList<FoodParticle> foodParticles) {
+    // Prioridad 1: Buscar koi objetivo
+    findNearestKoi(kois);
+    
+    if (targetKoi != null) {
+      // Estado HUNTING: perseguir koi
+      currentState = EnemyState.HUNTING;
+      target.x = targetKoi.position.x;
+      target.y = targetKoi.position.y;
+      
+      // Verificar si puede atacar
+      float distance = Vector2D.distance(position, targetKoi.position);
+      if (distance < size/2 + targetKoi.length/2) {
+        attackKoi(targetKoi);
+      }
+    } else {
+      // Estado WANDERING: buscar comida o moverse aleatoriamente
+      currentState = EnemyState.WANDERING;
+      
+      // Buscar comida si está en modo wandering
+      findNearestFood(foodParticles);
+      
+      if (targetFood != null) {
+        // Ir hacia la comida
+        target.x = targetFood.x;
+        target.y = targetFood.y;
+      } else {
+        // Movimiento aleatorio
+        moveRandomly(width, height);
+      }
+    }
+  }
+  
+  /**
+   * Busca la comida más cercana
+   */
+  void findNearestFood(ArrayList<FoodParticle> foodParticles) {
+    if (currentState != EnemyState.WANDERING) {
+      targetFood = null;
+      return;
+    }
+    
+    float nearestDistance = Float.MAX_VALUE;
+    FoodParticle nearestFood = null;
+    
+    for (FoodParticle food : foodParticles) {
+      if (food.isFinished()) continue;
+      
+      float distance = Vector2D.distance(position, food.position);
+      if (distance < foodAttractionRadius && distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestFood = food;
+      }
+    }
+    
+    if (nearestFood != null) {
+      targetFood = nearestFood.position;
+    } else {
+      targetFood = null;
+    }
+  }
+  
+  /**
+   * Atrae al enemigo hacia un punto (comida del jugador)
+   */
+  void attractToPoint(float x, float y, float radius) {
+    if (currentState != EnemyState.WANDERING) return; // Solo si no está cazando
+    
+    float distance = Vector2D.distance(position, new Vector2D(x, y));
+    if (distance < radius) {
+      target.x = x + random(-20, 20); // Pequeña variación
+      target.y = y + random(-20, 20);
+      targetFood = new Vector2D(x, y); // Temporalmente
+    }
+  }
+  
+  /**
+   * Repele al enemigo de un punto (rocas)
+   */
+  void repelFromPoint(float x, float y, float radius) {
+    if (currentState != EnemyState.WANDERING) return; // Solo si no está cazando
+    
+    float distance = Vector2D.distance(position, new Vector2D(x, y));
+    if (distance < radius) {
+      // Calcular dirección opuesta
+      float angle = Vector2D.angle(new Vector2D(x, y), position);
+      
+      // Moverse en dirección opuesta
+      float escapeDistance = radius + RandomUtils.randomFloat(50, 150);
+      target.x = x + cos(angle) * escapeDistance;
+      target.y = y + sin(angle) * escapeDistance;
+      
+      // Limpiar objetivo de comida
+      targetFood = null;
+    }
   }
   
   /**
@@ -341,6 +501,34 @@ class Enemy {
   }
   
   /**
+   * Obtiene el color actual del enemigo según su estado
+   */
+  color getCurrentColor() {
+    if (isHit) {
+      // Efecto de flash rojo cuando es golpeado
+      float intensity = hitFlashIntensity;
+      return color(
+        red(baseEnemyColor) + intensity,
+        green(baseEnemyColor),
+        blue(baseEnemyColor)
+      );
+    }
+    
+    // Color según estado
+    if (currentState == EnemyState.HUNTING) {
+      // Más rojizo cuando está cazando
+      return color(
+        min(255, red(baseEnemyColor) * 1.5),
+        green(baseEnemyColor) * 0.7,
+        blue(baseEnemyColor) * 0.7
+      );
+    } else {
+      // Color normal cuando está explorando
+      return baseEnemyColor;
+    }
+  }
+  
+  /**
    * Renderiza el enemigo
    */
   void render() {
@@ -350,17 +538,8 @@ class Enemy {
     translate(position.x, position.y);
     rotate(angle);
     
-    // Color base del enemigo con efecto de golpe
-    color currentColor = enemyColor;
-    if (isHit) {
-      // Efecto de flash rojo cuando es golpeado
-      float intensity = hitFlashIntensity;
-      currentColor = color(
-        red(enemyColor) + intensity,
-        green(enemyColor),
-        blue(enemyColor)
-      );
-    }
+    // Color actual según estado
+    color currentColor = getCurrentColor();
     
     // Cuerpo del enemigo
     noStroke();
@@ -371,8 +550,12 @@ class Enemy {
     fill(red(currentColor) * 0.7, green(currentColor) * 0.7, blue(currentColor) * 0.7);
     triangle(-size/2, 0, -size * 0.8, -size * 0.3, -size * 0.8, size * 0.3);
     
-    // Ojos rojos para mostrar que son enemigos
-    fill(255, 0, 0);
+    // Ojos - diferentes según estado
+    if (currentState == EnemyState.HUNTING) {
+      fill(255, 0, 0); // Rojos cuando caza
+    } else {
+      fill(255, 255, 0); // Amarillos cuando explora
+    }
     ellipse(size * 0.2, -size * 0.15, 4, 4);
     ellipse(size * 0.2, size * 0.15, 4, 4);
     
@@ -418,6 +601,13 @@ class Enemy {
       noFill();
       ellipse(dotX, indicatorY, 8, 8);
     }
+  }
+  
+  /**
+   * Obtiene el estado actual
+   */
+  EnemyState getState() {
+    return currentState;
   }
   
   /**

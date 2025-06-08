@@ -13,6 +13,10 @@ class FoodParticle {
   float sinkSpeed; // Velocidad de hundimiento
   Vector2D offset; // Desplazamiento aleatorio
   float lifetime; // Tiempo de vida restante
+  float maxLifetime; // Tiempo de vida máximo (para calcular porcentaje)
+  boolean consumed; // Si ya fue consumida por un pez
+  boolean canBeEaten; // Si puede ser comida en este momento
+  float stabilityTime; // Tiempo que debe permanecer estable antes de poder ser comida
   
   /**
    * Constructor
@@ -35,7 +39,11 @@ class FoodParticle {
       (RandomUtils.randomFloat(0, 1) - 0.5) * 20,
       (RandomUtils.randomFloat(0, 1) - 0.5) * 20
     );
-    this.lifetime = RandomUtils.randomFloat(100, 300);
+    this.lifetime = RandomUtils.randomFloat(300, 500); // Tiempo de vida más largo
+    this.maxLifetime = this.lifetime;
+    this.consumed = false;
+    this.canBeEaten = false;
+    this.stabilityTime = 60; // 1 segundo antes de poder ser comida
   }
   
   /**
@@ -44,15 +52,29 @@ class FoodParticle {
    * @param deltaTime Tiempo transcurrido desde el último fotograma
    */
   void update(float deltaTime) {
-    // Se hunde lentamente
-    this.position.y += this.sinkSpeed * (deltaTime / 16);
-    
-    // Disminuye el tiempo de vida
-    this.lifetime -= deltaTime;
-    
-    // Se desvanece a medida que disminuye el tiempo de vida
-    if (this.lifetime < 50) {
-      this.opacity = this.lifetime / 50;
+    // Solo se hunde si no ha sido consumida
+    if (!consumed) {
+      // Se hunde lentamente
+      this.position.y += this.sinkSpeed * (deltaTime / 16);
+      
+      // Disminuye el tiempo de vida
+      this.lifetime -= deltaTime;
+      
+      // Controlar el tiempo de estabilidad
+      if (stabilityTime > 0) {
+        stabilityTime -= deltaTime;
+      } else {
+        canBeEaten = true;
+      }
+      
+      // Se desvanece más tarde en su vida
+      if (this.lifetime < 100) {
+        this.opacity = this.lifetime / 100;
+      }
+    } else {
+      // Si fue consumida, desvanece rápidamente
+      this.opacity -= deltaTime / 200; // Desvanece en ~0.2 segundos
+      if (this.opacity < 0) this.opacity = 0;
     }
   }
   
@@ -62,7 +84,28 @@ class FoodParticle {
    * @return true si la partícula debe ser eliminada
    */
   boolean isFinished() {
-    return this.lifetime <= 0;
+    return this.lifetime <= 0 || (consumed && opacity <= 0);
+  }
+  
+  /**
+   * Marca la comida como consumida
+   */
+  void consume() {
+    this.consumed = true;
+  }
+  
+  /**
+   * Verifica si la comida puede ser comida
+   */
+  boolean canBeConsumed() {
+    return canBeEaten && !consumed;
+  }
+  
+  /**
+   * Obtiene el porcentaje de vida restante
+   */
+  float getLifePercentage() {
+    return lifetime / maxLifetime;
   }
 }
 

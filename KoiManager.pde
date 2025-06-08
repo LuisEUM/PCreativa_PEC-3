@@ -526,6 +526,101 @@ class KoiManager {
   }
   
   /**
+   * Verifica si algún pez puede comer las partículas de comida y las consume
+   * 
+   * @param foodParticles Lista de partículas de comida
+   * @param deltaTime Tiempo transcurrido
+   */
+  void checkFoodConsumption(ArrayList<FoodParticle> foodParticles, float deltaTime) {
+    for (FoodParticle food : foodParticles) {
+      // Solo verificar comida que puede ser consumida
+      if (!food.canBeConsumed()) continue;
+      
+      // Buscar el koi más cercano que pueda comer esta comida
+      Koi closestKoi = null;
+      float closestDistance = Float.MAX_VALUE;
+      
+      for (Koi koi : kois) {
+        // Solo kois que no estén hundiéndose pueden comer
+        if (koi.sinking) continue;
+        
+        float distance = Vector2D.distance(koi.position, food.position);
+        float eatRadius = max(koi.getCurrentAnimatedLength() / 2, 8); // Radio mínimo de 8
+        
+        if (distance <= eatRadius && distance < closestDistance) {
+          closestKoi = koi;
+          closestDistance = distance;
+        }
+      }
+      
+      // Si encontramos un koi que puede comer, consume la comida
+      if (closestKoi != null) {
+        food.consume();
+        closestKoi.eatFood(); // ¡El koi crece!
+        
+        // El koi deja de buscar comida ya que acaba de comer
+        closestKoi.seekingFood = false;
+        closestKoi.targetFood = null;
+        closestKoi.competitionPriority = 0;
+      }
+    }
+  }
+  
+  /**
+   * Configura la atracción de peces hacia las partículas de comida
+   * 
+   * @param foodParticles Lista de partículas de comida
+   */
+  void updateFoodAttraction(ArrayList<FoodParticle> foodParticles) {
+    for (Koi koi : kois) {
+      // Solo kois que no estén hundiéndose pueden buscar comida
+      if (koi.sinking) continue;
+      
+      // Si ya está buscando comida específica, verificar si sigue siendo válida
+      if (koi.seekingFood && koi.targetFood != null) {
+        boolean foundValidFood = false;
+        for (FoodParticle food : foodParticles) {
+          float distance = Vector2D.distance(koi.targetFood, food.position);
+          if (distance < 10 && food.canBeConsumed()) {
+            foundValidFood = true;
+            break;
+          }
+        }
+        
+        // Si la comida objetivo ya no es válida, buscar otra
+        if (!foundValidFood) {
+          koi.seekingFood = false;
+          koi.targetFood = null;
+          koi.competitionPriority = 0;
+        }
+      }
+      
+      // Si no está buscando comida, buscar la más cercana
+      if (!koi.seekingFood) {
+        FoodParticle closestFood = null;
+        float closestDistance = Float.MAX_VALUE;
+        float searchRadius = 150; // Radio de búsqueda de comida
+        
+        for (FoodParticle food : foodParticles) {
+          if (!food.canBeConsumed()) continue;
+          
+          float distance = Vector2D.distance(koi.position, food.position);
+          if (distance <= searchRadius && distance < closestDistance) {
+            closestFood = food;
+            closestDistance = distance;
+          }
+        }
+        
+        // Si encontró comida, dirigirse hacia ella
+        if (closestFood != null) {
+          int priority = (int)map(closestDistance, 0, searchRadius, 100, 1); // Más cerca = mayor prioridad
+          koi.setFoodTarget(closestFood.position, priority);
+        }
+      }
+    }
+  }
+  
+  /**
    * Crea un pez koi sin verificar límites (para upgrades)
    * 
    * @param x Posición x inicial

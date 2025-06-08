@@ -31,17 +31,22 @@ class RockManager {
    */
   void initialize(ArrayList<LotusLeaf> plants, ArrayList<LotusFlower> flowers) {
     // Posiciones estratégicas para las rocas (máximo 5)
+    // Con al menos 100px de distancia de los bordes (zona 500x500 en canvas 600x600)
+    float margin = 100; // Margen mínimo desde los bordes
+    float safeWidth = canvasWidth - (2 * margin);
+    float safeHeight = canvasHeight - (2 * margin);
+    
     PVector[] positions = {
-      // Esquina superior izquierda
-      new PVector(canvasWidth * 0.15, canvasHeight * 0.2),
-      // Borde derecho, tercio superior
-      new PVector(canvasWidth * 0.85, canvasHeight * 0.3),
-      // Borde izquierdo, centro
-      new PVector(canvasWidth * 0.1, canvasHeight * 0.5),
-      // Esquina inferior derecha
-      new PVector(canvasWidth * 0.8, canvasHeight * 0.85),
-      // Centro inferior
-      new PVector(canvasWidth * 0.4, canvasHeight * 0.75)
+      // Área superior izquierda
+      new PVector(margin + safeWidth * 0.2, margin + safeHeight * 0.25),
+      // Área superior derecha
+      new PVector(margin + safeWidth * 0.8, margin + safeHeight * 0.3),
+      // Área centro izquierda
+      new PVector(margin + safeWidth * 0.15, margin + safeHeight * 0.6),
+      // Área inferior derecha
+      new PVector(margin + safeWidth * 0.75, margin + safeHeight * 0.8),
+      // Área centro inferior
+      new PVector(margin + safeWidth * 0.4, margin + safeHeight * 0.7)
     };
     
     // Crea rocas en posiciones estratégicas

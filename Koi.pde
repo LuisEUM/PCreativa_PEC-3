@@ -24,6 +24,16 @@ class Koi {
   boolean excited; // Estado de excitación (durante alimentación)
   float excitedTime; // Tiempo restante en estado de excitación
   
+  // Sistema de crecimiento
+  int growthLevel; // Nivel actual (0-4, corresponde a XS, S, M, L, XL)
+  boolean isGrowing; // Si está en animación de crecimiento
+  float growthTimer; // Tiempo de la animación de crecimiento
+  float growthDuration; // Duración de la animación de crecimiento
+  float originalLength; // Tamaño original antes del crecimiento
+  float targetLength; // Tamaño objetivo después del crecimiento
+  boolean justAte; // Si acaba de comer (para animación especial)
+  float ateAnimationTimer; // Timer para animación de "acaba de comer"
+  
   // Variables para el estado de hundimiento
   boolean sinking; // Si el pez está hundiéndose
   float sinkingTime; // Tiempo total de la animación de hundimiento
@@ -68,6 +78,16 @@ class Koi {
     this.shadowOffset = RandomUtils.randomFloat(3, 8);
     this.excited = false;
     this.excitedTime = 0;
+    
+    // Inicializar sistema de crecimiento
+    this.growthLevel = getLevelFromSize(length);
+    this.isGrowing = false;
+    this.growthTimer = 0;
+    this.growthDuration = 1000; // 1 segundo de animación
+    this.originalLength = length;
+    this.targetLength = length;
+    this.justAte = false;
+    this.ateAnimationTimer = 0;
     
     // Inicialización de las variables de hundimiento
     this.sinking = false;
@@ -232,6 +252,9 @@ class Koi {
         isVisible = true;
       }
     }
+    
+    // Actualizar animaciones de crecimiento y comer
+    updateGrowthAnimations(deltaTime);
   }
   
   /**
@@ -361,6 +384,136 @@ class Koi {
     if (length >= 28) return 20;     // L -> M
     if (length >= 20) return 15;     // M -> S
     return 10;                     // S -> XS
+  }
+  
+  /**
+   * Convierte un tamaño a nivel de crecimiento
+   */
+  int getLevelFromSize(float size) {
+    if (size >= 35) return 4;      // XL
+    if (size >= 28) return 3;      // L
+    if (size >= 20) return 2;      // M
+    if (size >= 15) return 1;      // S
+    return 0;                    // XS
+  }
+  
+  /**
+   * Obtiene el tamaño del siguiente nivel
+   */
+  float getNextSize() {
+    if (length < 15) return 15;     // XS -> S
+    if (length < 20) return 20;     // S -> M
+    if (length < 28) return 28;     // M -> L
+    if (length < 35) return 35;     // L -> XL
+    return 35;                     // Ya es XL (máximo)
+  }
+  
+  /**
+   * Método para hacer que el pez crezca al siguiente nivel
+   */
+  void eatFood() {
+    // Solo puede crecer si no está ya creciendo y no está al máximo nivel
+    if (!isGrowing && growthLevel < 4) {
+      // Activar animación de "acaba de comer"
+      justAte = true;
+      ateAnimationTimer = 0;
+      
+      // Activar excitación por haber comido
+      setExcited(120); // 2 segundos de excitación
+      
+      // Preparar para el crecimiento
+      originalLength = length;
+      targetLength = getNextSize();
+      growthLevel++;
+      
+      // Iniciar animación de crecimiento después de un breve delay
+      // Para que se vea primero la animación de "comer"
+      isGrowing = true;
+      growthTimer = 0;
+    } else if (!isGrowing) {
+      // Si ya está al máximo nivel, solo mostrar animación de comer
+      justAte = true;
+      ateAnimationTimer = 0;
+      setExcited(60); // 1 segundo de excitación
+    }
+  }
+  
+  /**
+   * Actualiza las animaciones de crecimiento y comer
+   */
+  void updateGrowthAnimations(float deltaTime) {
+    // Actualizar animación de "acaba de comer"
+    if (justAte) {
+      ateAnimationTimer += deltaTime;
+      if (ateAnimationTimer >= 500) { // 0.5 segundos
+        justAte = false;
+        ateAnimationTimer = 0;
+      }
+    }
+    
+    // Actualizar animación de crecimiento
+    if (isGrowing) {
+      growthTimer += deltaTime;
+      
+      if (growthTimer >= growthDuration) {
+        // Finalizar crecimiento
+        isGrowing = false;
+        length = targetLength;
+        width = length * 0.4;
+        growthTimer = 0;
+      } else {
+        // Interpolación suave del tamaño
+        float progress = growthTimer / growthDuration;
+        // Usar función de easing para una animación más natural
+        float easedProgress = easeInOutBack(progress);
+        length = lerp(originalLength, targetLength, easedProgress);
+        width = length * 0.4;
+      }
+    }
+  }
+  
+  /**
+   * Función de easing con efecto de rebote para el crecimiento
+   */
+  float easeInOutBack(float x) {
+    float c1 = 1.70158;
+    float c2 = c1 * 1.525;
+    
+    return x < 0.5
+      ? (pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2)) / 2
+      : (pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2;
+  }
+  
+  /**
+   * Obtiene el tamaño actual considerando animaciones
+   */
+  float getCurrentAnimatedLength() {
+    float currentLength = getCurrentLength(); // Ya considera hundimiento
+    
+    // Aplicar efecto de "acaba de comer" (ligero aumento de tamaño)
+    if (justAte) {
+      float eatProgress = ateAnimationTimer / 500.0;
+      float eatScale = 1.0 + (sin(eatProgress * PI * 4) * 0.1 * (1 - eatProgress));
+      currentLength *= eatScale;
+    }
+    
+    return currentLength;
+  }
+  
+  /**
+   * Obtiene el ancho actual considerando animaciones
+   */
+  float getCurrentAnimatedWidth() {
+    float currentWidth = getCurrentWidth(); // Ya considera hundimiento
+    
+    // Aplicar efecto de "acaba de comer"
+    if (justAte) {
+      float eatProgress = ateAnimationTimer / 500.0;
+      float eatScale = 1.0 + (sin(eatProgress * PI * 4) * 0.1 * (1 - eatProgress));
+      currentWidth *= eatScale;
+    }
+    
+    return currentWidth;
   }
 }
 
