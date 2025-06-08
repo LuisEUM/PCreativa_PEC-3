@@ -8,7 +8,10 @@
 // Estados de comportamiento del enemigo
 enum EnemyState {
   WANDERING,    // Explorando - puede ser distraído por comida y asustado por rocas
-  HUNTING       // Persiguiendo koi - más rojizo, no se distrae
+  HUNTING,      // Persiguiendo koi - más rojizo, no se distrae
+  EXPLORING,    // Exploración natural sin objetivo específico
+  FLEEING,      // Huyendo de rocas/amenazas
+  FEEDING       // Dirigiéndose hacia comida específica
 }
 
 class Enemy {
@@ -51,6 +54,20 @@ class Enemy {
   float initialMovementDuration; // Duración del comportamiento inicial
   Vector2D initialDirection; // Dirección para alejarse del borde
   
+  // Sistema de exploración mejorado
+  Vector2D explorationTarget; // Objetivo de exploración natural
+  float explorationTimer; // Tiempo en el objetivo actual
+  float explorationDuration; // Duración antes de cambiar objetivo
+  
+  // Sistema de huida de rocas
+  Vector2D lastThreatPosition; // Última posición de amenaza (roca)
+  float fleeTimer; // Tiempo huyendo
+  float fleeDuration; // Duración de huida
+  
+  // Navegación inteligente
+  float changeDirectionChance; // Probabilidad de cambiar dirección
+  float naturalSpeed; // Velocidad base sin modificadores
+  
   /**
    * Constructor
    */
@@ -80,6 +97,20 @@ class Enemy {
     this.initialMovementTimer = 0;
     this.initialMovementDuration = 3000; // 3 segundos
     this.initialDirection = calculateInitialDirection(x, y);
+    
+    // Inicializar sistema de exploración mejorado
+    this.explorationTarget = new Vector2D(x, y);
+    this.explorationTimer = 0;
+    this.explorationDuration = RandomUtils.randomFloat(2000, 5000); // 2-5 segundos
+    
+    // Inicializar sistema de huida
+    this.lastThreatPosition = null;
+    this.fleeTimer = 0;
+    this.fleeDuration = 2000; // 2 segundos huyendo
+    
+    // Configurar navegación natural
+    this.changeDirectionChance = 0.08; // 8% por frame (más natural que 2%)
+    this.naturalSpeed = this.speed; // Guardar velocidad base
     
     // Configurar propiedades según el tipo
     switch (type) {
@@ -166,15 +197,45 @@ class Enemy {
   }
   
   /**
-   * Calcula la dirección inicial para alejarse del borde de spawn
+   * Calcula la dirección inicial para alejarse del borde más cercano
    */
   Vector2D calculateInitialDirection(float spawnX, float spawnY) {
-    float centerX = 300; // Centro del canvas
-    float centerY = 300;
+    float canvasWidth = 600;
+    float canvasHeight = 600;
     
-    // Calcular dirección hacia el centro desde la posición de spawn
-    float dirX = centerX - spawnX;
-    float dirY = centerY - spawnY;
+    // Encontrar distancias a cada borde
+    float distToLeft = spawnX;
+    float distToRight = canvasWidth - spawnX;
+    float distToTop = spawnY;
+    float distToBottom = canvasHeight - spawnY;
+    
+    // Encontrar el borde más cercano
+    float minDist = min(min(distToLeft, distToRight), min(distToTop, distToBottom));
+    
+    float dirX = 0;
+    float dirY = 0;
+    
+    // Alejarse del borde más cercano
+    if (minDist == distToLeft) {
+      // Muy cerca del borde izquierdo - ir hacia la derecha
+      dirX = 1;
+    } else if (minDist == distToRight) {
+      // Muy cerca del borde derecho - ir hacia la izquierda
+      dirX = -1;
+    }
+    
+    if (minDist == distToTop) {
+      // Muy cerca del borde superior - ir hacia abajo
+      dirY = 1;
+    } else if (minDist == distToBottom) {
+      // Muy cerca del borde inferior - ir hacia arriba
+      dirY = -1;
+    }
+    
+    // Si está en una esquina, combinar direcciones
+    // Añadir algo de aleatoriedad para naturalidad
+    dirX += random(-0.3, 0.3);
+    dirY += random(-0.3, 0.3);
     
     // Normalizar la dirección
     float magnitude = sqrt(dirX * dirX + dirY * dirY);
@@ -187,7 +248,7 @@ class Enemy {
   }
   
   /**
-   * Actualiza el movimiento inicial temporal
+   * Actualiza el movimiento inicial temporal - solo alejarse del borde
    */
   void updateInitialMovement(float deltaTime) {
     initialMovementTimer += deltaTime;
@@ -195,29 +256,62 @@ class Enemy {
     // Finalizar movimiento inicial después del tiempo establecido
     if (initialMovementTimer >= initialMovementDuration) {
       initialMovement = false;
+      // Configurar exploración inicial cuando termina el movimiento inicial
+      resetExploration();
       return;
     }
     
-    // Calcular posición objetivo alejándose del borde
-    float distanceFromCenter = 150; // Distancia mínima del centro
-    float targetX = position.x + (initialDirection.x * distanceFromCenter);
-    float targetY = position.y + (initialDirection.y * distanceFromCenter);
+    // Solo influenciar si está muy cerca de los bordes
+    float margin = 80;
+    boolean nearBorder = (position.x < margin || position.x > 520 || 
+                         position.y < margin || position.y > 520);
     
-    // Aplicar influencia hacia esta dirección
-    float influence = 0.4; // Influencia del 40%
-    target.x = target.x * (1 - influence) + targetX * influence;
-    target.y = target.y * (1 - influence) + targetY * influence;
+    if (nearBorder) {
+      // Calcular posición de seguridad alejándose del borde
+      float safeDistance = 100;
+      float targetX = position.x + (initialDirection.x * safeDistance);
+      float targetY = position.y + (initialDirection.y * safeDistance);
+      
+      // Mantener dentro del área válida
+      targetX = constrain(targetX, margin, 600 - margin);
+      targetY = constrain(targetY, margin, 600 - margin);
+      
+      // Aplicar influencia SOLO si está cerca del borde
+      float influence = 0.6; // Influencia más fuerte pero temporal
+      target.x = target.x * (1 - influence) + targetX * influence;
+      target.y = target.y * (1 - influence) + targetY * influence;
+    }
+    // Si no está cerca del borde, permitir comportamiento normal
   }
   
   /**
-   * Actualiza el comportamiento principal del enemigo
+   * Actualiza el comportamiento principal del enemigo con prioridades claras
    */
   void updateBehavior(ArrayList<Koi> kois, ArrayList<FoodParticle> foodParticles) {
-    // Prioridad 1: Buscar koi objetivo
-    findNearestKoi(kois);
+    // SISTEMA DE PRIORIDADES:
+    // 1. Huir de amenazas (rocas)
+    // 2. Buscar y comer comida
+    // 3. Cazar koi 
+    // 4. Explorar naturalmente
     
+    // Actualizar timers
+    updateBehaviorTimers();
+    
+    // Prioridad 1: ¿Está huyendo?
+    if (currentState == EnemyState.FLEEING) {
+      updateFleeingBehavior();
+      return;
+    }
+    
+    // Prioridad 2: ¿Hay comida cerca?
+    if (findAndTargetFood(foodParticles)) {
+      currentState = EnemyState.FEEDING;
+      return;
+    }
+    
+    // Prioridad 3: ¿Hay koi para cazar?
+    findNearestKoi(kois);
     if (targetKoi != null) {
-      // Estado HUNTING: perseguir koi
       currentState = EnemyState.HUNTING;
       target.x = targetKoi.position.x;
       target.y = targetKoi.position.y;
@@ -227,33 +321,39 @@ class Enemy {
       if (distance < size/2 + targetKoi.length/2) {
         attackKoi(targetKoi);
       }
-    } else {
-      // Estado WANDERING: buscar comida o moverse aleatoriamente
-      currentState = EnemyState.WANDERING;
-      
-      // Buscar comida si está en modo wandering
-      findNearestFood(foodParticles);
-      
-      if (targetFood != null) {
-        // Ir hacia la comida
-        target.x = targetFood.x;
-        target.y = targetFood.y;
-      } else {
-        // Movimiento aleatorio
-        moveRandomly(width, height);
+      return;
+    }
+    
+    // Prioridad 4: Explorar naturalmente
+    currentState = EnemyState.EXPLORING;
+    updateExplorationBehavior();
+  }
+  
+  /**
+   * Actualiza los timers de comportamiento
+   */
+  void updateBehaviorTimers() {
+    // Timer de exploración
+    if (currentState == EnemyState.EXPLORING) {
+      explorationTimer += 16; // Aproximadamente 16ms por frame
+    }
+    
+    // Timer de huida
+    if (currentState == EnemyState.FLEEING) {
+      fleeTimer += 16;
+      if (fleeTimer >= fleeDuration) {
+        // Terminar huida
+        currentState = EnemyState.EXPLORING;
+        fleeTimer = 0;
+        lastThreatPosition = null;
       }
     }
   }
   
   /**
-   * Busca la comida más cercana
+   * Busca y se dirige hacia comida con alta prioridad
    */
-  void findNearestFood(ArrayList<FoodParticle> foodParticles) {
-    if (currentState != EnemyState.WANDERING) {
-      targetFood = null;
-      return;
-    }
-    
+  boolean findAndTargetFood(ArrayList<FoodParticle> foodParticles) {
     float nearestDistance = Float.MAX_VALUE;
     FoodParticle nearestFood = null;
     
@@ -269,43 +369,128 @@ class Enemy {
     
     if (nearestFood != null) {
       targetFood = nearestFood.position;
-    } else {
-      targetFood = null;
+      target.x = targetFood.x;
+      target.y = targetFood.y;
+      return true;
     }
+    
+    targetFood = null;
+    return false;
+  }
+  
+  /**
+   * Actualiza el comportamiento de huida
+   */
+  void updateFleeingBehavior() {
+    if (lastThreatPosition != null) {
+      // Continuar alejándose de la última amenaza
+      float angle = Vector2D.angle(lastThreatPosition, position);
+      
+      // Moverse más lejos de la amenaza
+      float escapeDistance = 100;
+      target.x = position.x + cos(angle) * escapeDistance;
+      target.y = position.y + sin(angle) * escapeDistance;
+      
+      // Mantener dentro del canvas
+      target.x = constrain(target.x, 50, 550);
+      target.y = constrain(target.y, 50, 550);
+    }
+  }
+  
+  /**
+   * Actualiza el comportamiento de exploración natural
+   */
+  void updateExplorationBehavior() {
+    // ¿Es tiempo de cambiar objetivo?
+    if (explorationTimer >= explorationDuration || 
+        Vector2D.distance(position, explorationTarget) < 30) {
+      
+      // Elegir nuevo objetivo de exploración
+      setNewExplorationTarget();
+      explorationTimer = 0;
+      explorationDuration = RandomUtils.randomFloat(3000, 8000); // 3-8 segundos
+    }
+    
+    // Moverse hacia el objetivo de exploración
+    target.x = explorationTarget.x;
+    target.y = explorationTarget.y;
+  }
+  
+  /**
+   * Establece un nuevo objetivo de exploración aleatorio pero inteligente
+   */
+  void setNewExplorationTarget() {
+    // Evitar las esquinas y mantenerse en áreas interesantes
+    float margin = 80;
+    float canvasWidth = 600;
+    float canvasHeight = 600;
+    
+    // Área central más probable, pero permitir toda el área
+    float targetX, targetY;
+    
+    if (random(1) < 0.7) {
+      // 70% probabilidad de ir al área central (más natural)
+      targetX = random(margin * 2, canvasWidth - margin * 2);
+      targetY = random(margin * 2, canvasHeight - margin * 2);
+    } else {
+      // 30% probabilidad de explorar toda el área
+      targetX = random(margin, canvasWidth - margin);
+      targetY = random(margin, canvasHeight - margin);
+    }
+    
+    explorationTarget.x = targetX;
+    explorationTarget.y = targetY;
   }
   
   /**
    * Atrae al enemigo hacia un punto (comida del jugador)
    */
   void attractToPoint(float x, float y, float radius) {
-    if (currentState != EnemyState.WANDERING) return; // Solo si no está cazando
+    // Solo si no está cazando activamente o huyendo
+    if (currentState == EnemyState.HUNTING || currentState == EnemyState.FLEEING) return;
     
     float distance = Vector2D.distance(position, new Vector2D(x, y));
     if (distance < radius) {
-      target.x = x + random(-20, 20); // Pequeña variación
-      target.y = y + random(-20, 20);
-      targetFood = new Vector2D(x, y); // Temporalmente
+      // Cambiar a estado FEEDING con alta prioridad
+      currentState = EnemyState.FEEDING;
+      target.x = x + random(-15, 15); // Pequeña variación
+      target.y = y + random(-15, 15);
+      targetFood = new Vector2D(x, y);
     }
   }
   
   /**
-   * Repele al enemigo de un punto (rocas)
+   * Repele al enemigo de un punto (rocas) con memoria
    */
   void repelFromPoint(float x, float y, float radius) {
-    if (currentState != EnemyState.WANDERING) return; // Solo si no está cazando
+    // Las rocas pueden interrumpir cualquier comportamiento excepto hunting intenso
+    if (currentState == EnemyState.HUNTING && targetKoi != null) {
+      // Solo huir si la roca está muy cerca durante caza
+      float distance = Vector2D.distance(position, new Vector2D(x, y));
+      if (distance > radius * 0.6) return; // Permitir cazar cerca de rocas
+    }
     
     float distance = Vector2D.distance(position, new Vector2D(x, y));
     if (distance < radius) {
-      // Calcular dirección opuesta
-      float angle = Vector2D.angle(new Vector2D(x, y), position);
+      // Activar estado de huida con memoria
+      currentState = EnemyState.FLEEING;
+      lastThreatPosition = new Vector2D(x, y);
+      fleeTimer = 0;
       
-      // Moverse en dirección opuesta
-      float escapeDistance = radius + RandomUtils.randomFloat(50, 150);
+      // Calcular dirección de escape inmediata
+      float angle = Vector2D.angle(new Vector2D(x, y), position);
+      float escapeDistance = radius + RandomUtils.randomFloat(80, 150);
+      
       target.x = x + cos(angle) * escapeDistance;
       target.y = y + sin(angle) * escapeDistance;
       
-      // Limpiar objetivo de comida
+      // Mantener dentro del canvas
+      target.x = constrain(target.x, 50, 550);
+      target.y = constrain(target.y, 50, 550);
+      
+      // Limpiar otros objetivos
       targetFood = null;
+      targetKoi = null;
     }
   }
   
@@ -340,7 +525,7 @@ class Enemy {
   }
   
   /**
-   * Verifica colisiones con rocas
+   * Verifica colisiones con rocas mejoradas
    */
   void checkRockCollisions() {
     for (Rock rock : rocks) {
@@ -351,18 +536,28 @@ class Enemy {
         position.x = lastValidPosition.x;
         position.y = lastValidPosition.y;
         
-        // Cambiar dirección para evitar quedarse atascado
-        angle += PI/2 + random(-PI/4, PI/4);
+        // Activar estado de huida con memoria de la roca
+        currentState = EnemyState.FLEEING;
+        lastThreatPosition = rock.position.clone();
+        fleeTimer = 0;
         
-        // Buscar nuevo objetivo o dirección aleatoria
-        if (targetKoi != null) {
-          // Intentar rodear la roca
-          Vector2D avoidDirection = position.subtract(rock.position);
-          Vector2D normalizedDirection = avoidDirection.normalize();
-          Vector2D scaledDirection = normalizedDirection.multiply(rock.size + size/2 + 20); // Distancia de seguridad
-          
-          target.x = rock.position.x + scaledDirection.x;
-          target.y = rock.position.y + scaledDirection.y;
+        // Calcular dirección de escape desde la roca
+        Vector2D escapeDirection = position.subtract(rock.position);
+        Vector2D normalizedDirection = escapeDirection.normalize();
+        
+        // Moverse lejos de la roca
+        float escapeDistance = rock.size + size/2 + RandomUtils.randomFloat(80, 120);
+        target.x = rock.position.x + normalizedDirection.x * escapeDistance;
+        target.y = rock.position.y + normalizedDirection.y * escapeDistance;
+        
+        // Mantener dentro del canvas
+        target.x = constrain(target.x, 50, 550);
+        target.y = constrain(target.y, 50, 550);
+        
+        // Limpiar otros objetivos
+        targetFood = null;
+        if (currentState != EnemyState.HUNTING || targetKoi == null) {
+          targetKoi = null; // Solo limpiar koi si no estaba cazando intensamente
         }
         
         break; // Solo manejar una colisión por frame
@@ -469,13 +664,11 @@ class Enemy {
   }
   
   /**
-   * Movimiento aleatorio cuando no hay objetivo
+   * Reinicia el objetivo de exploración (usado cuando se interrumpe un comportamiento)
    */
-  void moveRandomly(float canvasWidth, float canvasHeight) {
-    if (random(1) < 0.02) { // 2% chance per frame to change direction
-      target.x = random(50, canvasWidth - 50);
-      target.y = random(50, canvasHeight - 50);
-    }
+  void resetExploration() {
+    explorationTimer = 0;
+    setNewExplorationTarget();
   }
   
   /**
@@ -514,17 +707,37 @@ class Enemy {
       );
     }
     
-    // Color según estado
-    if (currentState == EnemyState.HUNTING) {
-      // Más rojizo cuando está cazando
-      return color(
-        min(255, red(baseEnemyColor) * 1.5),
-        green(baseEnemyColor) * 0.7,
-        blue(baseEnemyColor) * 0.7
-      );
-    } else {
-      // Color normal cuando está explorando
-      return baseEnemyColor;
+    // Color según estado actual
+    switch (currentState) {
+      case HUNTING:
+        // Rojizo y agresivo cuando caza
+        return color(
+          min(255, red(baseEnemyColor) * 1.4),
+          green(baseEnemyColor) * 0.6,
+          blue(baseEnemyColor) * 0.6
+        );
+        
+      case FEEDING:
+        // Ligeramente más brillante cuando busca comida
+        return color(
+          min(255, red(baseEnemyColor) * 1.1),
+          min(255, green(baseEnemyColor) * 1.2),
+          blue(baseEnemyColor)
+        );
+        
+      case FLEEING:
+        // Más pálido/asustado cuando huye
+        return color(
+          red(baseEnemyColor) * 0.8,
+          green(baseEnemyColor) * 0.8,
+          min(255, blue(baseEnemyColor) * 1.3)
+        );
+        
+      case EXPLORING:
+      case WANDERING:
+      default:
+        // Color normal para exploración
+        return baseEnemyColor;
     }
   }
   
@@ -551,10 +764,21 @@ class Enemy {
     triangle(-size/2, 0, -size * 0.8, -size * 0.3, -size * 0.8, size * 0.3);
     
     // Ojos - diferentes según estado
-    if (currentState == EnemyState.HUNTING) {
-      fill(255, 0, 0); // Rojos cuando caza
-    } else {
-      fill(255, 255, 0); // Amarillos cuando explora
+    switch (currentState) {
+      case HUNTING:
+        fill(255, 0, 0); // Rojos cuando caza
+        break;
+      case FEEDING:
+        fill(0, 255, 0); // Verdes cuando busca comida
+        break;
+      case FLEEING:
+        fill(255, 255, 255); // Blancos cuando huye (asustado)
+        break;
+      case EXPLORING:
+      case WANDERING:
+      default:
+        fill(255, 255, 0); // Amarillos cuando explora
+        break;
     }
     ellipse(size * 0.2, -size * 0.15, 4, 4);
     ellipse(size * 0.2, size * 0.15, 4, 4);
