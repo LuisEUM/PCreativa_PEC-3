@@ -148,6 +148,7 @@ class WavesUIManager {
     renderTimer();
     renderResources();
     renderFishCounter();
+    renderEnemyAlert();
   }
   
   /**
@@ -274,5 +275,43 @@ class WavesUIManager {
         foodCount += foodToAdd;
         break;
     }
+  }
+  
+  /**
+   * Renderiza la alerta de enemigos si está activa
+   */
+  void renderEnemyAlert() {
+    // Esta función será llamada desde el manager principal
+    // que tiene acceso al EnemyManager
+  }
+  
+  /**
+   * Renderiza alerta de enemigos con información específica
+   */
+  void renderEnemyAlert(boolean showingAlert, float timeRemaining) {
+    if (!showingAlert) return;
+    
+    int secondsRemaining = (int)ceil(timeRemaining / 1000.0);
+    
+    // Fondo de alerta
+    applet.fill(255, 0, 0, 100);
+    applet.noStroke();
+    applet.rect(0, 0, applet.width, applet.height);
+    
+    // Mensaje de alerta central
+    applet.fill(255, 255, 255);
+    applet.textAlign(applet.CENTER, applet.CENTER);
+    applet.textSize(32);
+    applet.text("¡ENEMIGOS SE ACERCAN!", applet.width/2, applet.height/2 - 40);
+    
+    // Contador
+    applet.fill(255, 255, 0);
+    applet.textSize(48);
+    applet.text(secondsRemaining, applet.width/2, applet.height/2 + 20);
+    
+    // Texto informativo
+    applet.fill(255, 255, 255);
+    applet.textSize(16);
+    applet.text("Prepárate para defender a tus koi", applet.width/2, applet.height/2 + 80);
   }
 } 

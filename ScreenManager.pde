@@ -27,7 +27,9 @@ enum GameState {
   INSTRUCTIONS,     // Pantalla de instrucciones  
   ZEN_MODE,         // Modo de simulación relajante (código original)
   WAVES_PREP,       // Preparación de ronda (solo Modo Waves)
+  WAVES_INSTRUCTIONS, // Instrucciones pre-juego para Waves
   WAVES_ACTIVE,     // Gameplay activo Modo Waves
+  ENDLESS_INSTRUCTIONS, // Instrucciones pre-juego para Endless
   ENDLESS_ACTIVE,   // Gameplay activo Modo Endless  
   UPGRADE_SCREEN,   // Pantalla de upgrades entre waves
   PAUSED,           // Pantalla de pausa (disponible desde cualquier modo activo)
@@ -57,6 +59,8 @@ class ScreenManager {
   GameOverScreen gameOverScreen;
   UpgradeScreen upgradeScreen;
   VictoryScreen victoryScreen;
+  WavesInstructionsScreen wavesInstructionsScreen; // Instrucciones pre-Waves
+  EndlessInstructionsScreen endlessInstructionsScreen; // Instrucciones pre-Endless
   
   // Variables de control
   boolean isGameActive;
@@ -91,6 +95,8 @@ class ScreenManager {
     this.gameOverScreen = new GameOverScreen(this);
     this.upgradeScreen = new UpgradeScreen(this);
     this.victoryScreen = new VictoryScreen(this);
+    this.wavesInstructionsScreen = new WavesInstructionsScreen(this);
+    this.endlessInstructionsScreen = new EndlessInstructionsScreen(this);
     
     println("🎮 ScreenManager inicializado con estado: " + currentState);
   }
@@ -116,8 +122,16 @@ class ScreenManager {
         updateWavesPrep();
         break;
         
+      case WAVES_INSTRUCTIONS:
+        updateWavesInstructions();
+        break;
+        
       case WAVES_ACTIVE:
         updateWavesActive();
+        break;
+        
+      case ENDLESS_INSTRUCTIONS:
+        updateEndlessInstructions();
         break;
         
       case ENDLESS_ACTIVE:
@@ -171,8 +185,16 @@ class ScreenManager {
         renderWavesPrep();
         break;
         
+      case WAVES_INSTRUCTIONS:
+        renderWavesInstructions();
+        break;
+        
       case WAVES_ACTIVE:
         renderWavesActive();
+        break;
+        
+      case ENDLESS_INSTRUCTIONS:
+        renderEndlessInstructions();
         break;
         
       case ENDLESS_ACTIVE:
@@ -232,6 +254,12 @@ class ScreenManager {
     // Preparación de ronda - lógica futura
   }
   
+  void updateWavesInstructions() {
+    if (wavesInstructionsScreen != null) {
+      wavesInstructionsScreen.update();
+    }
+  }
+  
   void updateWavesActive() {
     if (wavesManager != null) {
       wavesManager.update();
@@ -256,6 +284,12 @@ class ScreenManager {
       if (wavesManager.uiManager.waveComplete && wavesManager.uiManager.currentWave <= 5 && !upgradeScreen.isShowing()) {
         showUpgradeScreen(wavesManager.uiManager.currentWave);
       }
+    }
+  }
+  
+  void updateEndlessInstructions() {
+    if (endlessInstructionsScreen != null) {
+      endlessInstructionsScreen.update();
     }
   }
   
@@ -334,9 +368,21 @@ class ScreenManager {
     // Renderizado de preparación - futuro
   }
   
+  void renderWavesInstructions() {
+    if (wavesInstructionsScreen != null) {
+      wavesInstructionsScreen.render();
+    }
+  }
+  
   void renderWavesActive() {
     if (wavesManager != null) {
       wavesManager.render();
+    }
+  }
+  
+  void renderEndlessInstructions() {
+    if (endlessInstructionsScreen != null) {
+      endlessInstructionsScreen.render();
     }
   }
   
@@ -651,6 +697,14 @@ class ScreenManager {
         if (instructionsScreen != null) instructionsScreen.handleClick(mouseX, mouseY);
         break;
         
+      case WAVES_INSTRUCTIONS:
+        if (wavesInstructionsScreen != null) wavesInstructionsScreen.handleClick(mouseX, mouseY);
+        break;
+        
+      case ENDLESS_INSTRUCTIONS:
+        if (endlessInstructionsScreen != null) endlessInstructionsScreen.handleClick(mouseX, mouseY);
+        break;
+        
       case PAUSED:
         if (pauseScreen != null) pauseScreen.handleClick(mouseX, mouseY);
         break;
@@ -698,6 +752,14 @@ class ScreenManager {
    * Inicia el Modo Waves
    */
   void startWavesMode() {
+    // Ir primero a la pantalla de instrucciones
+    changeState(GameState.WAVES_INSTRUCTIONS);
+  }
+  
+  /**
+   * Inicia el juego Waves después de las instrucciones
+   */
+  void startWavesGame() {
     // Resetear el manager para empezar un juego completamente nuevo
     wavesManager = null;
     changeState(GameState.WAVES_ACTIVE);
@@ -707,6 +769,14 @@ class ScreenManager {
    * Inicia el Modo Endless
    */
   void startEndlessMode() {
+    // Ir primero a la pantalla de instrucciones
+    changeState(GameState.ENDLESS_INSTRUCTIONS);
+  }
+  
+  /**
+   * Inicia el juego Endless después de las instrucciones
+   */
+  void startEndlessGame() {
     // Resetear el manager para empezar un juego completamente nuevo
     endlessManager = null;
     changeState(GameState.ENDLESS_ACTIVE);

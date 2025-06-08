@@ -15,7 +15,7 @@ class KoiManager {
   // Estado para la animación de vaciado del estanque
   boolean isEmptyingPond = false; // Indica si se está vaciando el estanque
   
-  WavesUIManager uiManager; // Cambiado de UIManager a WavesUIManager
+  Object uiManager; // Cambiado para soportar ambos tipos de UI Manager
   
   /**
    * Constructor
@@ -624,14 +624,14 @@ class KoiManager {
   /**
    * Establece el UIManager
    */
-  void setUIManager(WavesUIManager uiManager) {
+  void setUIManager(Object uiManager) {
     this.uiManager = uiManager;
   }
   
   /**
    * Obtiene el UIManager actual
    */
-  WavesUIManager getUIManager() {
+  Object getUIManager() {
     return this.uiManager;
   }
 }

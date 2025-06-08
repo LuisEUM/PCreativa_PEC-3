@@ -18,6 +18,8 @@ class EndlessManager {
   PlantManager plantManager;
   RockManager rockManager;
   EndlessUIManager uiManager;
+  PowerUpManager powerUpManager;
+  EnemyManager enemyManager;
   
   // Seguimiento de tiempo
   float lastTimestamp = 0;
@@ -64,6 +66,14 @@ class EndlessManager {
     
     // Inicializa el gestor de UI para Endless
     uiManager = new EndlessUIManager(sketch, koiManager);
+    koiManager.setUIManager(uiManager); // Establece la referencia al UIManager
+    
+    // Inicializa el gestor de power-ups
+    powerUpManager = new PowerUpManager(sketch.width, sketch.height, rockManager.getRocks());
+    
+    // Inicializa el gestor de enemigos
+    enemyManager = new EnemyManager(sketch.width, sketch.height);
+    enemyManager.setRocks(rockManager.getRocks()); // Establecer rocas para colisiones
   }
   
   /**
@@ -92,6 +102,13 @@ class EndlessManager {
     
     // Actualiza la UI
     uiManager.update();
+    
+    // Actualiza power-ups y verifica colisiones
+    powerUpManager.update(deltaTime);
+    powerUpManager.checkCollisions(koiManager.getKois(), koiManager);
+    
+    // Actualiza enemigos
+    enemyManager.update(deltaTime, koiManager.getKois(), "endless");
   }
   
   /**
@@ -113,6 +130,12 @@ class EndlessManager {
     // CAPA 5: Renderiza peces koi (entre rocas y plantas)
     renderKoiFish();
     
+    // CAPA 5.3: Renderiza enemigos (entre peces y power-ups)
+    enemyManager.render();
+    
+    // CAPA 5.5: Renderiza power-ups (entre peces y plantas)
+    powerUpManager.render();
+    
     // CAPA 6: Renderiza hojas de loto (sobre los peces)
     renderLotusLeaves();
     
@@ -130,6 +153,11 @@ class EndlessManager {
     
     // Renderiza los elementos de la UI
     uiManager.render();
+    
+    // Renderiza alerta de enemigos si está activa
+    if (enemyManager.isShowingEndlessAlert()) {
+      uiManager.renderEnemyAlert(true, enemyManager.getEndlessAlertTimeRemaining());
+    }
   }
   
   /**
@@ -161,6 +189,9 @@ class EndlessManager {
         rippleManager.createRipple(x, y, 0.7, 50);
         rippleManager.createRipple(x, y, 0.9, 70); // Ondulación más grande para rocas
         koiManager.repelFromPoint(x, y, 250.0f);
+        
+        // Verificar colisiones con enemigos
+        enemyManager.checkRockCollisions(x, y, 15.0f, uiManager);
       }
     }
   }

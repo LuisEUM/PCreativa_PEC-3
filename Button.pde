@@ -70,6 +70,23 @@ class Button {
   }
   
   /**
+   * Renderiza el botón
+   */
+  void render() {
+    // Dibujar el rectángulo del botón
+    fill(getCurrentColor());
+    stroke(255, 255, 255, 100);
+    strokeWeight(1);
+    rect(position.x, position.y, width, height, 5); // Bordes redondeados
+    
+    // Dibujar el texto
+    fill(textColor);
+    textAlign(CENTER, CENTER);
+    textSize(14);
+    text(label, position.x + width/2, position.y + height/2);
+  }
+  
+  /**
    * Establece los colores del botón
    */
   void setColors(color buttonColor, color hoverColor, color textColor) {

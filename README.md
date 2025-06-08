@@ -48,27 +48,31 @@ Modo de supervivencia sin límite de tiempo donde los depredadores aparecen cons
 
 ### 🐟 **SISTEMA DE DAÑO Y RECUPERACIÓN**
 
-| Nivel Actual | Daño Recibido | Nuevo Nivel | Puntos de Vida |
-| ------------ | ------------- | ----------- | -------------- |
-| XL (35px)    | 1-3           | L           | 5              |
-| L (28px)     | 1-2           | M           | 4              |
-| M (20px)     | 1             | S           | 3              |
-| S (15px)     | 1             | XS          | 2              |
-| XS (10px)    | 1             | Muerte      | 1              |
+El sistema de daño funciona restando directamente las vidas del koi según el daño recibido:
+
+| Nivel Actual | Vidas | Daño Recibido | Resultado   |
+| ------------ | ----- | ------------- | ----------- |
+| XL (35px)    | 5     | 1             | L (4 vidas) |
+| XL (35px)    | 5     | 2             | M (3 vidas) |
+| L (28px)     | 4     | 2             | S (2 vidas) |
+| M (20px)     | 3     | 2             | XS (1 vida) |
+| S (15px)     | 2     | 2 o más       | MUERTE      |
+| XS (10px)    | 1     | 1 o más       | MUERTE      |
 
 **Mecánicas de Daño:**
 
-- Al recibir daño menor a puntos de vida, el koi baja un nivel
-- Período de invulnerabilidad de 3 segundos tras recibir daño
-- Efecto visual de parpadeo durante invulnerabilidad
-- Si el daño iguala o supera los puntos de vida, el koi muere
-- La invulnerabilidad previene daño múltiple del mismo enemigo
+- **Cálculo directo:** Vidas restantes = Vidas actuales - Daño recibido
+- **Reducción múltiple:** Un koi puede perder varios niveles de una vez si el daño es alto
+- **Ejemplo:** Un koi M (3 vidas) que recibe 2 de daño se convierte en XS (1 vida)
+- **Muerte instantánea:** Si las vidas restantes ≤ 0, el koi muere
+- **Invulnerabilidad:** 3 segundos de inmunidad tras recibir daño
+- **Efecto visual:** Parpadeo durante la invulnerabilidad
 
 **Recuperación:**
 
 - Crecimiento al comer 10 partículas de comida
 - Power-ups de comida aceleran la recuperación
-- El crecimiento restaura todos los puntos de vida
+- El crecimiento restaura 1 nivel (de XS a S, de S a M, etc.)
 - No hay recuperación automática de nivel
 
 ### ⚔️ **SISTEMA DE COMBATE**
@@ -79,20 +83,22 @@ Modo de supervivencia sin límite de tiempo donde los depredadores aparecen cons
 
 ### 🎁 **SISTEMA DE POWER-UPS**
 
-Los power-ups aparecen en burbujas cada 20 segundos:
+Los power-ups aparecen en burbujas cada 20 segundos en **ambos modos Waves y Endless**:
 
-| Power-up  | Contenido         | Cantidad                 |
-| --------- | ----------------- | ------------------------ |
-| 🪨 Rocas  | +5/+10/+20 rocas  | Regeneración instantánea |
-| 🐠 Koi    | +5/+10/+20 koi    | Spawn inmediato          |
-| 🍜 Comida | +5/+10/+20 comida | Regeneración instantánea |
+| Power-up  | Contenido         | Cantidad               |
+| --------- | ----------------- | ---------------------- |
+| 🪨 Rocas  | +5/+10/+20 rocas  | Hasta el máximo actual |
+| 🐠 Koi    | +5/+10/+20 koi    | Spawn inmediato        |
+| 🍜 Comida | +5/+10/+20 comida | Hasta el máximo actual |
 
 **Mecánicas de Power-ups:**
 
+- **Disponibilidad:** Activos en modo Waves y Endless
 - **Spawn:** Cada 20 segundos aparece una burbuja aleatoria
-- **Duración:** Las burbujas permanecen 5 segundos en pantalla
+- **Duración:** Las burbujas permanecen 20 segundos en pantalla
 - **Colecta:** El primer koi en tocar la burbuja obtiene el power-up
-- **Regeneración:** Los recursos SOLO se regeneran a través de power-ups
+- **Límites:** Solo añaden recursos hasta el máximo actual (no lo exceden)
+- **Estrategia:** Gestión cuidadosa de recursos entre power-ups
 
 ### 📈 **SISTEMA DE RECURSOS**
 
@@ -207,23 +213,6 @@ Los power-ups aparecen en burbujas cada 20 segundos:
 - **Multiplicador temporal:** x1.1 cada 30 segundos (máximo x5.0) - Afecta TODOS los puntos
 - **Bonus de hitos:** +1000 pts por cada minuto sobrevivido
 
-<!-- ### 🎁 **POWER-UPS ESPECIALES (Solo Modo Endless)**
-
-Los power-ups caen del cielo aleatoriamente cada 45-90 segundos:
-
-| Power-up            | Efecto                                   | Duración    | Color             |
-| ------------------- | ---------------------------------------- | ----------- | ----------------- |
-| 🟡 Comida Dorada    | Hace crecer 2 niveles al koi que la come | Instantáneo | Dorado brillante  |
-| 🔵 Escudo Temporal  | Todos los koi son inmunes a depredadores | 10 segundos | Azul brillante    |
-| 🟣 Multiplicador x2 | Duplica TODOS los puntos ganados         | 15 segundos | Púrpura brillante |
-
-**Mecánicas de Power-ups:**
-
-- **Duración en pantalla:** 5 segundos antes de desaparecer
-- **Alerta visual:** Titila/parpadea los últimos 3 segundos
-- **Competencia:** Solo 1 koi puede tomar cada power-up
-- **Spawn:** Posición aleatoria en el estanque -->
-
 ### 📊 **ESTADÍSTICAS EN TIEMPO REAL (Modo Endless)**
 
 Mostradas en la esquina inferior izquierda:
@@ -284,38 +273,50 @@ Mostradas en la esquina inferior izquierda:
 
 ## 🦈 TIPOS DE DEPREDADORES
 
-Los depredadores son manejados por el KoiManager como peces especiales:
+Los depredadores aparecen desde los bordes del mapa y persiguen activamente a los koi:
 
-| Tipo          | Tamaño | Puntos de Daño | Velocidad | Puntos de Vida |
-| ------------- | ------ | -------------- | --------- | -------------- |
-| Bagre Pequeño | 25     | 1              | 0.7x      | 2              |
-| Carpa Mediana | 35     | 2              | 0.8x      | 3              |
-| Lucio Grande  | 45     | 3              | 0.9x      | 4              |
-| Tiburón       | 55     | 4              | 1.0x      | 5              |
+| Tipo          | Tamaño | Puntos de Daño | Velocidad | Puntos de Vida | Color        |
+| ------------- | ------ | -------------- | --------- | -------------- | ------------ |
+| Bagre Pequeño | 25     | 1              | 0.7x      | 2              | Marrón       |
+| Carpa Mediana | 35     | 2              | 0.8x      | 3              | Verde oliva  |
+| Lucio Grande  | 45     | 3              | 0.9x      | 4              | Gris pizarra |
+| Tiburón       | 55     | 4              | 1.0x      | 5              | Gris oscuro  |
 
 **Características:**
 
-- Atraídos tanto por comida como por otros peces
-- Causan daño al contacto basado en sus puntos de daño
-- Si el daño supera los puntos de vida del koi, este muere
-- Si el daño es menor, el koi pierde un nivel
-- Requieren múltiples golpes de roca para ser eliminados (puntos de vida)
+- **Comportamiento:** Persiguen al koi más cercano dentro de su radio de caza
+- **Sistema de daño:** Aplican daño por contacto según el nuevo sistema
+- **Eliminación:** Requieren múltiples golpes de roca según sus puntos de vida
+- **Spawn:** Aparecen desde bordes aleatorios del mapa
+- **Identificación:** Ojos rojos distintivos para diferenciarlos de los koi
 
-**Sistema de Spawn:**
+**Sistema de Spawn por Modo:**
 
-- Aparecen cada 2 segundos
-- Cantidad y tipos varían según la ronda
-- Spawn desde bordes aleatorios del mapa
-- Probabilidades ajustadas por ronda
-- Mayor dificultad = Más enemigos fuertes
+### **🌊 MODO WAVES:**
 
-**Comportamiento:**
+- **Alerta inicial:** 5 segundos de advertencia antes del primer spawn
+- **Intervalo:** 1 enemigo cada 5 segundos (aumentado para mayor equilibrio)
+- **Indicadores de spawn:** Círculos pulsantes muestran dónde aparecerán enemigos 2 segundos antes
+- **Cantidad por spawn:** Aumenta según la wave (1-5 enemigos)
+- **Probabilidades por Wave:**
+  - **Wave 1:** 90% Bagres, 10% Carpas
+  - **Wave 2:** 60% Bagres, 30% Carpas, 10% Lucios
+  - **Wave 3:** 40% Bagres, 30% Carpas, 20% Lucios, 10% Tiburones
+  - **Wave 4:** 30% Bagres, 30% Carpas, 25% Lucios, 15% Tiburones
+  - **Wave 5:** 20% Bagres, 35% Carpas, 45% Lucios (sin tiburones)
 
-- Persiguen al koi más cercano
-- Evitan rocas y obstáculos
-- Se mueven más rápido al detectar koi cercano
-- Pueden ser eliminados con rocas
-- Dejan power-ups al morir (10% de probabilidad)
+### **♾️ MODO ENDLESS:**
+
+- **Alerta inicial:** 5 segundos de advertencia antes del primer spawn
+- **Escalada cada 30 segundos:** Aumenta dificultad automáticamente
+- **Indicadores de spawn:** Sistema visual de advertencia antes de cada spawn
+- **Cantidad por spawn:** 1-5 enemigos según nivel de dificultad
+- **Intervalo de spawn:** Disminuye gradualmente de 5s a 1.5s mínimo
+- **Tipos por tiempo sobrevivido:**
+  - **0-60s:** Solo Bagres pequeños
+  - **60-120s:** Bagres + Carpas medianas
+  - **120-180s:** Bagres + Carpas + Lucios grandes
+  - **180s+:** Todos los tipos incluidos tiburones
 
 ---
 
@@ -429,6 +430,9 @@ El billboard se muestra permanentemente en la esquina superior derecha y contien
 
 ### 🌊 **INTERFAZ DE JUEGO**
 
+- **Pantallas de instrucciones pre-juego:** Información detallada antes de comenzar Waves/Endless
+- **Sistema de alertas:** Pantalla roja con countdown de 5 segundos antes del primer spawn
+- **Indicadores de spawn:** Círculos pulsantes de colores en bordes que muestran próximos enemigos
 - **Timer de ronda:** Countdown prominente en la parte superior central (Waves)
 - **Timer de supervivencia:** Contador ascendente MM:SS en parte superior central (Endless)
 - **Billboard de puntuación:** Esquina superior derecha con puntos y multiplicadores
@@ -520,35 +524,40 @@ SurvivalUI.pde           // Interfaz específica para Waves/Endless
 - [x] Implementar comportamiento de enemigos en KoiManager
 - [x] Crear sistema de colisiones koi-enemigo con daño
 
-### 🎯 **FASE 2: SISTEMA DE PARTÍCULAS Y POWER-UPS (En Progreso)**
+### 🎯 **FASE 2: SISTEMA DE PARTÍCULAS Y POWER-UPS (Completado)**
 
 - [x] Modificar partículas de comida para flotar 3 segundos
-- [ ] Implementar sistema de burbujas power-up
-- [ ] Crear efectos visuales para burbujas
-- [ ] Agregar spawning aleatorio de power-ups cada 20 segundos
-- [ ] Implementar tres tipos de power-ups:
-  - [ ] Burbuja con rocas (+5/+10/+20)
-  - [ ] Burbuja con koi (+5/+10/+20)
-  - [ ] Burbuja con comida (+5/+10/+20)
+- [x] Implementar sistema de burbujas power-up
+- [x] Crear efectos visuales para burbujas
+- [x] Agregar spawning aleatorio de power-ups cada 20 segundos
+- [x] Implementar tres tipos de power-ups:
+  - [x] Burbuja con rocas (+5/+10/+20)
+  - [x] Burbuja con koi (+5/+10/+20)
+  - [x] Burbuja con comida (+5/+10/+20)
+- [x] Integrar power-ups en modo Endless
 
-### ⚔️ **FASE 3: SISTEMA DE WAVES Y DIFICULTAD (Prioritario)**
+### ⚔️ **FASE 3: SISTEMA DE ENEMIGOS Y DIFICULTAD (Completado)**
 
-- [ ] Implementar sistema de spawn de enemigos cada 2 segundos
-- [ ] Crear sistema de probabilidad de tipos de enemigos por ronda
-- [ ] Implementar escalado de cantidad de enemigos por ronda
-- [ ] Balancear dificultad y tipos de enemigos
-- [ ] Implementar sistema de puntuación por ronda
-- [ ] Crear transiciones entre rondas
+- [x] Implementar clase Enemy con diferentes tipos de depredadores
+- [x] Crear EnemyManager para gestión de spawn y comportamiento
+- [x] Implementar sistema de spawn de enemigos cada 2 segundos (Waves)
+- [x] Crear sistema de probabilidad de tipos de enemigos por ronda
+- [x] Implementar escalado de cantidad de enemigos por ronda
+- [x] Implementar sistema de dificultad progresiva para modo Endless
+- [x] Integrar sistema de daño corregido (resta directa de vidas)
+- [x] Implementar colisiones entre rocas y enemigos
+- [x] Balancear dificultad y tipos de enemigos
 
-### 🎨 **FASE 4: UI Y FEEDBACK VISUAL**
+### 🎨 **FASE 4: UI Y FEEDBACK VISUAL (Completado)**
 
-- [ ] Crear indicadores visuales de vidas
-- [ ] Implementar efectos de daño
-- [ ] Agregar animaciones de power-ups
-- [ ] Mejorar feedback de crecimiento/decrecimiento
-- [ ] Implementar UI para contadores (comida, vidas)
-- [ ] Crear indicador de ronda actual
-- [ ] Mostrar probabilidades de enemigos
+- [x] Crear indicadores visuales de spawn de enemigos
+- [x] Implementar sistema de alertas pre-spawn
+- [x] Agregar pantallas de instrucciones pre-juego
+- [x] Implementar efectos de spawn con indicadores pulsantes
+- [x] Mejorar feedback visual de countdown y alertas
+- [x] Crear indicadores de enemigos con colores por tipo
+- [x] Implementar UI para mostrar alertas de 5 segundos
+- [x] Añadir botones interactivos en pantallas de instrucciones
 
 ### 🎵 **FASE 5: PULIDO Y OPTIMIZACIÓN**
 
@@ -604,6 +613,43 @@ SurvivalUI.pde           // Interfaz específica para Waves/Endless
 ## 📄 LICENCIA
 
 Este proyecto está licenciado bajo la Licencia MIT - vea el archivo LICENSE para más detalles.
+
+---
+
+## 🆕 **NUEVAS FUNCIONALIDADES IMPLEMENTADAS**
+
+### 📍 **Sistema de Indicadores de Spawn**
+
+- **Indicadores visuales:** Círculos pulsantes de colores muestran exactamente dónde aparecerán los enemigos
+- **Tiempo de advertencia:** 2 segundos de anticipación para prepararse
+- **Colores por tipo:** Cada enemigo tiene su color distintivo en el indicador
+- **Efectos visuales:** Pulso y llenado progresivo del indicador
+- **Flecha direccional:** Indica la dirección hacia el centro del estanque
+
+### ⚠️ **Sistema de Alertas Pre-Combate**
+
+- **Alerta inicial:** 5 segundos de countdown antes del primer spawn de enemigos
+- **Pantalla completa:** Fondo rojo semitransparente con mensaje grande
+- **Countdown visual:** Números grandes y claros mostrando segundos restantes
+- **Mensajes específicos:** Diferentes para Waves ("¡ENEMIGOS SE ACERCAN!") y Endless ("¡DEPREDADORES SE ACERCAN!")
+- **Tiempo de preparación:** Permite al jugador organizar estrategia antes del combate
+
+### 📖 **Pantallas de Instrucciones Pre-Juego**
+
+- **Información completa:** Objetivos, controles, mecánicas específicas de cada modo
+- **Botón de inicio:** "JUGAR" para comenzar después de leer las instrucciones
+- **Navegación:** Botón "VOLVER" para regresar al menú principal
+- **Diseño específico:** Colores y información adaptados a cada modo de juego
+- **Flujo mejorado:** Ya no se entra directamente al juego desde el menú
+
+### ⚡ **Mejoras de Balanceado**
+
+- **Intervalo aumentado:** Spawn de enemigos cada 5 segundos (antes 2s) para mejor equilibrio
+- **Tiempo de reacción:** Los indicadores dan 2 segundos para prepararse
+- **Alerta inicial:** 5 segundos adicionales al inicio para orientarse
+- **Mejor experiencia:** Menos abrumador, más estratégico
+
+**¡El juego ahora ofrece una experiencia mucho más estratégica y menos frustrante!** 🎮✨
 
 ---
 

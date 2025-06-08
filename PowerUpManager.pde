@@ -147,8 +147,11 @@ class PowerUpManager {
   void applyPowerUp(PowerUp powerUp, KoiManager koiManager) {
     switch (powerUp.type) {
       case ROCKS:
+        // Aplicar power-up de rocas según el tipo de UI Manager
         if (koiManager.getUIManager() instanceof WavesUIManager) {
           ((WavesUIManager)koiManager.getUIManager()).applyPowerUp(powerUp);
+        } else if (koiManager.getUIManager() instanceof EndlessUIManager) {
+          ((EndlessUIManager)koiManager.getUIManager()).applyPowerUp(powerUp);
         }
         break;
       case KOI:
@@ -160,8 +163,11 @@ class PowerUpManager {
         }
         break;
       case FOOD:
+        // Aplicar power-up de comida según el tipo de UI Manager
         if (koiManager.getUIManager() instanceof WavesUIManager) {
           ((WavesUIManager)koiManager.getUIManager()).applyPowerUp(powerUp);
+        } else if (koiManager.getUIManager() instanceof EndlessUIManager) {
+          ((EndlessUIManager)koiManager.getUIManager()).applyPowerUp(powerUp);
         }
         break;
     }

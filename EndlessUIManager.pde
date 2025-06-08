@@ -106,6 +106,7 @@ class EndlessUIManager {
     renderScore();
     renderResources();
     renderFishCounter();
+    renderEnemyAlert();
   }
   
   /**
@@ -190,5 +191,64 @@ class EndlessUIManager {
     applet.textSize(14);
     applet.textAlign(applet.CENTER, applet.CENTER);
     applet.text("FISH: " + currentFishCount, 60, 35);
+  }
+  
+  /**
+   * Aplica el efecto de un power-up
+   */
+  void applyPowerUp(PowerUp powerUp) {
+    switch (powerUp.type) {
+      case ROCKS:
+        // Solo añadir rocas hasta el máximo actual (sin exceder el límite)
+        int rocksToAdd = min(powerUp.amount, maxRocks - rockCount);
+        rockCount += rocksToAdd;
+        break;
+      case KOI:
+        // Los koi se añaden directamente en PowerUpManager
+        break;
+      case FOOD:
+        // Solo añadir comida hasta el máximo actual (sin exceder el límite)
+        int foodToAdd = min(powerUp.amount, maxFood - foodCount);
+        foodCount += foodToAdd;
+        break;
+    }
+  }
+  
+  /**
+   * Renderiza la alerta de enemigos si está activa
+   */
+  void renderEnemyAlert() {
+    // Esta función será llamada desde el manager principal
+    // que tiene acceso al EnemyManager
+  }
+  
+  /**
+   * Renderiza alerta de enemigos con información específica
+   */
+  void renderEnemyAlert(boolean showingAlert, float timeRemaining) {
+    if (!showingAlert) return;
+    
+    int secondsRemaining = (int)ceil(timeRemaining / 1000.0);
+    
+    // Fondo de alerta
+    applet.fill(255, 0, 0, 100);
+    applet.noStroke();
+    applet.rect(0, 0, applet.width, applet.height);
+    
+    // Mensaje de alerta central
+    applet.fill(255, 255, 255);
+    applet.textAlign(applet.CENTER, applet.CENTER);
+    applet.textSize(32);
+    applet.text("¡DEPREDADORES SE ACERCAN!", applet.width/2, applet.height/2 - 40);
+    
+    // Contador
+    applet.fill(255, 255, 0);
+    applet.textSize(48);
+    applet.text(secondsRemaining, applet.width/2, applet.height/2 + 20);
+    
+    // Texto informativo
+    applet.fill(255, 255, 255);
+    applet.textSize(16);
+    applet.text("¡Supervivencia infinita comenzando!", applet.width/2, applet.height/2 + 80);
   }
 } 
