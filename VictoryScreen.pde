@@ -20,6 +20,8 @@ class VictoryScreen {
   Button playEndlessButton;
   Button mainMenuButton;
   Button playAgainButton;
+  Button menuButton;
+  Button breakdownButton;
   
   // Estado visual
   boolean isVisible = false;
@@ -37,13 +39,37 @@ class VictoryScreen {
   color textColor = color(255, 255, 255);
   color unlockColor = color(100, 255, 100); // Verde brillante
   
+  ScoreManager scoreManager;
+  String gameMode;
+  
   /**
    * Constructor placeholder
    */
   VictoryScreen(ScreenManager screenManager) {
     this.screenManager = screenManager;
+    this.scoreManager = null; // Se asignará después cuando sea necesario
+    this.gameMode = "waves"; // Por defecto, ya que VictoryScreen es para completar waves
     setupButtons();
     println("🏆 VictoryScreen creado (placeholder)");
+  }
+  
+  /**
+   * Configura los datos específicos de la victoria
+   */
+  void show(ScoreManager scoreManager, String gameMode) {
+    this.scoreManager = scoreManager;
+    this.gameMode = gameMode;
+    show(); // Llamar al método show() original
+  }
+  
+  /**
+   * Configura la victoria con datos del WavesManager
+   */
+  void showWithData(WavesManager wavesManager) {
+    this.scoreManager = null; // No se usa ScoreManager por ahora
+    this.gameMode = "waves";
+    // Aquí podríamos usar los datos del wavesManager en el futuro
+    show();
   }
   
   /**
@@ -52,24 +78,33 @@ class VictoryScreen {
   void setupButtons() {
     float buttonWidth = 160;
     float buttonHeight = 45;
-    float buttonSpacing = 40; // Más espacio entre botones
-    float startY = height/2 + 80; // Más arriba, alejado del borde
+    float buttonSpacing = 30;
+    float rowSpacing = 60; // Espacio entre filas
+    float startY = height/2 + 80;
     
-    // Centrar botones horizontalmente con margen adicional
-    float totalWidth = (buttonWidth * 3) + (buttonSpacing * 2);
-    float startX = (width - totalWidth) / 2;
+    // Primera fila: PROBAR ENDLESS y JUGAR DE NUEVO
+    float row1Width = (buttonWidth * 2) + buttonSpacing;
+    float row1StartX = (width - row1Width) / 2;
     
-    // Nuevo botón para probar Endless Mode (destacado)
-    playEndlessButton = new Button(startX, startY, buttonWidth, buttonHeight, "PROBAR ENDLESS");
+    playEndlessButton = new Button(row1StartX, startY, buttonWidth, buttonHeight, "PROBAR ENDLESS");
     playEndlessButton.setColors(color(255, 152, 0), color(255, 183, 77), color(255));
     
-    // Jugar Waves de nuevo
-    playAgainButton = new Button(startX + buttonWidth + buttonSpacing, startY, buttonWidth, buttonHeight, "JUGAR DE NUEVO");
+    playAgainButton = new Button(row1StartX + buttonWidth + buttonSpacing, startY, buttonWidth, buttonHeight, "JUGAR DE NUEVO");
     playAgainButton.setColors(color(33, 150, 243), color(100, 181, 246), color(255));
     
-    // Menú principal
-    mainMenuButton = new Button(startX + (buttonWidth + buttonSpacing) * 2, startY, buttonWidth, buttonHeight, "MENU PRINCIPAL");
+    // Segunda fila: MENU PRINCIPAL y VER DESGLOSE
+    float row2Y = startY + buttonHeight + rowSpacing;
+    float row2Width = (buttonWidth * 2) + buttonSpacing;
+    float row2StartX = (width - row2Width) / 2;
+    
+    mainMenuButton = new Button(row2StartX, row2Y, buttonWidth, buttonHeight, "MENU PRINCIPAL");
     mainMenuButton.setColors(color(96, 125, 139), color(144, 164, 174), color(255));
+    
+    breakdownButton = new Button(row2StartX + buttonWidth + buttonSpacing, row2Y, buttonWidth, buttonHeight, "VER DESGLOSE");
+    breakdownButton.setColors(color(139, 69, 19), color(160, 90, 40), color(255));
+    
+    // Eliminar botones duplicados antiguos
+    menuButton = null;
   }
   
   /**
@@ -101,6 +136,7 @@ class VictoryScreen {
       playEndlessButton.update(mouseX, mouseY);
       playAgainButton.update(mouseX, mouseY);
       mainMenuButton.update(mouseX, mouseY);
+      breakdownButton.update(mouseX, mouseY);
     }
   }
   
@@ -228,9 +264,41 @@ class VictoryScreen {
     textAlign(CENTER);
     textSize(14);
     
-    text("Oleadas Supervividas: 5/5", width/2, panelY + 240);
-    text("Peces Salvados: Muchos", width/2, panelY + 260);
-    text("Tiempo Total: Viaje Épico", width/2, panelY + 280);
+    if (gameMode.equals("waves")) {
+      // Estadísticas para modo Waves
+      text("Oleadas Supervividas: 5/5", width/2, panelY + 240);
+      
+      // Obtener datos reales del gameplay
+      int koiSaved = screenManager.dataManager.getCurrentKoiCount(screenManager.wavesManager);
+      int enemiesDefeated = screenManager.dataManager.getCurrentEnemiesDefeated(screenManager.wavesManager);
+      
+      text("Peces Salvados: " + koiSaved, width/2, panelY + 260);
+      text("Enemigos Vencidos: " + enemiesDefeated, width/2, panelY + 280);
+    } else if (gameMode.equals("endless")) {
+      // Estadísticas para modo Endless
+      if (scoreManager != null) {
+        text("Tiempo Supervivido: " + getFormattedTime(), width/2, panelY + 240);
+        text("Peces Salvados: " + scoreManager.totalKoiCollected, width/2, panelY + 260);
+        text("Enemigos Vencidos: " + scoreManager.totalEnemiesDefeated, width/2, panelY + 280);
+      } else {
+        text("Tiempo Supervivido: --:--", width/2, panelY + 240);
+        text("Peces Salvados: --", width/2, panelY + 260);
+        text("Enemigos Vencidos: --", width/2, panelY + 280);
+      }
+    }
+  }
+  
+  /**
+   * Formatea el tiempo para display
+   */
+  String getFormattedTime() {
+    if (scoreManager != null) {
+      float timeInSeconds = (millis() - scoreManager.sessionStartTime) / 1000.0;
+      int minutes = (int)(timeInSeconds / 60);
+      int seconds = (int)(timeInSeconds % 60);
+      return nf(minutes, 2) + ":" + nf(seconds, 2);
+    }
+    return "00:00";
   }
   
   /**
@@ -240,6 +308,7 @@ class VictoryScreen {
     renderVictoryButton(playEndlessButton, true); // Destacado
     renderVictoryButton(playAgainButton, false);
     renderVictoryButton(mainMenuButton, false);
+    renderVictoryButton(breakdownButton, false);
   }
   
   /**
@@ -308,6 +377,10 @@ class VictoryScreen {
       println("Volviendo al menú principal...");
       hide();
       screenManager.returnToMenu();
+    } else if (breakdownButton.isClicked(mouseX, mouseY)) {
+      println("Ver desglose de puntuación...");
+      hide();
+      screenManager.showScoreBreakdown();
     }
   }
   

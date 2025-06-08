@@ -25,10 +25,10 @@ class PondManager {
   // Ciclo de tiempo del día
   int timeOfDay = 0; // 0: día, 1: atardecer, 2: noche, 3: amanecer
   color[] pondColors = {
-    color(25, 118, 210),    // Azul día
-    color(245, 164, 52),    // Naranja atardecer
-    color(10, 30, 80),      // Azul oscuro noche
-    color(70, 150, 230)     // Azul claro amanecer
+    ColorUtils.hexToColor("#90A1D9"),    // DIA
+    ColorUtils.hexToColor("#F1A7B4"),    // ATARDECER
+    ColorUtils.hexToColor("#026874"),    // NOCHE
+    ColorUtils.hexToColor("#BDB1D9")     // AMANECER
   };
   Button timeButton;
   

@@ -1,4 +1,4 @@
-  /**
+/**
  * Jardín Koi  - Aplicación Principal
  * 
  * Evolución de la simulación original de estanque de koi, ahora convertida en un juego
@@ -58,8 +58,9 @@
  * CÓDIGO ORIGINAL: 70% (se mantiene base existente + expansión significativa)
  */
 
-// GESTOR PRINCIPAL DEL SISTEMA
+// GESTORES PRINCIPALES DEL SISTEMA
 ScreenManager screenManager;
+MusicManager musicManager;
 
 /**
  * Función de configuración - Inicialización del sistema completo
@@ -73,12 +74,22 @@ void setup() {
   smooth();
   colorMode(RGB, 255, 255, 255);
   
+  // Inicializar gestor de música
+  musicManager = new MusicManager(this);
+  
   // Inicializar el gestor principal del sistema
   screenManager = new ScreenManager(this);
   
+  // Conectar MusicManager con ScreenManager
+  screenManager.setMusicManager(musicManager);
+  
+  // Comenzar con música de menú
+  musicManager.setGameMode("menu");
+  
   println("🎮 Jardín Koi  inicializado");
+  println("🎵 Sistema de música activado con archivos de assets/");
   println("📱 Estados disponibles: MAIN_MENU, ZEN_MODE, WAVES, ENDLESS, PAUSED");
-  println("⌨️ Controles: SPACE/P = Pausa, ESC = Menú, Mouse = Interacción");
+  println("⌨️ Controles: SPACE/P = Pausa, ESC = Menú, Mouse = Interacción, M = Mute");
 }
 
 /**
@@ -137,6 +148,11 @@ void exit() {
   if (screenManager != null) {
     // Futuro: guardar records, configuraciones, etc.
     println("💾 Guardando datos del juego...");
+  }
+  
+  // Limpiar recursos de música
+  if (musicManager != null) {
+    musicManager.dispose();
   }
   
   super.exit();

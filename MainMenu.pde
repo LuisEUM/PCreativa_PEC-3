@@ -27,6 +27,8 @@ class MainMenu {
   Button zenButton;
   Button instructionsButton;
   Button quitButton;
+  Button trophyButton; // Botón de scores/trofeos
+  Button profileButton; // Botón de perfil de usuario
   
   // Variables visuales
   color backgroundColor;
@@ -107,6 +109,26 @@ class MainMenu {
       "Salir"
     );
     
+    // Botones de esquina superior derecha
+    float cornerButtonSize = 50;
+    float cornerSpacing = 60;
+    
+    trophyButton = new Button(
+      width - cornerButtonSize - 20, 
+      20, 
+      cornerButtonSize, 
+      cornerButtonSize, 
+      ""
+    );
+    
+    profileButton = new Button(
+      width - cornerButtonSize - 20 - cornerSpacing, 
+      20, 
+      cornerButtonSize, 
+      cornerButtonSize, 
+      ""
+    );
+    
     // Personalizar colores de botones
     setupButtonColors();
   }
@@ -142,6 +164,13 @@ class MainMenu {
     
     quitButton.buttonColor = color(150, 60, 60);
     quitButton.hoverColor = color(170, 80, 80);
+    
+    // Botones de esquina
+    trophyButton.buttonColor = color(255, 215, 0);
+    trophyButton.hoverColor = color(255, 235, 50);
+    
+    profileButton.buttonColor = color(100, 149, 237);
+    profileButton.hoverColor = color(120, 169, 255);
   }
   
   /**
@@ -161,6 +190,8 @@ class MainMenu {
     zenButton.update(mouseX, mouseY);
     instructionsButton.update(mouseX, mouseY);
     quitButton.update(mouseX, mouseY);
+    trophyButton.update(mouseX, mouseY);
+    profileButton.update(mouseX, mouseY);
   }
   
   /**
@@ -279,6 +310,8 @@ class MainMenu {
     renderButton(zenButton);
     renderButton(instructionsButton);
     renderButton(quitButton);
+    renderTrophyButton();
+    renderProfileButton();
   }
   
   /**
@@ -449,6 +482,14 @@ class MainMenu {
     } else if (quitButton.isClicked(mouseX, mouseY)) {
       println("Saliendo del juego...");
       screenManager.quitGame();
+      
+    } else if (trophyButton.isClicked(mouseX, mouseY)) {
+      println("Mostrando puntuaciones...");
+      screenManager.showScoresScreen();
+      
+    } else if (profileButton.isClicked(mouseX, mouseY)) {
+      println("Mostrando perfil de usuario...");
+      screenManager.showProfileScreen();
     }
   }
   
@@ -469,5 +510,102 @@ class MainMenu {
       default:
         return "";
     }
+  }
+  
+  /**
+   * Renderiza el botón de trofeo con icono vectorial
+   */
+  void renderTrophyButton() {
+    Button button = trophyButton;
+    color currentColor = button.isHovered ? button.hoverColor : button.buttonColor;
+    
+    // Fondo del botón
+    fill(red(currentColor), green(currentColor), blue(currentColor), 200);
+    stroke(255, 255, 255, 150);
+    strokeWeight(2);
+    rect(button.position.x, button.position.y, button.width, button.height, 8);
+    
+    // Icono de trofeo vectorial
+    pushMatrix();
+    translate(button.position.x + button.width/2, button.position.y + button.height/2);
+    
+    // Escala del icono
+    float scale = 0.6;
+    
+    // Color del trofeo
+    fill(255, 215, 0); // Dorado
+    noStroke();
+    
+    // Copa del trofeo
+    beginShape();
+    vertex(-12 * scale, -8 * scale);
+    vertex(12 * scale, -8 * scale);
+    vertex(10 * scale, 8 * scale);
+    vertex(-10 * scale, 8 * scale);
+    endShape(CLOSE);
+    
+    // Asas del trofeo
+    noFill();
+    stroke(255, 215, 0);
+    strokeWeight(2 * scale);
+    arc(-14 * scale, -2 * scale, 8 * scale, 12 * scale, HALF_PI, PI + HALF_PI);
+    arc(14 * scale, -2 * scale, 8 * scale, 12 * scale, -HALF_PI, HALF_PI);
+    
+    // Base del trofeo
+    fill(255, 215, 0);
+    noStroke();
+    rect(-8 * scale, 8 * scale, 16 * scale, 3 * scale);
+    rect(-10 * scale, 11 * scale, 20 * scale, 2 * scale);
+    
+    // Detalles decorativos
+    fill(255, 255, 255, 180);
+    ellipse(-4 * scale, -2 * scale, 3 * scale, 3 * scale);
+    ellipse(4 * scale, -2 * scale, 3 * scale, 3 * scale);
+    
+    popMatrix();
+  }
+  
+  /**
+   * Renderiza el botón de perfil con icono vectorial
+   */
+  void renderProfileButton() {
+    Button button = profileButton;
+    color currentColor = button.isHovered ? button.hoverColor : button.buttonColor;
+    
+    // Fondo del botón
+    fill(red(currentColor), green(currentColor), blue(currentColor), 200);
+    stroke(255, 255, 255, 150);
+    strokeWeight(2);
+    rect(button.position.x, button.position.y, button.width, button.height, 8);
+    
+    // Icono de perfil vectorial
+    pushMatrix();
+    translate(button.position.x + button.width/2, button.position.y + button.height/2);
+    
+    // Escala del icono
+    float scale = 0.7;
+    
+    // Color del perfil
+    fill(255, 255, 255); // Blanco
+    noStroke();
+    
+    // Cabeza del usuario
+    ellipse(0, -6 * scale, 12 * scale, 12 * scale);
+    
+    // Cuerpo del usuario
+    arc(0, 8 * scale, 20 * scale, 16 * scale, PI, TWO_PI);
+    
+    // Detalles de la cara
+    fill(100, 149, 237); // Azul
+    ellipse(-3 * scale, -8 * scale, 2 * scale, 2 * scale); // Ojo izquierdo
+    ellipse(3 * scale, -8 * scale, 2 * scale, 2 * scale);  // Ojo derecho
+    
+    // Sonrisa
+    noFill();
+    stroke(100, 149, 237);
+    strokeWeight(1.5 * scale);
+    arc(0, -4 * scale, 6 * scale, 4 * scale, 0, PI);
+    
+    popMatrix();
   }
 } 

@@ -25,7 +25,7 @@ class PowerUp {
     this.type = type;
     this.amount = amount;
     this.size = 40;
-    this.maxLifeTime = 20000; // 20 segundos en milisegundos (no frames)
+    this.maxLifeTime = 15000; // 15 segundos en milisegundos
     this.lifeTime = maxLifeTime;
     this.bobTimer = 0;
     this.bobAmplitude = 3; // Reducido para movimiento más sutil
@@ -95,33 +95,78 @@ class PowerUp {
     
     popMatrix();
     
-    // Dibujar icono según tipo
-    fill(255, currentAlpha);
-    textAlign(CENTER, CENTER);
-    textSize(16);
+    // Dibujar icono según tipo manualmente (sin IconRenderer por compatibilidad)
+    float iconSize = size * 0.6;
     
-    String icon = "";
+    pushMatrix();
+    translate(position.x, position.y);
+    
     switch (type) {
       case ROCKS:
-        icon = "■";
+        // Dibujar icono de roca
+        noStroke();
         fill(200, 200, 200, currentAlpha);
+        
+        // Forma de roca irregular
+        beginShape();
+        float[] angles = {0, 0.6, 1.4, 2.1, 3.5, 4.2, 5.0, 5.8};
+        float[] radii = {0.9, 0.7, 1.0, 0.8, 0.9, 0.6, 0.8, 0.7};
+        
+        for (int i = 0; i < angles.length; i++) {
+          float angle = angles[i];
+          float radius = radii[i] * iconSize * 0.4;
+          vertex(cos(angle) * radius, sin(angle) * radius);
+        }
+        endShape(CLOSE);
         break;
+        
       case KOI:
-        icon = "♦";
+        // Dibujar icono de pez
+        noStroke();
         fill(255, 150, 150, currentAlpha);
+        
+        // Cuerpo principal del pez
+        ellipse(0, 0, iconSize * 0.8, iconSize * 0.5);
+        
+        // Cola del pez
+        beginShape();
+        vertex(-iconSize * 0.4, 0);
+        vertex(-iconSize * 0.7, -iconSize * 0.3);
+        vertex(-iconSize * 0.7, iconSize * 0.3);
+        endShape(CLOSE);
+        
+        // Ojo del pez
+        fill(255, currentAlpha);
+        ellipse(iconSize * 0.15, 0, iconSize * 0.15, iconSize * 0.15);
+        fill(0, currentAlpha);
+        ellipse(iconSize * 0.15, 0, iconSize * 0.08, iconSize * 0.08);
         break;
+        
       case FOOD:
-        icon = "◆";
+        // Dibujar icono de comida
+        noStroke();
         fill(150, 255, 150, currentAlpha);
+        
+        float granuleSize = iconSize * 0.2;
+        
+        // Gránulo central más grande
+        ellipse(0, 0, granuleSize * 1.5, granuleSize * 1.5);
+        
+        // Gránulos alrededor
+        ellipse(-iconSize * 0.3, -iconSize * 0.2, granuleSize, granuleSize);
+        ellipse(iconSize * 0.3, -iconSize * 0.1, granuleSize, granuleSize);
+        ellipse(-iconSize * 0.1, iconSize * 0.3, granuleSize, granuleSize);
+        ellipse(iconSize * 0.2, iconSize * 0.25, granuleSize, granuleSize);
         break;
     }
     
-    text(icon, position.x, position.y - 8);
+    popMatrix();
     
     // Dibujar cantidad
     textSize(14);
     fill(255, currentAlpha);
-    text("+" + amount, position.x, position.y + 8);
+    textAlign(CENTER, CENTER);
+    text("+" + amount, position.x, position.y + size * 0.4);
     
     popStyle();
   }

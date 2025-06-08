@@ -8,6 +8,7 @@ class WavesUIManager {
   PApplet applet;
   KoiManager koiManager;
   EnemyManager enemyManager; // Referencia para limpiar enemigos entre waves
+  IconRenderer iconRenderer; // Renderizador de iconos
   
   // Sistema de waves
   int currentWave;
@@ -37,16 +38,17 @@ class WavesUIManager {
     this.applet = applet;
     this.koiManager = koiManager;
     this.enemyManager = null; // Se asignará después
+    this.iconRenderer = new IconRenderer(); // Inicializar renderizador de iconos
     
     // Inicializar waves
     this.currentWave = 1;
     this.waveStartTime = millis();
-    this.waveDuration = 120000; // 2 minutos en milisegundos
+    this.waveDuration = 12000; // 2 minutos en milisegundos
     this.waveComplete = false;
     
     // Inicializar recursos limitados (más recursos que en Endless)
     this.maxFood = 100;
-    this.maxRocks = 60;
+    this.maxRocks = 100;
     this.foodCount = maxFood;
     this.rockCount = maxRocks;
   }
@@ -200,8 +202,8 @@ class WavesUIManager {
    */
   void renderTimer() {
     if (currentWave <= 5 && !waveComplete) {
-      float currentTime = millis();
-      float timeInWave = currentTime - waveStartTime;
+      float timerTime = millis();
+      float timeInWave = timerTime - waveStartTime;
       float timeRemaining = max(0, waveDuration - timeInWave);
       
       int minutes = (int)(timeRemaining / 60000);
@@ -236,22 +238,23 @@ class WavesUIManager {
   void renderResources() {
     // Fondo de recursos
     applet.fill(backgroundColor);
-    applet.rect(applet.width - 140, 20, 120, 50, 5);
+    applet.rect(applet.width - 120, 20, 100, 60, 5);
     
-    // Texto de recursos
-    applet.fill(textColor);
+    // Iconos y texto de recursos
     applet.textSize(12);
     applet.textAlign(applet.LEFT, applet.CENTER);
     
     // Comida
     color foodColor = foodCount > 20 ? color(100, 255, 100) : color(255, 100, 100);
+    iconRenderer.drawFoodIcon(applet, applet.width - 110, 35, 16, foodColor);
     applet.fill(foodColor);
-    applet.text("COMIDA: " + foodCount + "/" + maxFood, applet.width - 130, 35);
+    applet.text(foodCount + "/" + maxFood, applet.width - 95, 35);
     
     // Piedras
     color rockColor = rockCount > 10 ? color(100, 255, 100) : color(255, 100, 100);
+    iconRenderer.drawRockIcon(applet, applet.width - 110, 55, 16, rockColor);
     applet.fill(rockColor);
-    applet.text("ROCAS: " + rockCount + "/" + maxRocks, applet.width - 130, 55);
+    applet.text(rockCount + "/" + maxRocks, applet.width - 95, 55);
   }
   
   /**
@@ -262,13 +265,14 @@ class WavesUIManager {
     
     // Fondo del contador
     applet.fill(backgroundColor);
-    applet.rect(20, 20, 80, 30, 5);
+    applet.rect(20, 20, 70, 30, 5);
     
-    // Texto del contador
+    // Icono y texto del contador
+    iconRenderer.drawFishIcon(applet, 35, 35, 20, textColor);
     applet.fill(textColor);
     applet.textSize(14);
-    applet.textAlign(applet.CENTER, applet.CENTER);
-    applet.text("FISH: " + currentFishCount, 60, 35);
+    applet.textAlign(applet.LEFT, applet.CENTER);
+    applet.text(currentFishCount, 50, 35);
   }
   
   /**

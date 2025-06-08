@@ -376,17 +376,17 @@ class UpgradeScreen {
     color fg = color(255);
     if (hoveredUpgrade == 1) {
       title = "MEJORA COMIDA";
-      bonus = "+20 Comida Máxima";
+      bonus = "+50 Comida Máxima";
       current = "Actual: " + wavesUI.maxFood;
       bg = color(34, 139, 34, 230);
     } else if (hoveredUpgrade == 2) {
       title = "MEJORA ROCAS";
-      bonus = "+20 Rocas Máximas";
+      bonus = "+50 Rocas Máximas";
       current = "Actual: " + wavesUI.maxRocks;
       bg = color(70, 130, 180, 230);
     } else if (hoveredUpgrade == 3) {
       title = "AGREGAR PECES";
-      bonus = "+20 Nuevos Koi";
+      bonus = "+50 Nuevos Koi";
       current = "Actual: " + wavesUI.koiManager.getKoiCount();
       bg = color(255, 140, 0, 230);
       fg = color(30);
@@ -434,23 +434,23 @@ class UpgradeScreen {
   void applyUpgrade(String upgradeType) {
     switch(upgradeType) {
       case "food":
-        wavesUI.maxFood += 20;
+        wavesUI.maxFood += 50;
         // Reponer la comida al nuevo máximo
         wavesUI.foodCount = wavesUI.maxFood;
         println("Comida máxima aumentada a: " + wavesUI.maxFood);
         break;
         
       case "rock":
-        wavesUI.maxRocks += 20;
+        wavesUI.maxRocks += 50;
         // Reponer las rocas al nuevo máximo
         wavesUI.rockCount = wavesUI.maxRocks;
         println("Rocas máximas aumentadas a: " + wavesUI.maxRocks);
         break;
         
       case "koi":
-        // Agregar 20 peces nuevos aleatorios
-        addRandomKoiFish(20);
-        println("Agregados 20 peces nuevos. Total: " + wavesUI.koiManager.getKoiCount());
+        // Agregar 50 peces nuevos aleatorios
+        addRandomKoiFish(50);
+        println("Agregados 50 peces nuevos. Total: " + wavesUI.koiManager.getKoiCount());
         break;
     }
     

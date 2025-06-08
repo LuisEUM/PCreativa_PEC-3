@@ -98,7 +98,7 @@ class Koi {
     // Inicializar sistema de invulnerabilidad
     this.isInvulnerable = false;
     this.invulnerabilityTimer = 0;
-    this.invulnerabilityDuration = 180; // 3 segundos (60 frames * 3)
+    this.invulnerabilityDuration = 2000; // 2 segundos (2000ms)
     this.blinkTimer = 0;
     this.blinkInterval = 8; // Parpadeo cada 8 frames
     this.isVisible = true;

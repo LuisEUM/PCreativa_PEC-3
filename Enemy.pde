@@ -68,6 +68,11 @@ class Enemy {
   float changeDirectionChance; // Probabilidad de cambiar dirección
   float naturalSpeed; // Velocidad base sin modificadores
   
+  // Sistema de crecimiento
+  float growthPoints = 0;
+  float growthThreshold = 10; // Necesita comer 10 veces para crecer
+  float maxSize = 0; // Tamaño máximo según tipo
+  
   /**
    * Constructor
    */
@@ -116,39 +121,43 @@ class Enemy {
     switch (type) {
       case SMALL_CATFISH:
         this.size = 25;
+        this.maxSize = 35; // Puede crecer hasta tamaño de carpa
         this.speed = 0.7;
         this.damage = 1;
         this.health = 2;
         this.huntingRadius = 80;
         this.foodAttractionRadius = 120;
-        this.baseEnemyColor = color(139, 69, 19); // Marrón
+        this.baseEnemyColor = color(0, 0, 0); // Negro puro
         break;
       case MEDIUM_CARP:
         this.size = 35;
+        this.maxSize = 45; // Puede crecer hasta tamaño de lucio
         this.speed = 0.8;
         this.damage = 2;
         this.health = 3;
         this.huntingRadius = 100;
         this.foodAttractionRadius = 140;
-        this.baseEnemyColor = color(85, 107, 47); // Verde oliva
+        this.baseEnemyColor = color(0, 0, 0); // Negro puro
         break;
       case LARGE_PIKE:
         this.size = 45;
+        this.maxSize = 55; // Puede crecer hasta tamaño de tiburón
         this.speed = 0.9;
         this.damage = 3;
         this.health = 4;
         this.huntingRadius = 120;
         this.foodAttractionRadius = 160;
-        this.baseEnemyColor = color(47, 79, 79); // Gris pizarra
+        this.baseEnemyColor = color(0, 0, 0); // Negro puro
         break;
       case SHARK:
         this.size = 55;
+        this.maxSize = 65; // Puede crecer aún más grande
         this.speed = 1.0;
         this.damage = 4;
         this.health = 5;
         this.huntingRadius = 150;
         this.foodAttractionRadius = 180;
-        this.baseEnemyColor = color(70, 70, 70); // Gris oscuro
+        this.baseEnemyColor = color(0, 0, 0); // Negro puro
         break;
     }
     
@@ -194,6 +203,27 @@ class Enemy {
     // Mantener dentro del canvas
     position.x = constrain(position.x, 0, canvasWidth);
     position.y = constrain(position.y, 0, canvasHeight);
+    
+    // Verificar si ha comido comida
+    if (currentState == EnemyState.FEEDING && targetFood != null) {
+      float distance = Vector2D.distance(position, targetFood);
+      if (distance < size/2) {
+        // Ha comido la comida
+        growthPoints++;
+        if (growthPoints >= growthThreshold && size < maxSize) {
+          // Crecer
+          size += 5;
+          health++;
+          maxHealth++;
+          damage++;
+          huntingRadius += 10;
+          foodAttractionRadius += 10;
+          growthPoints = 0;
+        }
+        targetFood = null;
+        currentState = EnemyState.WANDERING;
+      }
+    }
   }
   
   /**
@@ -710,34 +740,16 @@ class Enemy {
     // Color según estado actual
     switch (currentState) {
       case HUNTING:
-        // Rojizo y agresivo cuando caza
-        return color(
-          min(255, red(baseEnemyColor) * 1.4),
-          green(baseEnemyColor) * 0.6,
-          blue(baseEnemyColor) * 0.6
-        );
+        // Rojo puro cuando caza
+        return color(255, 0, 0);
         
       case FEEDING:
-        // Ligeramente más brillante cuando busca comida
-        return color(
-          min(255, red(baseEnemyColor) * 1.1),
-          min(255, green(baseEnemyColor) * 1.2),
-          blue(baseEnemyColor)
-        );
-        
       case FLEEING:
-        // Más pálido/asustado cuando huye
-        return color(
-          red(baseEnemyColor) * 0.8,
-          green(baseEnemyColor) * 0.8,
-          min(255, blue(baseEnemyColor) * 1.3)
-        );
-        
       case EXPLORING:
       case WANDERING:
       default:
-        // Color normal para exploración
-        return baseEnemyColor;
+        // Negro puro para todos los otros estados
+        return baseEnemyColor; // Ya es negro puro
     }
   }
   
@@ -751,8 +763,13 @@ class Enemy {
     translate(position.x, position.y);
     rotate(angle);
     
-    // Color actual según estado
-    color currentColor = getCurrentColor();
+    // Color base según estado
+    color currentColor = baseEnemyColor;
+    if (currentState == EnemyState.FEEDING) {
+      currentColor = color(0, 255, 0); // Verde al comer
+    } else if (currentState == EnemyState.FLEEING) {
+      currentColor = color(200, 200, 255); // Azul pálido al huir
+    }
     
     // Cuerpo del enemigo
     noStroke();
@@ -763,25 +780,36 @@ class Enemy {
     fill(red(currentColor) * 0.7, green(currentColor) * 0.7, blue(currentColor) * 0.7);
     triangle(-size/2, 0, -size * 0.8, -size * 0.3, -size * 0.8, size * 0.3);
     
-    // Ojos - diferentes según estado
+    // Ojos - amarillos por defecto, rojos en hunting
     switch (currentState) {
       case HUNTING:
         fill(255, 0, 0); // Rojos cuando caza
         break;
       case FEEDING:
-        fill(0, 255, 0); // Verdes cuando busca comida
+        fill(0, 255, 0); // Verdes al comer
         break;
       case FLEEING:
-        fill(255, 255, 255); // Blancos cuando huye (asustado)
+        fill(255); // Blancos al huir
         break;
       case EXPLORING:
       case WANDERING:
       default:
-        fill(255, 255, 0); // Amarillos cuando explora
+        fill(255, 255, 0); // Amarillos para todos los otros estados
         break;
     }
-    ellipse(size * 0.2, -size * 0.15, 4, 4);
-    ellipse(size * 0.2, size * 0.15, 4, 4);
+    
+    // Ojos
+    float eyeSize = size * 0.15;
+    float eyeOffset = size * 0.2;
+    ellipse(eyeOffset, -size * 0.15, eyeSize, eyeSize);
+    ellipse(eyeOffset, size * 0.15, eyeSize, eyeSize);
+    
+    // Pupilas
+    fill(0);
+    float pupilSize = eyeSize * 0.5;
+    float pupilOffset = size * 0.05;
+    ellipse(eyeOffset + pupilOffset, -size * 0.15, pupilSize, pupilSize);
+    ellipse(eyeOffset + pupilOffset, size * 0.15, pupilSize, pupilSize);
     
     popMatrix();
     

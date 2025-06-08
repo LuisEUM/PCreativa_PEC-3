@@ -26,17 +26,80 @@ Modo de supervivencia sin límite de tiempo donde los depredadores aparecen cons
 
 ---
 
-## 🕹️ MECÁNICAS PRINCIPALES
+## 🆕 **NOVEDADES Y MEJORAS RECIENTES**
 
-### 🐟 **SISTEMA DE CRECIMIENTO KOI**
+### 🛡️ **SISTEMA DE INVULNERABILIDAD KOI** _(Nuevo)_
 
-| Nivel | Tamaño | Velocidad | Puntos de Vida |
-| ----- | ------ | --------- | -------------- |
-| XS    | 10     | 1.4x      | 1              |
-| S     | 15     | 1.2x      | 2              |
-| M     | 20     | 1.0x      | 3              |
-| L     | 28     | 0.8x      | 4              |
-| XL    | 35     | 0.6x      | 5              |
+- **Duración mínima:** 2 segundos tras recibir daño
+- **Efecto visual:** Parpadeo durante la invulnerabilidad
+- **Mecánica:** Inmunidad completa a ataques durante el período
+
+### ⚡ **POWER-UPS MEJORADOS** _(Actualizado)_
+
+- **Frecuencia aumentada:** Aparecen cada 10 segundos (antes 20s)
+- **Duración optimizada:** Duran 15 segundos en pantalla (antes 20s)
+- **Mayor disponibilidad:** Más oportunidades de obtener recursos
+
+### 💰 **RECURSOS INICIALES AUMENTADOS** _(Actualizado)_
+
+- **Comida inicial:** 100 unidades (antes 50-100 según modo)
+- **Rocas iniciales:** 100 unidades (antes 30-60 según modo)
+- **Equilibrio mejorado:** Ambos modos empiezan con recursos abundantes
+
+### 🎨 **INTERFAZ VECTORIAL** _(Completamente nuevo)_
+
+- **Iconos rediseñados:** Comida, rocas y peces ahora son gráficos vectoriales
+- **Diseño limpio:** Iconos creados internamente sin dependencias externas
+- **Mejor legibilidad:** Iconos más claros y profesionales en la UI
+
+### 🌊 **NUEVOS COLORES DE AGUA** _(Rediseñado)_
+
+- **DÍA:** `#90A1D9` - Azul acero moderno
+- **ATARDECER:** `#F1A7B4` - Rosa suave atardecer
+- **NOCHE:** `#026874` - Verde azulado profundo
+- **AMANECER:** `#BDB1D9` - Lavanda suave
+
+### 🦈 **ENEMIGOS COMPLETAMENTE REDISEÑADOS** _(Mayor mejora)_
+
+- **Apariencia:** Negro puro con ojos amarillos distintivos
+- **Hunting mode:** Se vuelven rojos cuando cazan activamente
+- **IA natural:** Comportamiento completamente reescrito para mayor realismo
+
+### 🕰️ **CICLOS TEMPORALES DINÁMICOS** _(Nuevo)_
+
+- **Modo Waves:** Progresión por rondas (Amanecer→Día→Atardecer→Noche→Amanecer)
+- **Modo Endless:** Cambio automático cada 2 minutos
+- **Modo Zen:** Control manual del tiempo del día
+
+---
+
+## 🤖 **NUEVA IA AVANZADA DE ENEMIGOS**
+
+### 🧠 **SISTEMA DE ESTADOS INTELIGENTES**
+
+Los enemigos ahora tienen 5 estados comportamentales distintos:
+
+| Estado    | Color Cuerpo | Color Ojos | Comportamiento                            |
+| --------- | ------------ | ---------- | ----------------------------------------- |
+| EXPLORING | Negro        | Amarillo   | Exploración natural del área              |
+| HUNTING   | Rojo         | Rojo       | Persecución activa de koi                 |
+| FEEDING   | Negro        | Amarillo   | Búsqueda de comida lanzada por el jugador |
+| FLEEING   | Negro        | Amarillo   | Escape de rocas con memoria de 2 segundos |
+| WANDERING | Negro        | Amarillo   | Movimiento aleatorio natural              |
+
+### 🎯 **COMPORTAMIENTO NATURAL**
+
+- **Sin obsesión por el centro:** Los enemigos exploran naturalmente
+- **Memoria temporal:** Recuerdan amenazas por 2 segundos
+- **Prioridades claras:** Comida > Huir de rocas > Cazar koi > Explorar
+- **Navegación inteligente:** Evitan rocas con memoria espacial
+  | Nivel | Tamaño | Velocidad | Puntos de Vida |
+  | ----- | ------ | --------- | -------------- |
+  | XS | 10 | 1.4x | 1 |
+  | S | 15 | 1.2x | 2 |
+  | M | 20 | 1.0x | 3 |
+  | L | 28 | 0.8x | 4 |
+  | XL | 35 | 0.6x | 5 |
 
 ### 🍜 **SISTEMA DE ALIMENTACIÓN**
 

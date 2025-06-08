@@ -36,7 +36,10 @@ enum GameState {
   ROUND_COMPLETE,   // Evaluación y mejoras (solo Modo Waves)
   GAME_OVER,        // Pantalla de derrota (Waves & Endless)
   GAME_WON,         // Pantalla de victoria (solo Modo Waves)
-  VICTORY           // Pantalla de felicitaciones por completar Wave 5
+  VICTORY,          // Pantalla de felicitaciones por completar Wave 5
+  SCORE_BREAKDOWN,  // Pantalla de desglose de puntuación
+  SCORES_SCREEN,    // Pantalla de puntuaciones (Hall de la Fama)
+  PROFILE_SCREEN    // Pantalla de perfil de usuario
 }
 
 class ScreenManager {
@@ -51,6 +54,7 @@ class ScreenManager {
   EndlessManager endlessManager;   // Para Modo Endless
   ScoreManager scoreManager;       // Sistema de puntuación
   ProgressManager progressManager; // Sistema de progreso y desbloqueos
+  DataManager dataManager;         // Sistema de datos persistentes
   
   // UI y pantallas
   MainMenu mainMenu;
@@ -59,12 +63,16 @@ class ScreenManager {
   GameOverScreen gameOverScreen;
   UpgradeScreen upgradeScreen;
   VictoryScreen victoryScreen;
+  ScoreBreakdownScreen scoreBreakdownScreen;
+  ScoresScreen scoresScreen;
+  ProfileScreen profileScreen;
   WavesInstructionsScreen wavesInstructionsScreen; // Instrucciones pre-Waves
   EndlessInstructionsScreen endlessInstructionsScreen; // Instrucciones pre-Endless
   
   // Variables de control
   boolean isGameActive;
   PApplet app;  // Referencia a la aplicación principal
+  MusicManager musicManager; // Gestor de música de fondo
   
   /**
    * Constructor
@@ -86,6 +94,8 @@ class ScreenManager {
     // Managers del juego
     this.scoreManager = new ScoreManager();
     this.progressManager = new ProgressManager();
+    this.dataManager = new DataManager();
+    this.dataManager.setProgressManager(progressManager); // Conectar referencias
     this.pondManager = new PondManager(app);  // Para Modo Zen
     
     // UI y pantallas
@@ -95,10 +105,20 @@ class ScreenManager {
     this.gameOverScreen = new GameOverScreen(this);
     this.upgradeScreen = new UpgradeScreen(this);
     this.victoryScreen = new VictoryScreen(this);
+    this.scoreBreakdownScreen = new ScoreBreakdownScreen(scoreManager, this);
+    this.scoresScreen = new ScoresScreen(this, scoreManager);
+    this.profileScreen = new ProfileScreen(this);
     this.wavesInstructionsScreen = new WavesInstructionsScreen(this);
     this.endlessInstructionsScreen = new EndlessInstructionsScreen(this);
     
     println("🎮 ScreenManager inicializado con estado: " + currentState);
+  }
+  
+  /**
+   * Establece la referencia al MusicManager
+   */
+  void setMusicManager(MusicManager musicManager) {
+    this.musicManager = musicManager;
   }
   
   /**
@@ -160,6 +180,18 @@ class ScreenManager {
         
       case VICTORY:
         updateVictory();
+        break;
+        
+      case SCORE_BREAKDOWN:
+        updateScoreBreakdown();
+        break;
+        
+      case SCORES_SCREEN:
+        updateScoresScreen();
+        break;
+        
+      case PROFILE_SCREEN:
+        updateProfileScreen();
         break;
     }
   }
@@ -224,6 +256,18 @@ class ScreenManager {
       case VICTORY:
         renderVictory();
         break;
+        
+      case SCORE_BREAKDOWN:
+        renderScoreBreakdown();
+        break;
+        
+      case SCORES_SCREEN:
+        renderScoresScreen();
+        break;
+        
+      case PROFILE_SCREEN:
+        renderProfileScreen();
+        break;
     }
   }
   
@@ -246,7 +290,11 @@ class ScreenManager {
   
   void updateZenMode() {
     if (pondManager != null) {
+      // El PondManager no tiene método con parámetro de pausa aún, 
+      // pero verificamos manualmente
+      if (!isPaused()) {
       pondManager.update();
+      }
     }
   }
   
@@ -262,7 +310,7 @@ class ScreenManager {
   
   void updateWavesActive() {
     if (wavesManager != null) {
-      wavesManager.update();
+      wavesManager.update(isPaused());
       
       // Verificar si todos los kois han muerto
       if (wavesManager.koiManager.getKoiCount() == 0) {
@@ -295,7 +343,7 @@ class ScreenManager {
   
   void updateEndlessActive() {
     if (endlessManager != null) {
-      endlessManager.update();
+      endlessManager.update(isPaused());
       
       // Verificar si todos los kois han muerto
       if (endlessManager.koiManager.getKoiCount() == 0) {
@@ -339,6 +387,24 @@ class ScreenManager {
   void updateVictory() {
     if (victoryScreen != null) {
       victoryScreen.update();
+    }
+  }
+  
+  void updateScoreBreakdown() {
+    if (scoreBreakdownScreen != null) {
+      scoreBreakdownScreen.update();
+    }
+  }
+  
+  void updateScoresScreen() {
+    if (scoresScreen != null) {
+      scoresScreen.update();
+    }
+  }
+  
+  void updateProfileScreen() {
+    if (profileScreen != null) {
+      profileScreen.update();
     }
   }
   
@@ -436,6 +502,24 @@ class ScreenManager {
     }
   }
   
+  void renderScoreBreakdown() {
+    if (scoreBreakdownScreen != null) {
+      scoreBreakdownScreen.render();
+    }
+  }
+  
+  void renderScoresScreen() {
+    if (scoresScreen != null) {
+      scoresScreen.render();
+    }
+  }
+  
+  void renderProfileScreen() {
+    if (profileScreen != null) {
+      profileScreen.render();
+    }
+  }
+  
   /**
    * Renderiza el estado previo (para mostrar durante pausa)
    */
@@ -499,6 +583,9 @@ class ScreenManager {
    * Inicialización al entrar al nuevo estado
    */
   void enterNewState() {
+    // Cambiar música según el estado
+    updateMusic();
+    
     switch(currentState) {
       case MAIN_MENU:
         isGameActive = false;
@@ -521,12 +608,67 @@ class ScreenManager {
         
       case PAUSED:
         // Pausa preserva el estado, no cambiamos isGameActive
+        pauseMusic();
         break;
         
       case GAME_OVER:
       case GAME_WON:
         isGameActive = false;
         break;
+    }
+  }
+  
+  /**
+   * Actualiza la música según el estado actual
+   */
+  void updateMusic() {
+    if (musicManager == null) return;
+    
+    switch(currentState) {
+      case MAIN_MENU:
+      case INSTRUCTIONS:
+      case WAVES_INSTRUCTIONS:
+      case ENDLESS_INSTRUCTIONS:
+      case GAME_OVER:
+      case GAME_WON:
+      case VICTORY:
+        musicManager.setGameMode("menu");
+        break;
+        
+      case ZEN_MODE:
+        musicManager.setGameMode("zen");
+        break;
+        
+      case WAVES_ACTIVE:
+      case UPGRADE_SCREEN:
+        musicManager.setGameMode("waves");
+        break;
+        
+      case ENDLESS_ACTIVE:
+        musicManager.setGameMode("endless");
+        break;
+        
+      case PAUSED:
+        // No cambiar música durante pausa
+        break;
+    }
+  }
+  
+  /**
+   * Pausa la música
+   */
+  void pauseMusic() {
+    if (musicManager != null) {
+      musicManager.pauseMusic();
+    }
+  }
+  
+  /**
+   * Reanuda la música
+   */
+  void resumeMusic() {
+    if (musicManager != null) {
+      musicManager.resumeMusic();
     }
   }
   
@@ -602,6 +744,7 @@ class ScreenManager {
   void resumeGame() {
     if (currentState == GameState.PAUSED) {
       println("▶️ Reanudando juego a estado: " + previousState);
+      resumeMusic();
       changeState(previousState);
     }
   }
@@ -634,6 +777,13 @@ class ScreenManager {
       return;
     }
     
+    if (key == 'm' || key == 'M') { // Mute/unmute música
+      if (musicManager != null) {
+        musicManager.toggleMute();
+      }
+      return;
+    }
+    
     // Teclas específicas por estado
     switch(currentState) {
       case MAIN_MENU:
@@ -658,6 +808,10 @@ class ScreenManager {
         
       case VICTORY:
         if (victoryScreen != null) victoryScreen.handleKey(key, keyCode);
+        break;
+        
+      case PROFILE_SCREEN:
+        if (profileScreen != null) profileScreen.handleKey(key, keyCode);
         break;
     }
   }
@@ -734,6 +888,18 @@ class ScreenManager {
         
       case VICTORY:
         if (victoryScreen != null) victoryScreen.handleClick(mouseX, mouseY);
+        break;
+        
+      case SCORE_BREAKDOWN:
+        if (scoreBreakdownScreen != null) scoreBreakdownScreen.handleClick(mouseX, mouseY);
+        break;
+        
+      case SCORES_SCREEN:
+        if (scoresScreen != null) scoresScreen.handleClick(mouseX, mouseY);
+        break;
+        
+      case PROFILE_SCREEN:
+        if (profileScreen != null) profileScreen.handleClick(mouseX, mouseY);
         break;
     }
   }
@@ -877,6 +1043,35 @@ class ScreenManager {
     if (victoryScreen != null) {
       victoryScreen.show();
       changeState(GameState.VICTORY);
+    }
+  }
+  
+  /**
+   * Muestra la pantalla de desglose de puntuación
+   */
+  void showScoreBreakdown() {
+    if (scoreBreakdownScreen != null) {
+      changeState(GameState.SCORE_BREAKDOWN);
+    }
+  }
+  
+  /**
+   * Muestra la pantalla de puntuaciones (Hall de la Fama)
+   */
+  void showScoresScreen() {
+    if (scoresScreen != null) {
+      scoresScreen.show();
+      changeState(GameState.SCORES_SCREEN);
+    }
+  }
+  
+  /**
+   * Muestra la pantalla de perfil de usuario
+   */
+  void showProfileScreen() {
+    if (profileScreen != null) {
+      profileScreen.show();
+      changeState(GameState.PROFILE_SCREEN);
     }
   }
   

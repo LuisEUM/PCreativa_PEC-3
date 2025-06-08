@@ -70,6 +70,13 @@ class Button {
   }
   
   /**
+   * Verifica si el mouse está sobre el botón
+   */
+  boolean isMouseOver() {
+    return isHovered;
+  }
+  
+  /**
    * Renderiza el botón
    */
   void render() {

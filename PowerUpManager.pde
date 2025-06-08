@@ -21,7 +21,7 @@ class PowerUpManager {
   PowerUpManager(float canvasWidth, float canvasHeight, ArrayList<Rock> rocks) {
     this.powerUps = new ArrayList<PowerUp>();
     this.spawnTimer = 0;
-    this.spawnInterval = 20000; // 20 segundos en milisegundos (no frames)
+    this.spawnInterval = 10000; // 10 segundos en milisegundos
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
     this.rocks = rocks;
@@ -34,7 +34,7 @@ class PowerUpManager {
     // Actualizar timer de spawn
     spawnTimer += deltaTime;
     
-    // Generar nuevo power-up cada 20 segundos
+    // Generar nuevo power-up cada 10 segundos
     if (spawnTimer >= spawnInterval) {
       spawnPowerUp();
       spawnTimer = 0;
@@ -118,9 +118,9 @@ class PowerUpManager {
    */
   int getRandomAmount() {
     float roll = random(1);
-    if (roll < 0.5) return 5;
-    if (roll < 0.8) return 10;
-    return 20;
+    if (roll < 0.5) return 15;
+    if (roll < 0.8) return 20;
+    return 25;
   }
   
   /**

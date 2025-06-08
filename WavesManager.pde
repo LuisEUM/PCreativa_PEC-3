@@ -28,10 +28,10 @@ class WavesManager {
   // Ciclo de tiempo del día
   int timeOfDay = 0; // 0: día, 1: atardecer, 2: noche, 3: amanecer
   color[] pondColors = {
-    color(25, 118, 210),    // Azul día
-    color(245, 164, 52),    // Naranja atardecer
-    color(10, 30, 80),      // Azul oscuro noche
-    color(70, 150, 230)     // Azul claro amanecer
+    ColorUtils.hexToColor("#90A1D9"),    // DIA
+    ColorUtils.hexToColor("#F1A7B4"),    // ATARDECER
+    ColorUtils.hexToColor("#026874"),    // NOCHE
+    ColorUtils.hexToColor("#BDB1D9")     // AMANECER
   };
   
   /**
@@ -83,6 +83,18 @@ class WavesManager {
    * Actualiza todos los elementos del estanque
    */
   void update() {
+    update(false); // Llamar al método con parámetro de pausa por defecto
+  }
+  
+  /**
+   * Actualiza todos los elementos del estanque con estado de pausa
+   */
+  void update(boolean isPaused) {
+    // Si está pausado, no actualizar nada
+    if (isPaused) {
+      return;
+    }
+    
     // Calcula el tiempo delta para una animación suave
     float currentTime = millis();
     float deltaTime = currentTime - lastTimestamp;
@@ -92,7 +104,7 @@ class WavesManager {
     // Actualiza todos los gestores
     rippleManager.update(deltaTime);
     foodManager.update(deltaTime);
-    koiManager.update(deltaTime);
+    koiManager.update(deltaTime, isPaused);
     plantManager.update(deltaTime, time);
     
     // Actualiza pétalos y obtiene nuevas ondulaciones
@@ -115,7 +127,7 @@ class WavesManager {
     
     // Actualiza enemigos y sincroniza con la wave actual
     enemyManager.setCurrentWave(uiManager.currentWave);
-    enemyManager.update(deltaTime, koiManager.getKois(), "waves", foodManager.getParticles());
+    enemyManager.update(deltaTime, koiManager.getKois(), "waves", foodManager.getParticles(), isPaused);
     
     // Actualiza el sistema de alimentación
     koiManager.updateFoodAttraction(foodManager.getParticles());

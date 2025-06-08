@@ -17,6 +17,7 @@
 class GameManager {
   ScreenManager screenManager;
   boolean initialized;
+  boolean isPaused = false;
   
   /**
    * Constructor placeholder
@@ -30,32 +31,72 @@ class GameManager {
   /**
    * Actualización placeholder
    */
-  void update() {
-    if (!initialized) {
-      // Mensaje temporal
-      println("🌊 Modo Waves aún no implementado - Fase 4");
-      initialized = true;
+  void update(float deltaTime) {
+    if (isPaused) {
+      return;
     }
+    
+    // TODO: Implementar en Fase 4
+    // Actualizar UI
+    // if (currentUIManager != null) {
+    //   currentUIManager.update(deltaTime);
+    // }
+    
+    // Actualizar kois
+    // koiManager.update(deltaTime);
+    
+    // Actualizar enemigos
+    // enemyManager.update(deltaTime, koiManager.getKois(), gameMode, foodManager.getFoodParticles());
+    
+    // Actualizar comida
+    // foodManager.update(deltaTime);
+    
+    // Actualizar power-ups
+    // powerUpManager.update(deltaTime);
   }
   
   /**
    * Renderizado placeholder
    */
   void render() {
-    // Pantalla temporal para Modo Waves
-    background(20, 40, 80);
+    // TODO: Implementar en Fase 4
+    // Renderizar fondo
+    background(0);
     
-    fill(255);
-    textAlign(CENTER);
+    // Renderizar comida
+    // foodManager.render();
+    
+    // Renderizar power-ups
+    // powerUpManager.render();
+    
+    // Renderizar kois
+    // koiManager.render();
+    
+    // Renderizar enemigos
+    // enemyManager.render();
+    
+    // Renderizar UI
+    // if (currentUIManager != null) {
+    //   currentUIManager.render();
+    // }
+    
+    // Renderizar overlay de pausa
+    if (isPaused) {
+      renderPauseOverlay();
+    }
+  }
+  
+  void renderPauseOverlay() {
+    fill(0, 0, 0, 200);
+    rect(0, 0, width, height);
+    
+    textAlign(CENTER, CENTER);
     textSize(32);
-    text("🌊 WAVES MODE", width/2, height/2 - 40);
+    fill(255);
+    text("PAUSA", width/2, height/2);
     
     textSize(16);
-    text("Coming in Phase 4!", width/2, height/2);
-    
-    textSize(12);
-    text("Press ESC to return to menu", width/2, height/2 + 40);
-    text("Press SPACE to pause", width/2, height/2 + 60);
+    text("Presiona P para continuar", width/2, height/2 + 40);
   }
   
   /**
@@ -63,5 +104,9 @@ class GameManager {
    */
   void handleClick(float mouseX, float mouseY, int mouseButton) {
     // Placeholder - no implementado aún
+  }
+  
+  void togglePause() {
+    isPaused = !isPaused;
   }
 } 

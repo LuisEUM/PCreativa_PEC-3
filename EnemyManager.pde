@@ -10,6 +10,8 @@ class EnemyManager {
   float canvasWidth;
   float canvasHeight;
   ArrayList<Rock> rocks; // Referencia a las rocas para colisiones
+  ArrayList<PowerUp> powerUps; // Lista de power-ups activos
+  float itemDropChance = 0.3; // 30% de probabilidad base de soltar item
   
   // Sistema de spawn para Waves
   float waveSpawnTimer;
@@ -37,12 +39,12 @@ class EnemyManager {
     // Wave 3
     {0.4f, 0.3f, 0.2f, 0.1f},
     // Wave 4
-    {0.3f, 0.3f, 0.25f, 0.15f},
+    {0.5f, 0.3f, 0.15f, 0.05f}, // Reducido lucios y tiburones
     // Wave 5
-    {0.2f, 0.35f, 0.45f, 0.0f} // Sin tiburones en Wave 5 según README
+    {0.3f, 0.4f, 0.25f, 0.05f} // Reducido tiburones
   };
   
-  int[] waveSpawnCounts = {1, 2, 3, 4, 5}; // Enemigos por spawn según wave
+  int[] waveSpawnCounts = {1, 2, 2, 3, 3}; // Reducido para waves 4 y 5
   
   /**
    * Constructor
@@ -53,6 +55,7 @@ class EnemyManager {
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
     this.rocks = new ArrayList<Rock>(); // Inicializar lista vacía
+    this.powerUps = new ArrayList<PowerUp>();
     
     // Configuración para Waves
     this.waveSpawnTimer = 0;
@@ -85,9 +88,20 @@ class EnemyManager {
   }
   
   /**
-   * Actualiza todos los enemigos
+   * Actualiza todos los enemigos y power-ups
    */
   void update(float deltaTime, ArrayList<Koi> kois, String gameMode, ArrayList<FoodParticle> foodParticles) {
+    update(deltaTime, kois, gameMode, foodParticles, false); // Llamar al método con parámetro de pausa por defecto
+  }
+  
+  /**
+   * Actualiza todos los enemigos y power-ups con estado de pausa
+   */
+  void update(float deltaTime, ArrayList<Koi> kois, String gameMode, ArrayList<FoodParticle> foodParticles, boolean isPaused) {
+    // Si está pausado, no actualizar nada
+    if (isPaused) {
+      return;
+    }
     // Actualizar indicadores de spawn
     updateSpawnIndicators(deltaTime);
     
@@ -100,6 +114,28 @@ class EnemyManager {
       } else {
         // Enemigo muerto, remover
         enemies.remove(i);
+      }
+    }
+    
+    // Actualizar power-ups y verificar colisiones con kois
+    for (int i = powerUps.size() - 1; i >= 0; i--) {
+      PowerUp powerUp = powerUps.get(i);
+      powerUp.update(deltaTime);
+      
+      // Verificar colisiones con kois
+      for (Koi koi : kois) {
+        if (powerUp.checkCollision(koi)) {
+          // El manager de kois es pasado desde donde se llama update, 
+          // pero aquí necesitamos acceder a él de manera diferente.
+          // Por ahora, eliminar el power-up sin aplicar el efecto
+          // TODO: Pasar KoiManager como parámetro al método update
+          powerUps.remove(i);
+          break;
+        }
+      }
+      
+      if (powerUp.isExpired()) {
+        powerUps.remove(i);
       }
     }
     
@@ -366,6 +402,11 @@ class EnemyManager {
             // WavesUIManager no tiene método killEnemy, pero se puede añadir
           } else if (uiManager instanceof EndlessUIManager) {
             ((EndlessUIManager)uiManager).killEnemy();
+            
+            // En modo endless, posibilidad de soltar item
+            if (random(1) < itemDropChance * (enemy.size / 25.0)) { // Más probabilidad cuanto más grande
+              spawnPowerUpOnDeath(enemy.position.x, enemy.position.y);
+            }
           }
         }
       }
@@ -436,6 +477,11 @@ class EnemyManager {
     // Renderizar enemigos
     for (Enemy enemy : enemies) {
       enemy.render();
+    }
+    
+    // Renderizar power-ups
+    for (PowerUp powerUp : powerUps) {
+      powerUp.render();
     }
   }
   
@@ -529,6 +575,81 @@ class EnemyManager {
       if (enemy.isActive()) {
         enemy.repelFromPoint(x, y, radius);
       }
+    }
+  }
+  
+  /**
+   * Genera un power-up cuando muere un enemigo
+   */
+  void spawnPowerUpOnDeath(float x, float y) {
+    // Determinar tipo y cantidad
+    PowerUpType type = getRandomType();
+    int amount = getRandomAmount();
+    
+    // Crear y añadir el power-up
+    PowerUp powerUp = new PowerUp(x, y, type, amount);
+    powerUps.add(powerUp);
+  }
+  
+  /**
+   * Obtiene un tipo aleatorio de power-up
+   */
+  PowerUpType getRandomType() {
+    float roll = random(1);
+    if (roll < 0.33) return PowerUpType.ROCKS;
+    if (roll < 0.66) return PowerUpType.KOI;
+    return PowerUpType.FOOD;
+  }
+  
+  /**
+   * Obtiene una cantidad aleatoria para el power-up
+   */
+  int getRandomAmount() {
+    float roll = random(1);
+    if (roll < 0.5) return 15;
+    if (roll < 0.8) return 20;
+    return 25;
+  }
+  
+  /**
+   * Obtiene un color aleatorio para nuevos koi
+   */
+  String getRandomKoiColor() {
+    float roll = random(1);
+    if (roll < 0.4) return "#ff3333"; // Rojo
+    if (roll < 0.8) return "#ffffff"; // Blanco
+    return "#333333"; // Gris oscuro
+  }
+  
+  /**
+   * Aplica el efecto del power-up
+   */
+  void applyPowerUp(PowerUp powerUp, KoiManager koiManager) {
+    switch (powerUp.type) {
+      case ROCKS:
+        // Aplicar power-up de rocas según el tipo de UI Manager
+        if (koiManager.getUIManager() instanceof WavesUIManager) {
+          ((WavesUIManager)koiManager.getUIManager()).applyPowerUp(powerUp);
+        } else if (koiManager.getUIManager() instanceof EndlessUIManager) {
+          ((EndlessUIManager)koiManager.getUIManager()).applyPowerUp(powerUp);
+        }
+        break;
+      case KOI:
+        // Añadir kois nuevos
+        for (int i = 0; i < powerUp.amount; i++) {
+          float x = powerUp.position.x + random(-20, 20);
+          float y = powerUp.position.y + random(-20, 20);
+          koiManager.addKoiForced(x, y, 15, getRandomKoiColor());
+        }
+        break;
+      case FOOD:
+        // Aplicar power-up de comida según el tipo de UI Manager
+        if (koiManager.getUIManager() instanceof WavesUIManager) {
+          ((WavesUIManager)koiManager.getUIManager()).applyPowerUp(powerUp);
+        } else if (koiManager.getUIManager() instanceof EndlessUIManager) {
+          ((EndlessUIManager)koiManager.getUIManager()).applyPowerUp(powerUp);
+        }
+        break;
     }
   }
 }

@@ -307,6 +307,20 @@ class KoiManager {
    * @param deltaTime Tiempo transcurrido desde el último fotograma
    */
   void update(float deltaTime) {
+    update(deltaTime, false); // Llamar al método con parámetro de pausa por defecto
+  }
+  
+  /**
+   * Actualiza todos los peces en cada fotograma con estado de pausa
+   * 
+   * @param deltaTime Tiempo transcurrido desde el último fotograma
+   * @param isPaused Si el juego está pausado
+   */
+  void update(float deltaTime, boolean isPaused) {
+    // Si está pausado, no actualizar nada
+    if (isPaused) {
+      return;
+    }
     // Elimina los peces que han terminado de hundirse
     for (int i = kois.size() - 1; i >= 0; i--) {
       Koi koi = kois.get(i);
