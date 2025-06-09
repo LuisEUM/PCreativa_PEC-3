@@ -1,7 +1,7 @@
 waves_completed=0
 endless_unlocked=0
 player_name=LuisEUM
-volume=10
+volume=40
 games_played=0
 best_score=0
 total_play_time=0
