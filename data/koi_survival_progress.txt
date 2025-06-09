@@ -1,5 +1,5 @@
-waves_completed=0
-endless_unlocked=0
+waves_completed=1
+endless_unlocked=1
 player_name=LuisEUM95
 volume=10
 games_played=0
