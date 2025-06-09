@@ -21,10 +21,10 @@ class ProfileScreen {
   int fadeSpeed = 8;
   
   // Configuración del usuario
-  String playerName = "LuisEUM"; // Nombre por defecto
-  String tempPlayerName = "LuisEUM"; // Nombre temporal mientras edita
+  String playerName = ""; // Se cargará desde DataManager
+  String tempPlayerName = ""; // Nombre temporal mientras edita
   boolean editingName = false;
-  int volume = 70; // Volumen por defecto (0-100)
+  int volume = 70; // Se cargará desde DataManager
   
   // Colores
   color backgroundColor = color(15, 25, 45);
@@ -39,6 +39,22 @@ class ProfileScreen {
   ProfileScreen(ScreenManager screenManager) {
     this.screenManager = screenManager;
     setupButtons();
+    
+    // Cargar configuración inicial del DataManager
+    loadInitialConfig();
+  }
+  
+  /**
+   * Carga la configuración inicial desde DataManager
+   */
+  void loadInitialConfig() {
+    if (screenManager.dataManager != null) {
+      UserConfig config = screenManager.dataManager.getUserConfig();
+      playerName = config.playerName;
+      volume = config.volume;
+      tempPlayerName = playerName;
+      println("🔧 Configuración inicial cargada: " + playerName + ", volumen: " + volume + "%");
+    }
   }
   
   /**
@@ -349,10 +365,12 @@ class ProfileScreen {
       
     } else if (volumeDownButton != null && volumeDownButton.isClicked(mouseX, mouseY)) {
       volume = max(0, volume - 10);
+      applyVolumeChange();
       println("Volumen bajado a: " + volume + "%");
       
     } else if (volumeUpButton != null && volumeUpButton.isClicked(mouseX, mouseY)) {
       volume = min(100, volume + 10);
+      applyVolumeChange();
       println("Volumen subido a: " + volume + "%");
       
     } else {
@@ -402,17 +420,30 @@ class ProfileScreen {
   }
   
   /**
+   * Aplica inmediatamente el cambio de volumen al MusicManager
+   */
+  void applyVolumeChange() {
+    if (screenManager.musicManager != null) {
+      float volumeFloat = volume / 100.0; // Convertir de 0-100 a 0.0-1.0
+      screenManager.musicManager.setVolume(volumeFloat);
+    }
+  }
+  
+  /**
    * Guarda la configuración
    */
   void saveSettings() {
+    println("💾 ProfileScreen: Iniciando guardado de configuración...");
+    println("📝 Datos a guardar - Nombre: '" + playerName + "', Volumen: " + volume + "%");
+    
     // Guardar en DataManager
     screenManager.dataManager.updatePlayerName(playerName);
     screenManager.dataManager.updateVolume(volume);
     
     // Aplicar volumen a la música
-    // TODO: Conectar con MusicManager cuando esté disponible
+    applyVolumeChange();
     
-    println("💾 Configuración guardada exitosamente!");
+    println("✅ ProfileScreen: Configuración guardada exitosamente!");
     
     // Mostrar confirmación visual
     // TODO: Añadir notificación de guardado exitoso

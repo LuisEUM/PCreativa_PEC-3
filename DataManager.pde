@@ -101,8 +101,11 @@ class DataManager {
    */
   void loadConfig() {
     try {
+      println("📂 Cargando configuración desde: " + dataFile);
       String[] lines = loadStrings(dataFile);
       if (lines != null) {
+        println("📄 Archivo encontrado con " + lines.length + " líneas");
+        
         // Parsear el archivo
         for (String line : lines) {
           if (line.trim().length() > 0 && line.contains("=")) {
@@ -110,6 +113,8 @@ class DataManager {
             if (parts.length == 2) {
               String key = parts[0].trim();
               String value = parts[1].trim();
+              
+              println("🔑 Procesando: " + key + " = " + value);
               
               switch (key) {
                 case "player_name":
@@ -131,12 +136,14 @@ class DataManager {
             }
           }
         }
-        println("Configuración cargada desde archivo");
+        println("✅ Configuración cargada desde archivo");
+        println("👤 Nombre: " + userConfig.playerName + ", Volumen: " + userConfig.volume + "%");
       } else {
+        println("⚠️ Archivo no encontrado, usando configuración por defecto");
         setDefaultConfig();
       }
     } catch (Exception e) {
-      println("Error cargando configuración, usando valores por defecto");
+      println("❌ Error cargando configuración, usando valores por defecto: " + e.getMessage());
       setDefaultConfig();
     }
   }
@@ -169,6 +176,8 @@ class DataManager {
    */
   void saveConfig() {
     try {
+      println("💾 Guardando configuración...");
+      
       // Crear contenido del archivo
       String[] lines = {
         "waves_completed=" + (progressManager != null ? (progressManager.areWavesCompleted() ? 1 : 0) : 1),
@@ -181,10 +190,18 @@ class DataManager {
         ""
       };
       
+      println("📄 Contenido a guardar:");
+      for (String line : lines) {
+        if (line.length() > 0) {
+          println("  " + line);
+        }
+      }
+      
       saveStrings(dataFile, lines);
-      println("Configuración guardada en: " + dataFile);
+      println("✅ Configuración guardada exitosamente en: " + dataFile);
     } catch (Exception e) {
-      println("Error guardando configuración: " + e.getMessage());
+      println("❌ Error guardando configuración: " + e.getMessage());
+      e.printStackTrace();
     }
   }
   
@@ -247,6 +264,7 @@ class DataManager {
    * Actualiza el nombre del jugador
    */
   void updatePlayerName(String newName) {
+    println("📝 Actualizando nombre del jugador: " + newName);
     userConfig.playerName = newName;
     saveConfig();
   }
@@ -255,6 +273,7 @@ class DataManager {
    * Actualiza el volumen
    */
   void updateVolume(int newVolume) {
+    println("🔊 Actualizando volumen: " + newVolume);
     userConfig.volume = constrain(newVolume, 0, 100);
     saveConfig();
   }

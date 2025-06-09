@@ -119,6 +119,14 @@ class ScreenManager {
    */
   void setMusicManager(MusicManager musicManager) {
     this.musicManager = musicManager;
+    
+    // Aplicar el volumen guardado al MusicManager
+    if (dataManager != null) {
+      UserConfig config = dataManager.getUserConfig();
+      float volumeFloat = config.volume / 100.0; // Convertir de 0-100 a 0.0-1.0
+      musicManager.setVolume(volumeFloat);
+      println("🔊 Volumen inicial aplicado al MusicManager: " + config.volume + "%");
+    }
   }
   
   /**

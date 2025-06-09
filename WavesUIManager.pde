@@ -43,7 +43,7 @@ class WavesUIManager {
     // Inicializar waves
     this.currentWave = 1;
     this.waveStartTime = millis();
-    this.waveDuration = 12000; // 2 minutos en milisegundos
+    this.waveDuration = 120000; // 2 minutos en milisegundos
     this.waveComplete = false;
     
     // Inicializar recursos limitados (más recursos que en Endless)
@@ -236,9 +236,18 @@ class WavesUIManager {
    * Renderiza los recursos disponibles
    */
   void renderResources() {
-    // Fondo de recursos
+    // Contenedores más pequeños y separados
+    float containerWidth = 85;
+    float containerHeight = 25;
+    float spacing = 5;
+    
+    // Contenedor de comida - más hacia adentro
     applet.fill(backgroundColor);
-    applet.rect(applet.width - 120, 20, 100, 60, 5);
+    applet.rect(applet.width - containerWidth - 15, 20, containerWidth, containerHeight, 5);
+    
+    // Contenedor de rocas - más hacia adentro
+    applet.fill(backgroundColor);
+    applet.rect(applet.width - containerWidth - 15, 20 + containerHeight + spacing, containerWidth, containerHeight, 5);
     
     // Iconos y texto de recursos
     applet.textSize(12);
@@ -246,15 +255,15 @@ class WavesUIManager {
     
     // Comida
     color foodColor = foodCount > 20 ? color(100, 255, 100) : color(255, 100, 100);
-    iconRenderer.drawFoodIcon(applet, applet.width - 110, 35, 16, foodColor);
+    iconRenderer.drawFoodIcon(applet, applet.width - containerWidth , 32, 14, foodColor);
     applet.fill(foodColor);
-    applet.text(foodCount + "/" + maxFood, applet.width - 95, 35);
+    applet.text(foodCount + "/" + maxFood, applet.width - containerWidth + 10, 32);
     
-    // Piedras
-    color rockColor = rockCount > 10 ? color(100, 255, 100) : color(255, 100, 100);
-    iconRenderer.drawRockIcon(applet, applet.width - 110, 55, 16, rockColor);
+    // Piedras - ahora con color gris claro
+    color rockColor = color(180, 180, 180); // Gris claro siempre
+    iconRenderer.drawRockIcon(applet, applet.width - containerWidth, 32 + containerHeight + spacing, 14, rockColor);
     applet.fill(rockColor);
-    applet.text(rockCount + "/" + maxRocks, applet.width - 95, 55);
+    applet.text(rockCount + "/" + maxRocks, applet.width - containerWidth + 10, 32 + containerHeight + spacing);
   }
   
   /**
@@ -263,16 +272,22 @@ class WavesUIManager {
   void renderFishCounter() {
     int currentFishCount = koiManager.getKoiCount();
     
+    // Contenedor más pequeño y más a la derecha
+    float containerWidth = 60;
+    float containerHeight = 25;
+    float containerX = 35; // Movido más hacia adentro
+    
     // Fondo del contador
     applet.fill(backgroundColor);
-    applet.rect(20, 20, 70, 30, 5);
+    applet.rect(containerX, 20, containerWidth, containerHeight, 5);
     
-    // Icono y texto del contador
-    iconRenderer.drawFishIcon(applet, 35, 35, 20, textColor);
+    // Icono y texto del contador - con color rosa de power-ups
+    color pinkColor = color(255, 150, 150); // Color rosa de los power-ups de peces
+    iconRenderer.drawFishIcon(applet, containerX + 17, 32, 16, pinkColor);
     applet.fill(textColor);
-    applet.textSize(14);
+    applet.textSize(12);
     applet.textAlign(applet.LEFT, applet.CENTER);
-    applet.text(currentFishCount, 50, 35);
+    applet.text(currentFishCount, containerX + 30, 32);
   }
   
   /**
