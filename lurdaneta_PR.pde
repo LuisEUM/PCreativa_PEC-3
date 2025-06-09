@@ -1,61 +1,43 @@
 /**
- * Jardín Koi  - Aplicación Principal
- * 
- * Evolución de la simulación original de estanque de koi, ahora convertida en un juego
- * completo con tres modos diferentes: Waves, Endless y Zen.
- * 
+ * Jardín Koi - Videojuego de Supervivencia y Simulación
+ *
+ * Jardín Koi es un videojuego que fusiona la simulación relajante de un estanque de peces koi con mecánicas de supervivencia y gestión de recursos. El jugador debe proteger y alimentar a sus peces koi mientras enfrenta oleadas de depredadores y administra recursos limitados. El juego ofrece tres modos principales:
+ *
  * MODOS DE JUEGO:
- * ---------------
- * 🌊 WAVES MODE: Juego de supervivencia con 5 rondas programadas, recursos limitados
- *    y oleadas de depredadores. Incluye mejoras entre rondas y sistema de puntuación.
- * 
- * ♾️ ENDLESS MODE: Supervivencia infinita con escalada de dificultad cada 30 segundos,
- *    power-ups especiales y estadísticas en tiempo real.
- * 
- * 🧘 ZEN MODE: La simulación original pacífica y relajante para crear koi personalizados
- *    y disfrutar del ecosistema acuático sin presión.
- * 
- * NUEVAS CARACTERÍSTICAS:
- * ----------------------
- * - Sistema de estados centralizado con ScreenManager
- * - Pausa universal con preservación completa del estado  
- * - Menú principal con selección de modo
- * - Transiciones fluidas entre estados
- * - Sistema de puntuación con records por modo
- * - Mecánicas de supervivencia (alimentación competitiva, depredadores)
- * 
- * ARQUITECTURA RENOVADA:
- * ----------------------
- * - ScreenManager: Controla estados y transiciones del juego
- * - GameManager: Gestiona Modo Waves (rondas, oleadas, mejoras)
- * - EndlessManager: Gestiona Modo Endless (escalada, power-ups)
- * - PondManager: Mantiene funcionalidad original para Modo Zen
- * - ScoreManager: Sistema de puntuación y records
- * - UI específica por modo con preservación durante pausa
- * 
+ * - Modo Waves: Supervivencia por rondas con dificultad progresiva, recursos limitados y mejoras entre oleadas.
+ * - Modo Endless: Supervivencia infinita con escalada de dificultad, aparición continua de enemigos y power-ups periódicos.
+ * - Modo Zen: Simulación libre y pacífica, centrada en la personalización y observación de los koi sin amenazas.
+ *
+ * MECÁNICAS PRINCIPALES:
+ * - Crecimiento y personalización de peces koi.
+ * - Sistema de enemigos con diferentes comportamientos (patrullaje, persecución y ataque).
+ * - Gestión de recursos: comida y rocas, obtenidos y consumidos estratégicamente.
+ * - Power-ups que otorgan ventajas temporales o recursos adicionales.
+ * - Sistema de puntuación y estadísticas persistentes.
+ *
+ * ARQUITECTURA DEL SISTEMA:
+ * - ScreenManager: Orquestador central que gestiona los estados del juego (menú, juego, pausa, etc.) y las transiciones entre pantallas. Actúa como el controlador principal de la aplicación.
+ * - WavesManager / EndlessManager: Contienen la lógica específica para los modos de juego de supervivencia. Gestionan las oleadas, la dificultad, la aparición de enemigos, las condiciones de victoria/derrota y los recursos del jugador.
+ * - PondManager: Motor de simulación base para el Modo Zen, que gestiona el comportamiento de los koi, las plantas y el entorno del estanque de forma no combativa. Es la base sobre la que operan los otros modos de juego.
+ * - KoiManager / EnemyManager: Gestionan el ciclo de vida, comportamiento (IA) e interacciones de las entidades amigables (koi) y hostiles (enemigos).
+ * - DataManager / ScoreManager / ProgressManager: Trío de gestores para la persistencia de datos. DataManager guarda y carga el perfil y progreso. ScoreManager rastrea la puntuación en tiempo real. ProgressManager maneja los desbloqueos (como el Modo Endless).
+ * - UIManagers (UIManager, WavesUIManager, EndlessUIManager): Responsables de la interfaz de usuario específica de cada modo, incluyendo HUDs, contadores y alertas visuales.
+ * - Gestores de Recursos (FoodManager, RockManager, PowerUpManager): Administran la creación, uso y comportamiento de los consumibles y power-ups.
+ * - Gestores de Entorno (PlantManager, RippleManager, PetalManager): Se encargan de los elementos visuales y ambientales que dan vida al estanque, como plantas, ondulaciones en el agua y pétalos.
+ * - MusicManager: Controla la banda sonora del juego, gestionando las transiciones de música entre el menú, los diferentes modos de juego y los estados de pausa.
+ *
  * CONTROLES UNIVERSALES:
- * ---------------------
- * - ESPACIO / P / PAUSE: Pausa/Reanudar (disponible en todos los modos)
- * - ESC: Volver al menú principal o salir de pausa
- * - Controles específicos por modo (clic izq/der, teclas especiales)
- * 
- * FLUJO DE APLICACIÓN:
- * -------------------
- * 1. Inicialización: ScreenManager coordina todos los componentes
- * 2. Loop principal: ScreenManager.update() y render() manejan estados
- * 3. Eventos: Todos los inputs se procesan a través de ScreenManager
- * 4. Transiciones: Estados cambian fluidamente preservando contexto
- * 
- * PRESERVACIÓN DEL CÓDIGO ORIGINAL:
- * --------------------------------
- * He mantenido intacta toda la funcionalidad original del estanque en el Modo Zen:
- * - Personalización completa de koi (tamaños, colores, patrones)
- * - Comportamiento realista con evasión de obstáculos  
- * - Elementos decorativos (plantas, pétalos, ondulaciones)
- * - Ciclo día/noche y efectos visuales
- * - Sistema de UI original para creación de koi
- * 
- * CÓDIGO ORIGINAL: 70% (se mantiene base existente + expansión significativa)
+ * - Espacio/P: Pausar o reanudar la partida.
+ * - ESC: Volver al menú principal o salir de pausa.
+ * - M: Silenciar o activar la música.
+ * - Clic izquierdo: Alimentar koi (consume comida).
+ * - Clic derecho: Lanzar rocas (consume rocas, repele o elimina enemigos).
+ *
+ * CRÉDITOS:
+ * - Programación y arte: Luis EUM y colaboradores.
+ * - Música: Assets de música generados por Suno (https://suno.com), utilizados bajo licencia correspondiente.
+ *
+ * Para más detalles, consultar el README incluido en el repositorio.
  */
 
 // GESTORES PRINCIPALES DEL SISTEMA

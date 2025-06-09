@@ -355,3 +355,10 @@ Este proyecto está licenciado bajo la Licencia MIT.
 **Jardín Koi** ofrece una experiencia única que combina acción estratégica con momentos de relajación. Ya sea enfrentando oleadas de enemigos o creando koi hermosos, hay algo para cada tipo de jugador.
 
 ¡Sumérgete en el mundo del Jardín Koi y descubre tu modo favorito! 🐟💙
+
+---
+
+## 🎵 Créditos de Música
+
+La música utilizada en Jardín Koi ha sido generada y licenciada gracias a los assets de Suno (https://suno.com). Agradecemos a Suno por su contribución a la ambientación sonora del juego.
+
