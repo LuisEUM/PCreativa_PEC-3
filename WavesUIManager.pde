@@ -43,7 +43,7 @@ class WavesUIManager {
     // Inicializar waves
     this.currentWave = 1;
     this.waveStartTime = millis();
-    this.waveDuration = 12000; // 2 minutos en milisegundos
+    this.waveDuration = 120000; // 2 minutos en milisegundos
     this.waveComplete = false;
     
     // Inicializar recursos limitados (más recursos que en Endless)
