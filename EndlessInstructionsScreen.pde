@@ -100,13 +100,7 @@ class EndlessInstructionsScreen {
     text("• El tiempo del día cambia cada 2 minutos", 70, startY + line++ * lineHeight);
     line++;
     
-    fill(255, 255, 0);
-    text("PUNTUACIÓN:", 50, startY + line++ * lineHeight);
-    fill(255);
-    text("• +1 punto por segundo sobrevivido", 70, startY + line++ * lineHeight);
-    text("• +50 puntos por enemigo eliminado", 70, startY + line++ * lineHeight);
-    text("• +10 puntos por koi alimentado", 70, startY + line++ * lineHeight);
-    
+
     // Renderizar botones
     playButton.render();
     backButton.render();

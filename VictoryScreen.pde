@@ -93,7 +93,7 @@ class VictoryScreen {
     playAgainButton.setColors(color(33, 150, 243), color(100, 181, 246), color(255));
     
     // Segunda fila: MENU PRINCIPAL y VER DESGLOSE
-    float row2Y = startY + buttonHeight + rowSpacing;
+    float row2Y = startY + buttonHeight + rowSpacing - 30;
     float row2Width = (buttonWidth * 2) + buttonSpacing;
     float row2StartX = (width - row2Width) / 2;
     

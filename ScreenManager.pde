@@ -105,7 +105,7 @@ class ScreenManager {
     this.gameOverScreen = new GameOverScreen(this);
     this.upgradeScreen = new UpgradeScreen(this);
     this.victoryScreen = new VictoryScreen(this);
-    this.scoreBreakdownScreen = new ScoreBreakdownScreen(scoreManager, this);
+    this.scoreBreakdownScreen = new ScoreBreakdownScreen(this);
     this.scoresScreen = new ScoresScreen(this, scoreManager);
     this.profileScreen = new ProfileScreen(this);
     this.wavesInstructionsScreen = new WavesInstructionsScreen(this);
@@ -1051,6 +1051,7 @@ class ScreenManager {
    */
   void showScoreBreakdown() {
     if (scoreBreakdownScreen != null) {
+      scoreBreakdownScreen.show();
       changeState(GameState.SCORE_BREAKDOWN);
     }
   }
