@@ -118,9 +118,22 @@ La simulación original de estanque pacífico. Crea koi personalizados, experime
 
 ### **🏆 Sistema de Puntuación:**
 
-- **+1 punto** por segundo sobrevivido
-- **+50 puntos** por enemigo eliminado
-- **+10 puntos** por koi alimentado
+#### **Puntos por Supervivencia:**
+
+- **+1 punto** por segundo sobrevivido (solo Endless)
+
+#### **Puntos por Koi Alimentados:**
+
+- **Koi Pequeños (≤15px):** +100 puntos por alimentación
+- **Koi Medianos (16-25px):** +200 puntos por alimentación
+- **Koi Grandes (≥26px):** +300 puntos por alimentación
+
+#### **Puntos por Enemigos Eliminados:**
+
+- **Bagres (≤25px):** +150 puntos por eliminación
+- **Carpas (26-35px):** +300 puntos por eliminación
+- **Lucios (36-45px):** +500 puntos por eliminación
+- **Tiburones (≥46px):** +1000 puntos por eliminación
 
 ---
 
@@ -188,11 +201,12 @@ La simulación original de estanque pacífico. Crea koi personalizados, experime
 ### **📊 Pantallas Disponibles:**
 
 - **Menú Principal:** Selección de modo con iconos de trofeos y perfil
-- **Instrucciones:** Guía completa de cada modo
+- **Instrucciones:** Guía completa de cada modo con controles específicos
 - **Perfil:** Edición de nombre y configuración de volumen
-- **Puntuaciones:** Tabla de mejores puntuaciones por modo
+- **Puntuaciones:** Hall de la Fama con tabs para Waves y Endless
 - **Pausa:** Sistema universal con estadísticas en tiempo real
-- **Victoria/Derrota:** Resultados detallados y navegación
+- **Victoria/Derrota:** Resultados detallados con datos reales de la partida
+- **Desglose Detallado:** Análisis completo con tabs para peces y enemigos
 
 ---
 
@@ -294,6 +308,14 @@ PauseScreen.pde        - Sistema de pausa
 - Contadores en tiempo real
 - Alertas visuales para eventos importantes
 
+### **📊 Sistema de Puntuación:**
+
+- **Tracking en Tiempo Real:** Todos los datos se registran automáticamente
+- **Peces Salvados:** Conteo por cada koi alimentado, categorizado por tamaño
+- **Enemigos Vencidos:** Registro detallado por tipo (Bagres, Carpas, Lucios, Tiburones)
+- **Pantalla de Desglose:** Análisis completo con tabs separadas para peces y enemigos
+- **Datos Persistentes:** Puntuaciones guardadas en Hall de la Fama
+
 ---
 
 ## ✅ **ESTADO ACTUAL DEL PROYECTO**
@@ -302,12 +324,14 @@ PauseScreen.pde        - Sistema de pausa
 
 - [x] Sistema de tres modos de juego completamente funcionales
 - [x] Mecánicas de supervivencia balanceadas
-- [x] Sistema de puntuación y persistencia de datos
-- [x] Interfaz de usuario completa y navegable
+- [x] Sistema de puntuación con datos reales en tiempo real
+- [x] Interfaz de usuario completa y navegable con system de tabs
 - [x] Sistema de música integrado
 - [x] Personalización de koi en modo Zen
 - [x] Escalada de dificultad en modo Endless
 - [x] Sistema de oleadas en modo Waves
+- [x] Pantalla de desglose detallado con estadísticas reales
+- [x] Hall de la Fama con puntuaciones persistentes
 
 ### **🎯 Experiencia de Usuario:**
 

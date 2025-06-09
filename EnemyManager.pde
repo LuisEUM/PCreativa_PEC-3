@@ -384,7 +384,7 @@ class EnemyManager {
   /**
    * Verifica colisiones con rocas lanzadas y notifica al UI Manager
    */
-  void checkRockCollisions(float rockX, float rockY, float rockRadius, Object uiManager) {
+  void checkRockCollisions(float rockX, float rockY, float rockRadius, Object uiManager, ScoreManager scoreManager) {
     for (int i = enemies.size() - 1; i >= 0; i--) {
       Enemy enemy = enemies.get(i);
       
@@ -397,6 +397,12 @@ class EnemyManager {
         boolean died = enemy.takeDamage(1);
         
         if (died) {
+          // Registrar en el ScoreManager según el tipo de enemigo
+          if (scoreManager != null) {
+            String enemyType = getEnemyTypeString(enemy);
+            scoreManager.addEnemyScore(enemyType);
+          }
+          
           // Notificar al UI Manager correspondiente
           if (uiManager instanceof WavesUIManager) {
             // WavesUIManager no tiene método killEnemy, pero se puede añadir
@@ -410,6 +416,22 @@ class EnemyManager {
           }
         }
       }
+    }
+  }
+  
+  /**
+   * Obtiene el tipo de enemigo como string basado en su tamaño
+   */
+  String getEnemyTypeString(Enemy enemy) {
+    // Determinar tipo basado en el tamaño del enemigo
+    if (enemy.size <= 25) {
+      return "SMALL_CATFISH"; // Bagre
+    } else if (enemy.size <= 35) {
+      return "MEDIUM_CARP"; // Carpa
+    } else if (enemy.size <= 45) {
+      return "LARGE_PIKE"; // Lucio
+    } else {
+      return "SHARK"; // Tiburón
     }
   }
   

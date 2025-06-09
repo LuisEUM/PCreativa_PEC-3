@@ -39,8 +39,11 @@ class WavesManager {
    * 
    * @param sketch Referencia al PApplet principal
    */
-  WavesManager(PApplet sketch) {
+  ScoreManager scoreManager;
+  
+  WavesManager(PApplet sketch, ScoreManager scoreManager) {
     this.sketch = sketch;
+    this.scoreManager = scoreManager;
     
     // Inicializa gestores
     rippleManager = new RippleManager();
@@ -67,6 +70,7 @@ class WavesManager {
     // Inicializa el gestor de UI para Waves
     uiManager = new WavesUIManager(sketch, koiManager);
     koiManager.setUIManager(uiManager); // Establece la referencia al UIManager
+    koiManager.setScoreManager(scoreManager); // Establece la referencia al ScoreManager
     
     // Inicializa el gestor de power-ups
     powerUpManager = new PowerUpManager(sketch.width, sketch.height, rockManager.getRocks());
@@ -220,7 +224,7 @@ class WavesManager {
         enemyManager.repelFromPoint(x, y, 200);
         
         // Verificar colisiones directas con enemigos
-        enemyManager.checkRockCollisions(x, y, 15.0f, uiManager);
+        enemyManager.checkRockCollisions(x, y, 15.0f, uiManager, scoreManager);
       }
     }
   }

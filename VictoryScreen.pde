@@ -268,9 +268,19 @@ class VictoryScreen {
       // Estadísticas para modo Waves
       text("Oleadas Supervividas: 5/5", width/2, panelY + 240);
       
-      // Obtener datos reales del gameplay
-      int koiSaved = screenManager.dataManager.getCurrentKoiCount(screenManager.wavesManager);
-      int enemiesDefeated = screenManager.dataManager.getCurrentEnemiesDefeated(screenManager.wavesManager);
+      // Obtener datos reales del ScoreManager
+      ScoreManager currentScoreManager = screenManager.getScoreManager();
+      int koiSaved = 0;
+      int enemiesDefeated = 0;
+      
+      if (currentScoreManager != null) {
+        koiSaved = currentScoreManager.totalKoiCollected;
+        enemiesDefeated = currentScoreManager.totalEnemiesDefeated;
+      } else {
+        // Fallback a los datos del manager si no hay ScoreManager
+        koiSaved = screenManager.dataManager.getCurrentKoiCount(screenManager.wavesManager);
+        enemiesDefeated = screenManager.dataManager.getCurrentEnemiesDefeated(screenManager.wavesManager);
+      }
       
       text("Peces Salvados: " + koiSaved, width/2, panelY + 260);
       text("Enemigos Vencidos: " + enemiesDefeated, width/2, panelY + 280);

@@ -41,8 +41,11 @@ class EndlessManager {
    * 
    * @param sketch Referencia al PApplet principal
    */
-  EndlessManager(PApplet sketch) {
+  ScoreManager scoreManager;
+  
+  EndlessManager(PApplet sketch, ScoreManager scoreManager) {
     this.sketch = sketch;
+    this.scoreManager = scoreManager;
     
     // Inicializar tiempo del día
     this.timeOfDayStartTime = millis();
@@ -72,6 +75,7 @@ class EndlessManager {
     // Inicializa el gestor de UI para Endless
     uiManager = new EndlessUIManager(sketch, koiManager);
     koiManager.setUIManager(uiManager); // Establece la referencia al UIManager
+    koiManager.setScoreManager(scoreManager); // Establece la referencia al ScoreManager
     
     // Inicializa el gestor de power-ups
     powerUpManager = new PowerUpManager(sketch.width, sketch.height, rockManager.getRocks());
@@ -229,7 +233,7 @@ class EndlessManager {
         enemyManager.repelFromPoint(x, y, 200);
         
         // Verificar colisiones directas con enemigos
-        enemyManager.checkRockCollisions(x, y, 15.0f, uiManager);
+        enemyManager.checkRockCollisions(x, y, 15.0f, uiManager, scoreManager);
       }
     }
   }

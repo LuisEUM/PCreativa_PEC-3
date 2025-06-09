@@ -689,7 +689,7 @@ class ScreenManager {
     // Solo crear un nuevo WavesManager si no existe (para restart limpio)
     // Si ya existe, mantener el progreso actual
     if (wavesManager == null) {
-      wavesManager = new WavesManager(app);
+      wavesManager = new WavesManager(app, scoreManager);
       println("🌊 Inicializando Modo Waves (nuevo manager)...");
     } else {
       println("🔄 Reanudando Modo Waves (manteniendo progreso)...");
@@ -703,7 +703,7 @@ class ScreenManager {
     // Solo crear un nuevo EndlessManager si no existe (para restart limpio)
     // Si ya existe, mantener el progreso actual
     if (endlessManager == null) {
-      endlessManager = new EndlessManager(app);
+      endlessManager = new EndlessManager(app, scoreManager);
       println("♾️ Inicializando Modo Endless (nuevo manager)...");
       
       // Reiniciar la alerta de enemigos para nuevo juego
@@ -931,6 +931,8 @@ class ScreenManager {
   void startWavesGame() {
     // Resetear el manager para empezar un juego completamente nuevo
     wavesManager = null;
+    // Resetear también el ScoreManager para una nueva partida
+    scoreManager.reset();
     changeState(GameState.WAVES_ACTIVE);
   }
   
@@ -948,6 +950,8 @@ class ScreenManager {
   void startEndlessGame() {
     // Resetear el manager para empezar un juego completamente nuevo
     endlessManager = null;
+    // Resetear también el ScoreManager para una nueva partida
+    scoreManager.reset();
     changeState(GameState.ENDLESS_ACTIVE);
   }
   
@@ -1041,7 +1045,7 @@ class ScreenManager {
    */
   void showVictoryScreen() {
     if (victoryScreen != null) {
-      victoryScreen.show();
+      victoryScreen.show(scoreManager, "waves");
       changeState(GameState.VICTORY);
     }
   }

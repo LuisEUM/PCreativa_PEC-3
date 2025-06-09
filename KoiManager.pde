@@ -16,6 +16,7 @@ class KoiManager {
   boolean isEmptyingPond = false; // Indica si se está vaciando el estanque
   
   Object uiManager; // Cambiado para soportar ambos tipos de UI Manager
+  ScoreManager scoreManager; // Referencia al ScoreManager para tracking
   
   /**
    * Constructor
@@ -572,6 +573,11 @@ class KoiManager {
         food.consume();
         closestKoi.eatFood(); // ¡El koi crece!
         
+        // Registrar en ScoreManager si está disponible
+        if (scoreManager != null) {
+          scoreManager.addKoiScore(closestKoi.getCurrentAnimatedLength());
+        }
+        
         // El koi deja de buscar comida ya que acaba de comer
         closestKoi.seekingFood = false;
         closestKoi.targetFood = null;
@@ -742,5 +748,12 @@ class KoiManager {
    */
   Object getUIManager() {
     return this.uiManager;
+  }
+  
+  /**
+   * Establece el ScoreManager
+   */
+  void setScoreManager(ScoreManager scoreManager) {
+    this.scoreManager = scoreManager;
   }
 }
