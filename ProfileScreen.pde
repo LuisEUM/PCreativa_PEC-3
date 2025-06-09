@@ -1,7 +1,7 @@
 /**
  * Jardín Koi - ProfileScreen
  * 
- * Pantalla de perfil de usuario que permite:
+ * Pantalla de perfil de usuario que he implementado para permitir:
  * - Cambiar el nombre del jugador
  * - Ajustar el volumen de la música
  * - Ver estadísticas básicas del jugador
@@ -53,12 +53,24 @@ class ProfileScreen {
     saveButton = new Button(width - 170, height - 70, 120, 40, "GUARDAR");
     saveButton.setColors(color(60, 150, 100), color(80, 170, 120), color(255));
     
-    // Botones de volumen
-    float volumeY = 320;
-    volumeDownButton = new Button(width/2 - 100, volumeY, 40, 40, "-");
+    // Los botones de volumen se configuran dinámicamente en setupVolumeButtons()
+  }
+  
+  /**
+   * Configura los botones de volumen basados en el layout actual
+   */
+  void setupVolumeButtons() {
+    // Calcular posición basada en el panel y el área de volumen
+    float panelX = 50;
+    float panelY = 130;
+    float marginX = panelX + 30;
+    float volumeY = panelY + 220 + 25; // Posición del área de volumen + offset de la barra
+    
+    // Botones de volumen posicionados correctamente
+    volumeDownButton = new Button(marginX, volumeY + 10, 40, 40, "-");
     volumeDownButton.setColors(color(150, 80, 80), color(170, 100, 100), color(255));
     
-    volumeUpButton = new Button(width/2 + 60, volumeY, 40, 40, "+");
+    volumeUpButton = new Button(marginX + 260, volumeY + 10, 40, 40, "+");
     volumeUpButton.setColors(color(80, 150, 80), color(100, 170, 100), color(255));
   }
   
@@ -76,6 +88,9 @@ class ProfileScreen {
     
     tempPlayerName = playerName; // Resetear nombre temporal
     editingName = false;
+    
+    // Configurar botones de volumen después de mostrar
+    setupVolumeButtons();
   }
   
   /**
@@ -90,8 +105,8 @@ class ProfileScreen {
     if (isFullyVisible()) {
       backButton.update(mouseX, mouseY);
       saveButton.update(mouseX, mouseY);
-      volumeDownButton.update(mouseX, mouseY);
-      volumeUpButton.update(mouseX, mouseY);
+      if (volumeDownButton != null) volumeDownButton.update(mouseX, mouseY);
+      if (volumeUpButton != null) volumeUpButton.update(mouseX, mouseY);
     }
   }
   
@@ -114,8 +129,8 @@ class ProfileScreen {
     if (isFullyVisible()) {
       backButton.render();
       saveButton.render();
-      volumeDownButton.render();
-      volumeUpButton.render();
+      if (volumeDownButton != null) volumeDownButton.render();
+      if (volumeUpButton != null) volumeUpButton.render();
     }
   }
   
@@ -165,7 +180,7 @@ class ProfileScreen {
     renderVolumeSettings(marginX, panelY + 220);
     
     // Estadísticas básicas
-    renderBasicStats(marginX, panelY + 290);
+    renderBasicStats(marginX, panelY + 330);
   }
   
   /**
@@ -228,7 +243,7 @@ class ProfileScreen {
     textAlign(LEFT);
     textSize(18);
     fill(red(accentColor), green(accentColor), blue(accentColor), fadeAlpha);
-    text("NOMBRE DE JUGADOR", x, y);
+    text("NOMBRE DE JUGADOR", x, y + 10);
     
     // Campo de texto para el nombre
     float fieldWidth = 200;
@@ -275,32 +290,32 @@ class ProfileScreen {
     textAlign(LEFT);
     textSize(18);
     fill(red(accentColor), green(accentColor), blue(accentColor), fadeAlpha);
-    text("VOLUMEN DE MUSICA", x, y);
+    text("VOLUMEN DE MUSICA", x, y + 25);
     
     // Barra de volumen
     float barWidth = 200;
     float barHeight = 20;
-    float barY = y + 25;
+    float barY = y + 55;
     
     // Fondo de la barra
     fill(60, 60, 80, fadeAlpha * 0.7);
     stroke(120, 120, 140, fadeAlpha * 0.5);
     strokeWeight(1);
-    rect(x + 50, barY, barWidth, barHeight, 10);
+    rect(x + 50, barY - 10, barWidth, barHeight, 10);
     
     // Barra de progreso
     float progressWidth = map(volume, 0, 100, 0, barWidth);
     fill(red(accentColor), green(accentColor), blue(accentColor), fadeAlpha * 0.8);
     noStroke();
-    rect(x + 50, barY, progressWidth, barHeight, 10);
+    rect(x + 50, barY -10, progressWidth, barHeight, 10);
     
-    // Texto del volumen
+    // Texto del volumen centrado en la barra
     textAlign(CENTER);
     textSize(14);
     fill(red(textColor), green(textColor), blue(textColor), fadeAlpha);
-    text(volume + "%", x + 150, barY + 15);
+    text(volume + "%", x + 150, barY + 5);
     
-    // Los botones se renderizan automáticamente
+    // Los botones se renderizan automáticamente en render()
   }
   
   /**
@@ -332,11 +347,11 @@ class ProfileScreen {
     } else if (saveButton.isClicked(mouseX, mouseY)) {
       saveSettings();
       
-    } else if (volumeDownButton.isClicked(mouseX, mouseY)) {
+    } else if (volumeDownButton != null && volumeDownButton.isClicked(mouseX, mouseY)) {
       volume = max(0, volume - 10);
       println("Volumen bajado a: " + volume + "%");
       
-    } else if (volumeUpButton.isClicked(mouseX, mouseY)) {
+    } else if (volumeUpButton != null && volumeUpButton.isClicked(mouseX, mouseY)) {
       volume = min(100, volume + 10);
       println("Volumen subido a: " + volume + "%");
       

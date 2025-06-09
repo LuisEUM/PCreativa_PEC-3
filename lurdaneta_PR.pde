@@ -48,7 +48,7 @@
  * 
  * PRESERVACIÓN DEL CÓDIGO ORIGINAL:
  * --------------------------------
- * El Modo Zen mantiene intacta toda la funcionalidad original del estanque:
+ * He mantenido intacta toda la funcionalidad original del estanque en el Modo Zen:
  * - Personalización completa de koi (tamaños, colores, patrones)
  * - Comportamiento realista con evasión de obstáculos  
  * - Elementos decorativos (plantas, pétalos, ondulaciones)
@@ -65,7 +65,7 @@ MusicManager musicManager;
 /**
  * Función de configuración - Inicialización del sistema completo
  * 
- * Configura el lienzo y inicializa el ScreenManager que coordinará
+ * Configuro el lienzo e inicializo el ScreenManager que coordinará
  * todos los modos de juego y estados de la aplicación.
  */
 void setup() {
@@ -95,7 +95,7 @@ void setup() {
 /**
  * Función de dibujo principal - Loop de renderizado
  * 
- * Delega toda la lógica de actualización y renderizado al ScreenManager,
+ * Delego toda la lógica de actualización y renderizado al ScreenManager,
  * que se encarga de manejar el estado actual y coordinar los diferentes
  * modos de juego según corresponda.
  */

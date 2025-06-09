@@ -1,7 +1,7 @@
 /**
  * Clase WavesUIManager
  * 
- * Gestiona la interfaz de usuario para el Modo Waves.
+ * He implementado la interfaz de usuario para el Modo Waves.
  * Sistema de 5 waves con timer hacia atrás y recursos limitados.
  */
 class WavesUIManager {

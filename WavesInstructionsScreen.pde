@@ -25,7 +25,7 @@ class WavesInstructionsScreen {
     float buttonHeight = 40;
     
     // Botón Play centrado en la parte inferior
-    playButton = new Button(width/2 - buttonWidth/2, height - 160, buttonWidth, buttonHeight, "JUGAR");
+    playButton = new Button(width - buttonWidth - 30, height - 60, buttonWidth, buttonHeight, "JUGAR");
     playButton.setColors(color(76, 175, 80), color(129, 199, 132), color(255));
     
     // Botón Back en la esquina inferior izquierda
@@ -71,23 +71,34 @@ class WavesInstructionsScreen {
     fill(255);
     text("• Sobrevive las 5 oleadas de 2 minutos cada una", 70, startY + line++ * lineHeight);
     text("• Mantén vivos a tus koi y hazlos crecer", 70, startY + line++ * lineHeight);
+    text("• Cada oleada tiene más enemigos y tipos más peligrosos", 70, startY + line++ * lineHeight);
     line++;
     
     fill(255, 255, 0);
     text("CONTROLES:", 50, startY + line++ * lineHeight);
     fill(255);
-    text("• CLIC IZQUIERDO: Alimentar koi (recursos limitados)", 70, startY + line++ * lineHeight);
-    text("• CLIC DERECHO: Lanzar rocas contra enemigos", 70, startY + line++ * lineHeight);
+    text("• CLIC IZQUIERDO: Alimentar koi (consume comida)", 70, startY + line++ * lineHeight);
+    text("• CLIC DERECHO: Lanzar rocas contra enemigos (consume rocas)", 70, startY + line++ * lineHeight);
     text("• ESPACIO: Pausar/Reanudar", 70, startY + line++ * lineHeight);
     line++;
     
     fill(255, 255, 0);
-    text("MECÁNICAS:", 50, startY + line++ * lineHeight);
+    text("MECÁNICAS DE RECURSOS:", 50, startY + line++ * lineHeight);
     fill(255);
-    text("• Los koi crecen cada 10 comidas consumidas", 70, startY + line++ * lineHeight);
-    text("• Los enemigos reducen el nivel de los koi al atacar", 70, startY + line++ * lineHeight);
-    text("• Power-ups aparecen cada 20 segundos", 70, startY + line++ * lineHeight);
-    text("• Recursos se regeneran solo con power-ups", 70, startY + line++ * lineHeight);
+    text("• Recursos limitados: 100 comida y 100 rocas iniciales", 70, startY + line++ * lineHeight);
+    text("• Los recursos NO se regeneran automáticamente", 70, startY + line++ * lineHeight);
+    text("• Solo se reponen algunos recursos entre oleadas", 70, startY + line++ * lineHeight);
+    text("• Power-ups en burbujas aparecen cada 10 segundos", 70, startY + line++ * lineHeight);
+    line++;
+    
+    fill(255, 255, 0);
+    text("SISTEMA DE OLEADAS:", 50, startY + line++ * lineHeight);
+    fill(255);
+    text("• Wave 1 (DÍA): Enemigos básicos", 70, startY + line++ * lineHeight);
+    text("• Wave 2 (ATARDECER): Más variedad de enemigos", 70, startY + line++ * lineHeight);
+    text("• Wave 3 (NOCHE): Enemigos grandes aparecen", 70, startY + line++ * lineHeight);
+    text("• Wave 4 (AMANECER): Invasión masiva", 70, startY + line++ * lineHeight);
+    text("• Wave 5 (DÍA): Supervivencia final", 70, startY + line++ * lineHeight);
     
     // Renderizar botones
     playButton.render();

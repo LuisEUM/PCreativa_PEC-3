@@ -25,7 +25,7 @@ class EndlessInstructionsScreen {
     float buttonHeight = 40;
     
     // Botón Play centrado en la parte inferior
-    playButton = new Button(width/2 - buttonWidth/2, height - 130, buttonWidth, buttonHeight, "JUGAR");
+    playButton = new Button(width - buttonWidth - 30, height - 60, buttonWidth, buttonHeight, "JUGAR");
     playButton.setColors(color(76, 175, 80), color(129, 199, 132), color(255));
     
     // Botón Back en la esquina inferior izquierda
@@ -71,22 +71,33 @@ class EndlessInstructionsScreen {
     fill(255);
     text("• Sobrevive el mayor tiempo posible", 70, startY + line++ * lineHeight);
     text("• Obtén la puntuación más alta", 70, startY + line++ * lineHeight);
+    text("• Enfrenta oleadas infinitas de enemigos", 70, startY + line++ * lineHeight);
     line++;
     
     fill(255, 255, 0);
     text("CONTROLES:", 50, startY + line++ * lineHeight);
     fill(255);
-    text("• CLIC IZQUIERDO: Alimentar koi (recursos limitados)", 70, startY + line++ * lineHeight);
-    text("• CLIC DERECHO: Lanzar rocas contra depredadores", 70, startY + line++ * lineHeight);
+    text("• CLIC IZQUIERDO: Alimentar koi (consume comida)", 70, startY + line++ * lineHeight);
+    text("• CLIC DERECHO: Lanzar rocas contra enemigos (consume rocas)", 70, startY + line++ * lineHeight);
     text("• ESPACIO: Pausar/Reanudar", 70, startY + line++ * lineHeight);
+    line++;
+    
+    fill(255, 255, 0);
+    text("MECÁNICAS DE RECURSOS:", 50, startY + line++ * lineHeight);
+    fill(255);
+    text("• Recursos limitados: 50 comida y 50 rocas iniciales", 70, startY + line++ * lineHeight);
+    text("• Los recursos NO se regeneran automáticamente", 70, startY + line++ * lineHeight);
+    text("• Power-ups en burbujas aparecen cada 10 segundos", 70, startY + line++ * lineHeight);
+    text("• Gestiona sabiamente tus recursos para sobrevivir", 70, startY + line++ * lineHeight);
     line++;
     
     fill(255, 255, 0);
     text("DIFICULTAD ESCALADA:", 50, startY + line++ * lineHeight);
     fill(255);
     text("• La dificultad aumenta cada 30 segundos", 70, startY + line++ * lineHeight);
-    text("• Más enemigos y tipos más peligrosos", 70, startY + line++ * lineHeight);
-    text("• Intervalo de spawn se reduce gradualmente", 70, startY + line++ * lineHeight);
+    text("• Más enemigos aparecen simultáneamente", 70, startY + line++ * lineHeight);
+    text("• Tipos más peligrosos se desbloquean progresivamente", 70, startY + line++ * lineHeight);
+    text("• El tiempo del día cambia cada 2 minutos", 70, startY + line++ * lineHeight);
     line++;
     
     fill(255, 255, 0);

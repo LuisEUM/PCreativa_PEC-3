@@ -2,6 +2,7 @@
  * Jardín Koi  - InstructionsScreen
  * 
  * Pantalla de instrucciones que explica los controles y mecánicas del juego.
+ * Proporciona información sobre los tres modos disponibles y controles universales.
  * 
  * PLACEHOLDER: Esta es una implementación temporal para evitar errores de compilación.
  * Será expandida completamente en la Fase 5 del desarrollo.
@@ -16,6 +17,13 @@
 class InstructionsScreen {
   ScreenManager screenManager;
   Button backButton;
+  
+  // Variables visuales
+  color backgroundColor = color(20, 30, 40);
+  color titleColor = color(100, 200, 255);
+  color sectionColor = color(255, 215, 0);
+  color textColor = color(255, 255, 255);
+  color accentColor = color(100, 255, 100);
   
   /**
    * Constructor
@@ -34,11 +42,11 @@ class InstructionsScreen {
     float buttonHeight = 40;
     
     backButton = new Button(
-      width/2 - buttonWidth/2,
-      height - 80,
+      width - buttonWidth - 30,
+      height - 60,
       buttonWidth,
       buttonHeight,
-      "🔙 Back to Menu"
+      "VOLVER"
     );
     
     // Personalizar colores del botón
@@ -58,20 +66,142 @@ class InstructionsScreen {
    * Renderiza la pantalla de instrucciones
    */
   void render() {
-    background(30, 30, 40);
+    background(backgroundColor);
     
-    // Título
-    fill(255);
-    textAlign(CENTER);
-    textSize(32);
-    text("📋 INSTRUCTIONS", width/2, 80);
+    // Título principal
+    renderTitle();
     
-    // Contenido temporal
-    textSize(16);
-    text("Instructions screen coming in Phase 5!", width/2, height/2);
+    // Contenido principal
+    renderContent();
     
     // Renderizar botón de regreso
     renderButton(backButton);
+  }
+  
+  /**
+   * Renderiza el título
+   */
+  void renderTitle() {
+    fill(titleColor);
+    textAlign(CENTER);
+    textSize(32);
+    text("INSTRUCCIONES", width/2, 50);
+    
+    textSize(14);
+    fill(textColor, 200);
+    text("Guía completa para dominar el Jardín Koi", width/2, 75);
+  }
+  
+  /**
+   * Renderiza el contenido de las instrucciones
+   */
+  void renderContent() {
+    float startY = 100;
+    float lineHeight = 16;
+    float sectionSpacing = 25;
+    int line = 0;
+    
+    textAlign(LEFT);
+    
+    // MODOS DE JUEGO
+    textSize(16);
+    fill(sectionColor);
+    text("MODOS DE JUEGO:", 40, startY + line * lineHeight);
+    line += 2;
+    
+    textSize(12);
+    fill(accentColor);
+    text("• MODO WAVES:", 60, startY + line * lineHeight);
+    fill(textColor);
+    text("Sobrevive 5 oleadas de enemigos con recursos limitados", 160, startY + line * lineHeight);
+    line++;
+    
+    fill(accentColor);
+    text("• MODO ENDLESS:", 60, startY + line * lineHeight);
+    fill(textColor);
+    text("Supervivencia infinita con dificultad creciente", 160, startY + line * lineHeight);
+    line++;
+    
+    fill(accentColor);
+    text("• MODO ZEN:", 60, startY + line * lineHeight);
+    fill(textColor);
+    text("Simulación pacífica para crear y personalizar koi", 160, startY + line * lineHeight);
+    line += 2;
+    
+    // CONTROLES UNIVERSALES
+    textSize(16);
+    fill(sectionColor);
+    text("⌨CONTROLES UNIVERSALES:", 40, startY + line * lineHeight);
+    line += 2;
+    
+    textSize(12);
+    fill(accentColor);
+    text("• ESPACIO / P:", 60, startY + line * lineHeight);
+    fill(textColor);
+    text("Pausar/Reanudar juego", 160, startY + line * lineHeight);
+    line++;
+    
+    fill(accentColor);
+    text("• ESC:", 60, startY + line * lineHeight);
+    fill(textColor);
+    text("Volver al menú principal", 160, startY + line * lineHeight);
+    line++;
+    
+    fill(accentColor);
+    text("• M:", 60, startY + line * lineHeight);
+    fill(textColor);
+    text("Silenciar/Activar música", 160, startY + line * lineHeight);
+    line += 2;
+    
+    // CONTROLES DE GAMEPLAY
+    textSize(16);
+    fill(sectionColor);
+    text("CONTROLES DE GAMEPLAY:", 40, startY + line * lineHeight);
+    line += 2;
+    
+    textSize(12);
+    fill(accentColor);
+    text("• CLIC IZQUIERDO:", 60, startY + line * lineHeight);
+    fill(textColor);
+    text("Alimentar koi (atrae a los peces)", 180, startY + line * lineHeight);
+    line++;
+    
+    fill(accentColor);
+    text("• CLIC DERECHO:", 60, startY + line * lineHeight);
+    fill(textColor);
+    text("Lanzar rocas (repele peces y daña enemigos)", 180, startY + line * lineHeight);
+    line += 2;
+    
+    // MECÁNICAS BÁSICAS
+    textSize(16);
+    fill(sectionColor);
+    text("MECÁNICAS BÁSICAS:", 40, startY + line * lineHeight);
+    line += 2;
+    
+    textSize(12);
+    fill(textColor);
+    text("• Los koi crecen cada 10 comidas consumidas", 60, startY + line * lineHeight);
+    line++;
+    text("• Los enemigos reducen el nivel de los koi al atacar", 60, startY + line * lineHeight);
+    line++;
+    text("• Los recursos son limitados (comida y rocas)", 60, startY + line * lineHeight);
+    line++;
+    text("• Los power-ups aparecen periódicamente en burbujas", 60, startY + line * lineHeight);
+    line += 2;
+    
+    // NIVELES DE KOI
+    textSize(16);
+    fill(sectionColor);
+    text("NIVELES DE KOI:", 40, startY + line * lineHeight);
+    line += 2;
+    
+    textSize(12);
+    fill(textColor);
+    text("XS (10px) → S (15px) → M (20px) → L (28px) → XL (35px)", 60, startY + line * lineHeight);
+    line++;
+    text("Los koi más grandes son más resistentes a los enemigos", 60, startY + line * lineHeight);
+    line += 2;
+    
   }
   
   /**

@@ -1,8 +1,8 @@
 /**
  * Clase EnemyManager
  * 
- * Gestiona todos los enemigos en el juego.
- * Maneja spawn, comportamiento y escalada de dificultad.
+ * He implementado la gestión de todos los enemigos en el juego.
+ * Manejo spawn, comportamiento y escalada de dificultad.
  */
 class EnemyManager {
   ArrayList<Enemy> enemies;

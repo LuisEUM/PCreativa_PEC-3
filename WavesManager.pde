@@ -1,9 +1,9 @@
 /**
  * Clase WavesManager
  * 
- * Gestor principal que coordina todos los elementos del estanque de koi para el Modo Waves.
- * Es una copia exacta del PondManager pero sin el botón de crear peces koi.
- * Implementa el patrón Facade para proporcionar una interfaz simplificada
+ * Gestor principal que coordino para todos los elementos del estanque de koi en el Modo Waves.
+ * He creado una copia del PondManager pero sin el botón de crear peces koi.
+ * Implemento el patrón Facade para proporcionar una interfaz simplificada
  * al subsistema complejo de gestores y renderizadores.
  */
 class WavesManager {

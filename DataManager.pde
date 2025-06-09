@@ -71,29 +71,29 @@ class DataManager {
   void loadDefaultScores() {
     // Scores de Waves por defecto
     wavesScores.clear();
-    wavesScores.add(new ScoreEntry("LuisEUM", 15750, 5, "2024-01-15", "waves"));
-    wavesScores.add(new ScoreEntry("KoiMaster", 14200, 5, "2024-01-14", "waves"));
-    wavesScores.add(new ScoreEntry("WaveRider", 13800, 5, "2024-01-13", "waves"));
-    wavesScores.add(new ScoreEntry("AquaGuard", 12900, 4, "2024-01-12", "waves"));
-    wavesScores.add(new ScoreEntry("PondHero", 11500, 4, "2024-01-11", "waves"));
-    wavesScores.add(new ScoreEntry("FishSaver", 10800, 4, "2024-01-10", "waves"));
-    wavesScores.add(new ScoreEntry("KoiLord", 9750, 3, "2024-01-09", "waves"));
-    wavesScores.add(new ScoreEntry("WaterWise", 8900, 3, "2024-01-08", "waves"));
-    wavesScores.add(new ScoreEntry("StreamKing", 7600, 3, "2024-01-07", "waves"));
-    wavesScores.add(new ScoreEntry("TideWalker", 6800, 2, "2024-01-06", "waves"));
+    wavesScores.add(new ScoreEntry("LuisEUM", 15750, 5, "2025-01-15", "waves"));
+    wavesScores.add(new ScoreEntry("KoiMaster", 14200, 5, "2025-01-14", "waves"));
+    wavesScores.add(new ScoreEntry("WaveRider", 13800, 5, "2025-01-13", "waves"));
+    wavesScores.add(new ScoreEntry("AquaGuard", 12900, 4, "2025-01-12", "waves"));
+    wavesScores.add(new ScoreEntry("PondHero", 11500, 4, "2025-01-11", "waves"));
+    wavesScores.add(new ScoreEntry("FishSaver", 10800, 4, "2025-01-10", "waves"));
+    wavesScores.add(new ScoreEntry("KoiLord", 9750, 3, "2025-01-09", "waves"));
+    wavesScores.add(new ScoreEntry("WaterWise", 8900, 3, "2025-01-08", "waves"));
+    wavesScores.add(new ScoreEntry("StreamKing", 7600, 3, "2025-01-07", "waves"));
+    wavesScores.add(new ScoreEntry("TideWalker", 6800, 2, "2025-01-06", "waves"));
     
     // Scores de Endless por defecto
     endlessScores.clear();
-    endlessScores.add(new ScoreEntry("LuisEUM", 28500, 942, "2024-01-15", "endless")); // 942 segundos = 15:42
-    endlessScores.add(new ScoreEntry("EndlessOne", 25200, 868, "2024-01-14", "endless")); // 14:28
-    endlessScores.add(new ScoreEntry("Survivor", 22800, 795, "2024-01-13", "endless")); // 13:15
-    endlessScores.add(new ScoreEntry("TimeLord", 19900, 723, "2024-01-12", "endless")); // 12:03
-    endlessScores.add(new ScoreEntry("Eternal", 17500, 645, "2024-01-11", "endless")); // 10:45
-    endlessScores.add(new ScoreEntry("Infinite", 15800, 572, "2024-01-10", "endless")); // 09:32
-    endlessScores.add(new ScoreEntry("Forever", 13750, 498, "2024-01-09", "endless")); // 08:18
-    endlessScores.add(new ScoreEntry("Lasting", 11900, 425, "2024-01-08", "endless")); // 07:05
-    endlessScores.add(new ScoreEntry("Enduring", 9600, 352, "2024-01-07", "endless")); // 05:52
-    endlessScores.add(new ScoreEntry("Persistent", 7800, 279, "2024-01-06", "endless")); // 04:39
+    endlessScores.add(new ScoreEntry("LuisEUM", 28500, 942, "2025-01-15", "endless")); // 942 segundos = 15:42
+    endlessScores.add(new ScoreEntry("EndlessOne", 25200, 868, "2025-01-14", "endless")); // 14:28
+    endlessScores.add(new ScoreEntry("Survivor", 22800, 795, "2025-01-13", "endless")); // 13:15
+    endlessScores.add(new ScoreEntry("TimeLord", 19900, 723, "2025-01-12", "endless")); // 12:03
+    endlessScores.add(new ScoreEntry("Eternal", 17500, 645, "2025-01-11", "endless")); // 10:45
+    endlessScores.add(new ScoreEntry("Infinite", 15800, 572, "2025-01-10", "endless")); // 09:32
+    endlessScores.add(new ScoreEntry("Forever", 13750, 498, "2025-01-09", "endless")); // 08:18
+    endlessScores.add(new ScoreEntry("Lasting", 11900, 425, "2025-01-08", "endless")); // 07:05
+    endlessScores.add(new ScoreEntry("Enduring", 9600, 352, "2025-01-07", "endless")); // 05:52
+    endlessScores.add(new ScoreEntry("Persistent", 7800, 279, "2025-01-06", "endless")); // 04:39
   }
   
   /**

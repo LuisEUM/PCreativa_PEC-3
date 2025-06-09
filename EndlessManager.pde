@@ -1,9 +1,9 @@
 /**
  * Clase EndlessManager
  * 
- * Gestor principal que coordina todos los elementos del estanque de koi para el Modo Endless.
- * Es una copia exacta del WavesManager pero con UI diferente.
- * Implementa el patrón Facade para proporcionar una interfaz simplificada
+ * Gestor principal que coordino para todos los elementos del estanque de koi en el Modo Endless.
+ * He creado una copia del WavesManager pero con UI diferente.
+ * Implemento el patrón Facade para proporcionar una interfaz simplificada
  * al subsistema complejo de gestores y renderizadores.
  */
 class EndlessManager {

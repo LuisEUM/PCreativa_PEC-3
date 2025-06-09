@@ -41,7 +41,7 @@ class ScoresScreen {
    */
   void setupButtons() {
     // Botón de volver
-    backButton = new Button(50, height - 70, 120, 40, "VOLVER");
+    backButton = new Button(600/2 - 120/2, height - 60, 120, 40, "VOLVER");
     backButton.setColors(color(80, 80, 100), color(100, 100, 120), color(255));
     
     // Tabs para cambiar entre modos
@@ -169,7 +169,7 @@ class ScoresScreen {
   void renderScoresPanel() {
     // Panel principal
     float panelWidth = 600;
-    float panelHeight = 400;
+    float panelHeight = 500;
     float panelX = (width - panelWidth) / 2;
     float panelY = 180;
     
